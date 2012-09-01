@@ -14,12 +14,16 @@ if len(sys.argv) < 2:
 	parser.print_help()
 	sys.exit(1)
 
+args = parser.parse_args()
+source_file = args.source_file
+destination = args.destination
+
 # Always ensure destination path ends with a slash
 if not destination.endswith('/'):
 	destination += '/'
 
 # Check if source file exists
-if os.path.isfile(source_file):
+if not os.path.isfile(source_file):
 	print "Error: File " + source_file + " does not exist"
 	sys.exit(1)
 
