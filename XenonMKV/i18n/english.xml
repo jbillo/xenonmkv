@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XenonMKV>
+  <strings>
+    <string id="Application_Loaded">XenonMKV build {0} ({1}) started.</string>
+    <string id="Application_NextItem">Processing next MKV file in queue.</string>
+    <string id="Application_NoMoreItems">No more MKV files in queue to process.</string>
+    
+    <string id="DetermineFileSplit_Required">The selected file will be split. You can change this setting in Tools/Options/File Splitting.</string>
+    <string id="DetermineFileSplit_SizeInfo">{0} is ~{1} MiB.</string>
+
+    <string id="AddFile_Single">Processing file: {0}.</string>
+    <string id="AddFile_FromFolder">Processing file in batch: {0}.</string>
+
+    <string id="StartConvert_File">Starting conversion process for {0}.</string>
+
+    <string id="MKVInfo_Start">Retrieving MKV information.</string>
+    <string id="MKVSplit_Start">Checking whether the MKV file needs to be split.</string>
+    <string id="MKVSplit_UserDeny">{0} will not be split due to user preference.</string>
+    <string id="MKVSplit_FileSize">{0} is ~{1} MiB.</string>
+    <string id="MKVSplit_SplitFilePieces">Splitting file to {0} pieces of ~{1} MiB.</string>
+    <string id="MKVSplit_NoSplitThreshold">Not splitting file, since it is under {0} MiB.</string>
+
+    <string id="MKVSplit_Cutoff_Start">Splitting file and cutting off video at {0} seconds.</string>
+    <string id="MKVSplit_Cutoff_Cancel">[E]Video cutoff process cancelled. Aborting conversion.</string>
+
+    <string id="MKVParse_VideoFPS">Detected a video track with {0} frames per second.</string>
+    <string id="MKVParse_Length">Length of MKV file is ~{0} seconds.</string>
+    <string id="MKVParse_CodecID">Detected video or audio codec: {0}.</string>
+    <string id="MKVParse_TrackDetails">Using track {0} ({1}) for video and track {2} ({3}) for audio.</string>
+    <string id="MKVParse_VideoDimensions">Video dimensions (width x height) are {0} x {1}.</string>
+    <string id="MKVParse_VideoDAR">Video display aspect ratio (DAR) is {0}.</string>
+    <string id="MKVParse_VideoPAR">Video pixel aspect ratio (PAR) is {0}.</string>
+    <string id="MKVParse_VideoPARRoundUp">Rounding up the pixel aspect ratio from {0} to 1:1.</string>
+    <string id="MKVParse_VideoPARRoundDown">Rounding down the pixel aspect ratio from {0} to 1:1.</string>
+    <string id="MKVParse_CustomARSet">Custom display aspect ratio (DAR) of {0} set.</string>
+    <string id="MKVParse_AllTracksAdded">All tracks from MKV file were detected.</string>
+    <string id="MKVParse_MultiMKVSet">This MKV file is part of a split set. Using track selections from the first item.</string>
+    <string id="MKVParse_AutoTrackSel">Automatically selecting video and audio tracks from the MKV file.</string>
+    <string id="MKVParse_MultiAVTracks">This MKV file contains multiple video or audio tracks. Displaying track selection dialog.</string>
+    <string id="MKVParse_SingleAVTrack">This MKV file contains one audio and one video track.</string>
+
+    <string id="MKVExtract_Start">[W]Demuxing the MKV file into video and audio tracks.</string>
+    <string id="MKVMerge_SafeSync">[E]This MKV file appears to have synchronization problems. You may want to try enabling safe synchronization in Tools/Options/Tracks.</string>
+
+    <string id="HexEdit_Success">[A]Changed video bit from AVC 5.1 profile to AVC 4.1 profile.</string>
+
+    <string id="Azid_Start">[W]Starting Azid AC3 decoder to create a WAV file.</string>
+    <string id="FFmpeg_Start">[W]Starting FFmpeg decoder to create a WAV file.</string>
+    <string id="Valdec_Start">[W]Starting AC3Filter/valdec to create a WAV file.</string>
+
+    <string id="mplayer_Start">[W]Using mplayer to create a 2-channel WAV file.</string>
+    <string id="eac3to_Start">[W]Using eac3to, which may take 15-20 minutes without progress. Anything longer and there's been a problem.</string>
+
+    <string id="NeroAAC_Params">Initializing Nero AAC encoder with quality parameters: {0} {1}</string>
+    <string id="NeroAAC_Start">[W]Using Nero to convert WAV to 2-channel AAC. (This might take a while to get started.)</string>
+
+    <string id="MP4Box_Start">[W]Generating MP4 file from x264 video and 2-channel AAC.</string>
+    <string id="MP4Box_Start_044">[W]Using mp4box version 0.4.4 (stable, June 3 2007) to generate file.</string>
+    <string id="MP4Box_Start_default">[W]Using mp4box version 0.4.6 rev2125 (default, Oct 18 2010) to generate file.</string>
+    <string id="MP4Box_Start_20080413">[W]Using mp4box version 0.4.5-dev (April 2008) to generate file.</string>
+    <string id="MP4Tags_Start">[W]Tagging MP4 file with title {0} for Xbox 360 display.</string>
+
+    <string id="Finish_ConversionComplete">[A]Conversion complete.</string>
+    <string id="Finish_ConversionMoveOK">[A]Conversion complete. Your MP4 file has been moved to the destination folder.</string>
+    <string id="Finish_ConversionMoveFail">[E]Conversion complete for {0}, but the file could not be moved from {1}.</string>
+    <string id="Finish_ConversionMoveNA">Conversion complete. Please rename or move output.mp4 from your scratch folder to continue.{\n}{\n}(This message is appearing because you have the Tools / Move Output File option unchecked.)</string>
+    <string id="Finish_ConversionMoveNATitle">Conversion Complete - Move Output File</string>
+
+    <string id="CancelProcess">[E]Cancelled conversion process.</string>
+  </strings>
+
+  <error_strings>
+    <string id="Error_ExceptionFollows">[E]An exception occurred (please report this issue) : </string>
+    <string id="Error_GeneralConversion">[E]Conversion process aborted due to an error.</string>
+    <string id="Error_CreateTempOutputFolder">[E]Could not create temporary output folder {0}. Cancelling conversion.</string>
+    <string id="Error_FileNotFound">[E]File not found for conversion: {0}.</string>
+    <string id="Error_NoAVID">[E]Could not retrieve video or audio track from the MKV file. (A: {0} V: {1})</string>
+    <string id="Error_UnknownCodec">[E]Unrecognized codec {0}.</string>
+    <string id="Error_ProcessStartFNF">[E]Could not find tool to launch: {0}.</string>
+    
+    <string id="Error_ConvertAR">[E]Could not convert the display aspect ratio {0}. Using 1:1 ratio.</string>
+    <string id="Error_ParseAR">[E]An error occurred parsing the display aspect ratio: {0}</string>
+
+    <string id="Error_ReferenceFramesExceeded">[E]This video file will not be compatible with the Xbox 360 as it contains too many reference frames. Cancelling conversion.</string>
+    <string id="Warning_ReferenceFramesExceeded">[W]This video file will not be compatible with the Xbox 360 as it contains too many reference frames. Continuing conversion.</string>
+
+    <string id="Error_TrackSelCancel">[E]Track selection cancelled.</string>
+
+    <string id="Error_HexEditFail">[E]Could not properly hex edit the video file. Video extraction is likely incomplete.</string>
+    <string id="Error_HexEditFNF">[E]The extracted video file was not found.</string>
+    <string id="Error_HexEditAccess">[E]The extracted video file could not be accessed.</string>
+    <string id="Error_HexEditIO">[E]The extracted video file could not be written to. Details follow: </string>
+
+    <string id="Error_EAC3To_Fail">[E]EAC3To did not convert the audio properly.</string>
+    <string id="Error_FFmpeg_Fail">[E]FFmpeg did not convert the audio properly.</string>
+    <string id="Error_EAC3To_Nero7">[E]The fallback eac3to utility requires a full Nero 7 installation. Could not convert audio.</string>
+    <string id="Error_AudioFallback">[E]The conversion process did not produce any audio. Falling back to eac3to.</string>
+    <string id="Error_mplayer_AudioFallback">[E]mplayer could not read the audio file properly. Falling back to eac3to.</string>
+
+    <string id="Error_MP4Box_VideoFNE">[E]The video does not exist in the scratch folder. This may be a bug in XenonMKV. Please report this issue.</string>
+
+    <string id="Error_MP4Box_Fail">[W]mp4box has failed to convert your files. Falling back to version 0.4.4 to run conversion.</string>
+    <string id="Error_MP4Box_Fail2">[E]mp4box version 0.4.4 has failed to convert your file. Please view log_output.txt in the XenonMKV directory for details, and report this issue to the support forums.</string>
+
+    <string id="Error_InputFileInvalid">Please select a valid MKV file to convert.</string>
+    <string id="Error_InputFolderInvalid">Please select a valid folder to convert from.</string>
+    <string id="Error_OutputFolderNetwork">Input and output locations must be located on a local disk or mapped network drive.</string>
+    <string id="Error_OutputFolderInvalid">Please specify a valid output folder.</string>
+    <string id="Error_FreeSpaceOutput">Not enough space on drive {0} to convert file. (Three times its size needs to be free.)</string>
+    <string id="Error_FreeSpaceScratch">Not enough space in scratch folder on drive {0} to convert file. (Three times its size needs to be free.)</string>
+    <string id="Error_InvalidScratch">No scratch folder set. Temporary files will be stored in {0}. Use Tools/Options to change.</string>
+
+    <string id="Error_DTSDecodeSync">A possible sync error occurred when decoding DTS audio. Please verify the source and output files.</string>
+
+    <string id="Error_NoAudioCodec">Audio codec could not be detected. This may be a bug in XenonMKV. Please report this issue.</string>
+  </error_strings>
+
+  <options_strings>
+    <string id="ScratchFolder_Network">The selected scratch folder is a network location. This will unreasonably reduce XenonMKV performance.
+    {\n}Please select another scratch folder or use the default setting.</string>
+    <string id="ScratchFolder_Network_Title">Network Location Selected</string>
+    <string id="ScratchFolder_NotExist">The selected scratch folder does not exist.</string>
+    <string id="ScratchFolder_NotExist_Title">Invalid Scratch Folder</string>
+    <string id="ScratchFolder_NotWritable">The selected scratch folder cannot be written to.</string>
+    <string id="ScratchFolder_NotWritable_Title">Invalid Scratch Folder</string>
+  </options_strings>
+
+  <ui_strings>
+    <string id="UI_Title">XenonMKV build {0} ({1})</string>
+    
+    <string id="UI_About_Title">About XenonMKV</string>
+    <string id="UI_About_DevCredits">XenonMKV is developed by Jake Billo, Bill Robertson, and other community contributors.</string>
+    <string id="UI_About_CreditIcons">Some icons used under Creative Commons Attribution License from famfamfam.com.</string>
+    <string id="UI_About_CreditLinkText">Visit site</string>
+    <string id="UI_About_GPL">This program is made available under the GNU GPL 2.0. Please view README.txt and gpl.txt for more details.</string>
+    <string id="UI_About_CloseButton">Close</string>
+
+    <string id="UI_TimeSplit_OKNoSplit">Don't Split</string>
+    <string id="UI_TimeSplit_OK">OK</string>
+
+    <string id="UI_SelTrack_Title">Select Video and Audio Tracks</string>
+    
+    <string id="UI_SourceFolder">Input folder: </string>
+    <string id="UI_SourceSingle">Single MKV file: </string>
+
+    <string id="UI_ConvertSingle">Convert single file</string>
+    <string id="UI_ConvertFolder">Convert a folder</string>
+
+    <string id="UI_OutputFolderBrowser_Desc">Select the folder to place the converted MP4 file(s).</string>
+    <string id="UI_InputFolderBrowser_Desc">Select the folder to read the original MKV file(s) from.</string>
+    <string id="UI_InputFileBrowser_Filter">MKV Files (*.mkv)|*.mkv</string>
+
+    <string id="UI_ToolsMenu">Tools</string>
+    <string id="UI_Tools_MKVInformation">MKV Information</string>
+    <string id="UI_Tools_MKVInformation_Error">Please select a single, valid MKV file before choosing this option.</string>
+    <string id="UI_Tools_EnableMP4Playback">Enable .mp4 in Media Player</string>
+    <string id="UI_Tools_Options">Options</string>
+
+    <string id="UI_HelpMenu">Help</string>
+    <string id="UI_Help_Website">Website</string>
+    <string id="UI_Help_Forum">Forum</string>
+    <string id="UI_Help_About">About</string>
+
+    <string id="UI_ShowToolOutput">Log all tool output</string>
+    <string id="UI_ScrollLog">Scroll log</string>
+
+    <string id="UI_CancelProcessButton">Cancel</string>
+    <string id="UI_StartRecodeButton">Start</string>
+
+    <string id="UI_MP4SupportAgain">MP4 support already appears to be enabled. Run the support registry patch again?</string>
+    <string id="UI_MP4SupportAgain_Title">Reapply MP4 Registry Patch?</string>
+    <string id="UI_MP4SupportSuccess">MP4 playback is now enabled in Windows Media Player.</string>
+    <string id="UI_MP4SupportSuccess_Title">MP4 Playback Enabled</string>
+
+    <string id="UI_ProvideARDesc">The display aspect ratio (DAR) for this file was detected as {0}. You can override this value if needed.</string>
+    <string id="UI_CustomAR_Fail">The display aspect ratio provided ({0}) was invalid. Please enter a decimal number or ratio such as 16:9.</string>
+    <string id="UI_CustomAR_FailTitle">Invalid Display Aspect Ratio</string>
+
+    <string id="UI_Tray_Title">XenonMKV</string>
+    <string id="UI_Tray_Success">All MKV files have been converted.</string>
+
+    <string id="UI_Options_RestartApp">You will need to restart XenonMKV for your changes to take effect.</string>
+    
+    <string id="UI_Options_TargetBitrateNonNumeric">Only numeric values are allowed for target bitrates.</string>
+    <string id="UI_Options_TargetBitrateNonNumericTitle">Numeric Value Required</string>
+
+    <string id="UI_Options_ScratchFolderNotExist">The scratch folder specified does not exist or is not writable. The scratch folder will be reset to the default location.</string>
+    <string id="UI_Options_ScratchFolderNoUNC">You cannot use a network path for the scratch folder. The scratch folder will be reset to the default location.</string>
+
+    <string id="ToolTip_PreviewMedia_1">Preview the selected media file in the default player.</string>
+    <string id="ToolTip_PreviewMedia_M">Open the selected media folder.</string>
+    <string id="ToolTip_BrowseOutputFolder">Browse for an output folder for the MP4 files.</string>
+    <string id="ToolTip_BrowseInputSource">Browse for an MKV file or folder containing MKV files.</string>
+    <string id="ToolTip_ViewOutputFolder">View the contents of the selected output folder.</string>
+
+    <string id="Info_AzidDRC">This option sets the overall dynamic compression in the decoder. This value is applied to every output speaker.
+    
+The bitstream contains information of how much to amplify or attenuate the sound to decrease the overall dynamic variations (loudness) in the program contents. 
+
+Different options exists to choose the wanted dynamic reduction:
+
+
+o none     No dynamic compression. The program contents is unchanged.
+
+o normal   Normal dynamic compression. Normal in-store decoders use this as an hardcoded default.
+
+o light    Light dynamic compression. This is 50% (-6db) of the reduction/gain that normal dynamic compression would give.
+
+o heavy    Heavy dynamic compression. Intended for poor listening environment with much background noise.
+
+o inverse  Dynamic expansion. This is the inverse value of the light dynamic compression, i.e. it makes strong sounds stronger and weaker sounds weaker.</string>
+    <string id="Info_AzidRearFilter">This option controls rear-channel filtering in 2/0 output mode. The
+      filter is a 2nd order Butterworth filter with at -3 dB point at 7
+      kHz. There are two major applications for this feature:
+
+      o To provide proper Pro Logic downmix of the rear channels
+
+      o Phasing-problems in the downmix (washy sound) caused by the rear
+      channel downmix into the L R channels.
+
+      Usually the rear channels are phased 90 deg in respect of the front
+      channels prior or inside the ac3 encoder. This is done to avoid
+      phasing problems when downmixing the program contents to two
+      channels. Some sources do not provide this shifting, and thus this
+      feature is added.
+
+      The filter provides an increasing phase shift according to
+      frequency. It is 90 deg at 7kHz.</string>
+    <string id="Info_AzidDialogNormalization">
+      This selects if the decoder should use dialog normalization
+      reduction. The normal dialogue level in a program is defined a
+      reference of loudness, 0db.  The BSI info variable "dialogue level"
+      informs how much this dialogue level is under 0db full-scale (FS) - or
+      how much headroom there is above the dialogue level before clip.
+
+      One of Dolby's intentions with this variable is to ensure that all
+      dialogue levels are played back with the same volume, regardless of
+      the program's amount of headroom. It is good to have when the movie
+      you're looking at is interrupted by a commercial break, where the
+      headroom varies enormously.  (It prevents blowing your ears off when
+      the break comes.)
+
+      This feature is implemented by attenuate everything such that all
+      programs have 31 db headroom, regardless of its original headroom. For
+      a typical -27db headroom program, this will case a -4db gain.
+    </string>
+    <string id="Info_AzidStereoDownmix">
+      When 2/0 decoding is selected, this option controls what kind of
+      stereo downmix should be applied. Possible values are:
+
+      o mono. Used for mono downmixes
+
+      o stereo. Standard stereo downmix
+
+      o dpl (default). Dolby Pro Logic downmix is selected
+
+      o dplii. The new Dolby Pro Logic II downmix is selected
+    </string>
+    
+  </ui_strings>
+
+  <update_strings>
+    <string id="Update_Failed">XenonMKV could not check for updates. Please ensure you are connected to the Internet. The XenonMKV site may also be down; in this case, please try again later.</string>
+    <string id="Update_Failed_Title">Update Process Unsuccessful</string>
+
+    <string id="Update_Available">An update to XenonMKV is available. The new version is {0} and you are currently running version {1}. Would you like to download the new version?</string>
+    <string id="Update_Available_Title">Update Available</string>
+
+    <string id="Update_NotAvailable">No updates to XenonMKV are available. (The latest public release is version {0} and you are currently running version {1}.){\n} Please check back at a later date.</string>
+    <string id="Update_NotAvailable_Title">No Update Available</string>
+  </update_strings>
+
+  <debug_strings>
+    <string id="DEBUG_FileNotFound">(FileNotFoundException) File not found: {0}. Please report this error at the XenonMKV forum.
+    
+    In the meantime, you can try unchecking the Tools / Move Final File option and rerunning the conversion, then moving output.mp4 from your scratch folder manually.</string>
+    <string id="DEBUG_InvalidPath">(ArgumentException) Invalid path to file: {0}. Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_NullPath">(ArgumentNullException) Path or destination is blank: {0} Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_IOException">(IOException) I/O error accessing or moving file: {0}{\n}{1} Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_NotSupported">(NotSupportedException) Invalid path format: {0} Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_Cancelled">(OperationCancelledException) Operation cancelled by user. Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_Security">(SecurityException) User does not have permissions to view path: {0}{\n}{1} Please report this error at the XenonMKV forum.</string>
+    <string id="DEBUG_Unauthorized">(UnauthorizedAccessException) User does not have access to view path: {0}{\n}{1} Please report this error at the XenonMKV forum.</string>
+  </debug_strings>
+</XenonMKV>

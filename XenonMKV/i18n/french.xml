@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XenonMKV>
+  <strings>
+    <string id="Application_Loaded">XenonMKV build {0} démarré.</string>
+    <string id="Application_NextItem">Traitement du prochain fichier MKV dans la liste.</string>
+    <string id="Application_NoMoreItems">Aucun fichier MKV en attente de traitement.</string>
+    
+    <string id="DetermineFileSplit_Required">Le fichier sélectionné sera découpé. Vous pouvez modifier ce paramétre dans  Tools/Options/File Splitting.</string>
+    <string id="DetermineFileSplit_SizeInfo">{0} fait ~{1} MiB.</string>
+
+    <string id="AddFile_Single">Traitement du fichier: {0}.</string>
+    <string id="AddFile_FromFolder">Traitement du fichier programmé: {0}.</string>
+
+    <string id="StartConvert_File">Démarrage de la convertion de {0}.</string>
+
+    <string id="MKVInfo_Start">Récupération des informations MKV.</string>
+    <string id="MKVSplit_Start">Vérification si le fichier MKV doit étre découpé.</string>
+    <string id="MKVSplit_UserDeny">{0} ne sera pas découpé suite au choix de l'utilisateur.</string>
+    <string id="MKVSplit_FileSize">{0} fait ~{1} MiB.</string>
+    <string id="MKVSplit_SplitFilePieces">Découpage du fichier en {0} morceaux de ~{1}MiB.</string>
+    <string id="MKVSplit_NoSplitThreshold">Pas de découpe du fichier, puisqu'il est en dessou de {0}MiB.</string>
+    <string id="MKVParse_VideoFPS">Piste vidéo détectée avec {0} images par seconde.</string>
+    <string id="MKVParse_Length">La longueur du fichier MKV fait ~{0} secondes.</string>
+    <string id="MKVParse_AudioCodecID">Filtre audio détecté: {0}.</string>
+    <string id="MKVParse_TrackDetails">Utilisation de la piste {0} pour la vidéo et de la piste {1} ({2}) pour l'audio.</string>
+    <string id="MKVExtract_Start">Extraction des pistes vidéo et audio du fichier MKV.</string>
+
+    <string id="HexEdit_Success">Changement des données audio du 5.1 au 4.1 surround.</string>
+
+    <string id="Azid_Start">Démarrage du décodeur Azid AC3 pour créer un fichier WAV.</string>
+    <string id="FFmpeg_Start">Démarrage du décodeur FFmpeg pour créer un fichier WAV.</string>
+
+    <string id="mplayer_Start">Utilisation de mplayer pour créer un fichier WAV avec 2 canaux.</string>
+    <string id="eac3to_Start">Utilisation de eac3to, qui peut prendre 15-20 minutes sans progresser. Si cela dure plus longtemps, c'est qu'il y a un probléme.</string>
+
+    <string id="NeroAAC_Start">Utilisation de Nero pour convertir le WAV en un AAC é 2 canaux. (Cela peut prendre du temps é démarrer.)</string>
+
+    <string id="MP4Box_Start">Création d'un fichier MP4 avec la vidéo x264 et le AAC 2 canaux.</string>
+
+    <string id="Finish_ConversionComplete">Convertion compléte pour {0}.</string>
+    <string id="Finish_ConversionMoveFail">Convertion compléte pour {0}, mais le fichier n'a pu étre déplacé de {1}.</string>
+
+    <string id="CancelProcess">Processus de convertion annulé.</string>
+  </strings>
+
+  <error_strings>
+    <string id="Error_GeneralConversion">Processus de convertion annulé é cause d'une erreur.</string>
+    <string id="Error_CreateTempOutputFolder">Impossible de créer le dossier temporaire en sortie {0}. Abandon de la convertion.</string>
+    <string id="Error_FileNotFound">Fichier non trouvé pour la convertion: {0}.</string>
+    <string id="Error_NoAVID">Impossible d'identifier les pistes vidéo/audio du fichier MKV.</string>
+    <string id="Error_UnknownAudioCodec">Format audio non reconnu {0}.</string>
+    <string id="Error_HexEditFail">Impossible de modifier binairement le fichier vidéo. L'extraction video est surement incompléte.</string>
+    <string id="Error_EAC3To_Fail">EAC3To n'a pas converti l'audio correctement.</string>
+    <string id="Error_FFmpeg_Fail">FFmpeg n'a pas converti l'audio correctement.</string>
+    <string id="Error_EAC3To_Nero7">L'utilitaire eac3to a besoin de Nero 7. Impossible de convertir l'audio.</string>
+    <string id="Error_AudioFallback">Le processus de convertion n'a créé aucun fichier audio. Retour é eac3to.</string>    
+    <string id="Error_mplayer_AudioFallback">mplayer ne peut pas lire correctement le fichier audio. Retour é eac3to.</string>
+
+    <string id="Error_InputFileInvalid">Merci de choisir un fichier MKV valide é convertir.</string>
+    <string id="Error_InputFolderInvalid">Merci de choisir un dossier valide é convertir.</string>
+    <string id="Error_OutputFolderNetwork">Les chemins d'entrée et de destination doivent d'étre sur un disque local ou un disque réseau.</string>
+    <string id="Error_OutputFolderInvalid">Merci de choisir un dossier de destination valide.</string>
+    <string id="Error_FreeSpaceOutput">Il n'y a pas assez d'espace sur le disque {0} pour convertir le fichier.</string>
+    <string id="Error_FreeSpaceScratch">Il n'y a pas assez d'espace dans le dossier temporaire du disque {0} pour convertir le fichier.</string>
+  </error_strings>
+
+  <options_strings>
+    <string id="ScratchFolder_Network">Le dossier temporaire sélectionné est un emplacement réseau. Cela va grandement réduire les performances de XenonMKV.
+    {\n}Merci de choisir un autre dossier temporaire ou utilisez le paramétre par défaut.</string>
+    <string id="ScratchFolder_Network_Title">Emplacement réseau sélectionné</string>
+    <string id="ScratchFolder_NotExist">Le dossier temporaire sélectionné n'existe pas.</string>
+    <string id="ScratchFolder_NotExist_Title">Dossier temporaire invalide</string>
+    <string id="ScratchFolder_NotWritable">Le dossier temporaire sélectionné ne peut étre écrit.</string>
+    <string id="ScratchFolder_NotWritable_Title">Dossier temporaire invalide</string>
+  </options_strings>
+
+  <ui_strings>
+    <string id="UI_SourceFolder">Dossier source: </string>
+    <string id="UI_SourceSingle">Fichier unique: </string>
+
+    <string id="UI_MP4SupportAgain">Le support MP4 est déjé activé. Lancer le patch registre de nouveau ?</string>
+    <string id="UI_MP4SupportAgain_Title">Réappliquer le patch registre MP4 ?</string>
+    <string id="UI_MP4SupportSuccess">La lecture MP4 est maintenant activée dans Windows Media Player.</string>
+    <string id="UI_MP4SupportSuccess_Title">Lecture MP4 activée</string>
+
+    <string id="UI_Tray_Title">XenonMKV</string>
+    <string id="UI_Tray_Success">Tous les fichiers MKV ont été convertis.</string>
+  </ui_strings>
+</XenonMKV>

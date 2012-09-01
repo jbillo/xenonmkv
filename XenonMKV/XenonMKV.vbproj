@@ -1,0 +1,581 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{33B1AA09-66BF-43DA-A7B4-804927DDBEF2}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>XenonMKV.My.MyApplication</StartupObject>
+    <RootNamespace>XenonMKV</RootNamespace>
+    <AssemblyName>XenonMKV</AssemblyName>
+    <MyType>WindowsForms</MyType>
+    <ManifestCertificateThumbprint>09F57A75D3547F9907A6285D89EC930BE1B92520</ManifestCertificateThumbprint>
+    <ManifestKeyFile>XenonMKV_TemporaryKey.pfx</ManifestKeyFile>
+    <GenerateManifests>true</GenerateManifests>
+    <SignManifests>false</SignManifests>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>C:\Users\Will\Desktop\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>false</MapFileExtensions>
+    <SupportUrl>http://xenonmkv.sourceforge.net/forum/</SupportUrl>
+    <ProductName>XenonMKV</ProductName>
+    <PublisherName>XenonMKV Team</PublisherName>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>39</ApplicationRevision>
+    <ApplicationVersion>0.0.0.39</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>XenonMKV.xml</DocumentationFile>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42030,42032,42036,42104,42108,42109,42353,42354,42355</NoWarn>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>XenonMKV.xml</DocumentationFile>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42030,42032,42036,42104,42108,42109,42353,42354,42355</NoWarn>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\TrayIcon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.4.369, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Visual Studio 2005\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="About.Designer.vb">
+      <DependentUpon>About.vb</DependentUpon>
+    </Compile>
+    <Compile Include="About.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ApplicationEvents.vb" />
+    <Compile Include="AudioTrack.vb" />
+    <Compile Include="Compression.vb" />
+    <Compile Include="Constants.vb" />
+    <Compile Include="ConvertItem.vb" />
+    <Compile Include="FSHelper.vb" />
+    <Compile Include="MainCycle.vb" />
+    <Compile Include="MainUI.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainUI.Designer.vb">
+      <DependentUpon>MainUI.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="OptionsDialog.Designer.vb">
+      <DependentUpon>OptionsDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RetrieveTools.vb" />
+    <Compile Include="SelectTime.Designer.vb">
+      <DependentUpon>SelectTime.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SelectTime.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectTrack.Designer.vb">
+      <DependentUpon>SelectTrack.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SelectTrack.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SetAspectRatio.Designer.vb">
+      <DependentUpon>SetAspectRatio.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SetAspectRatio.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.vb" />
+    <Compile Include="StringExtract.vb" />
+    <Compile Include="Track.vb" />
+    <Compile Include="UIEvents.vb" />
+    <Compile Include="Validate.vb" />
+    <Compile Include="VideoTrack.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MainUI.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainUI.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="My Project\app.manifest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tools\mkvinfo.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tools\mkvextract.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tools\libcurl-4.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\wxmsw28u_adv_gcc_custom.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\wxmsw28u_core_gcc_custom.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\wxmsw28u_html_gcc_custom.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\zlib1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="About.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>About.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OptionsDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>OptionsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SelectTime.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SelectTime.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SelectTrack.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SelectTrack.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SetAspectRatio.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SetAspectRatio.vb</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="tools\mkvmerge.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\cygz.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\libcharset.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\libebml.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\libiconv.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\libmatroska.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\MKVtoolnix.url">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\AUTHORS">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\Changelog">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\Copyright">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\fonts\conf.avail\10-autohint.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-no-sub-pixel.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-sub-pixel-bgr.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-sub-pixel-rgb.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-sub-pixel-vbgr.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-sub-pixel-vrgb.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\10-unhinted.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\20-fix-globaladvance.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\20-unhint-small-vera.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\25-unhint-nonlatin.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\30-metric-aliases.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\30-urw-aliases.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\40-nonlatin.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\45-latin.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\49-sansserif.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\50-user.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\51-local.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\60-latin.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\65-fonts-persian.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\65-khmer.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\65-nonlatin.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\69-unifont.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\70-no-bitmaps.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\70-yes-bitmaps.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\80-delicious.conf" />
+    <None Include="tools\mplayer\fonts\conf.avail\90-synthetic.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\20-fix-globaladvance.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\20-unhint-small-vera.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\30-metric-aliases.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\30-urw-aliases.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\40-nonlatin.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\45-latin.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\49-sansserif.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\50-user.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\51-local.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\60-latin.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\65-fonts-persian.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\65-nonlatin.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\69-unifont.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\80-delicious.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\90-synthetic.conf" />
+    <None Include="tools\mplayer\fonts\conf.d\README" />
+    <None Include="tools\mplayer\fonts\fonts.conf" />
+    <None Include="tools\mplayer\fonts\fonts.dtd" />
+    <None Include="tools\mplayer\LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\codecs.conf" />
+    <None Include="tools\mplayer\mplayer\config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\fonts.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\font.desc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\iso-8859-1-a.raw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\iso-8859-1-b.raw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\osd-mplayer-a.raw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\osd-mplayer-b.raw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\font\PUT_BITMAP_FONTS_HERE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mplayer\mplayer\input.conf" />
+    <None Include="tools\mplayer\mplayer\subfont.ttf" />
+    <None Include="tools\mplayer\README">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\pcrecpp.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\v7-WMP11-MP4-M2TS-M4V-M4A-x64.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\v7-WMP11-MP4-M2TS-M4V-M4A.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="changelog.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="gpl.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="i18n\english.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="i18n\french.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\folder_explore.png" />
+    <None Include="Resources\error.png" />
+    <None Include="Resources\accept.png" />
+    <None Include="Resources\Icon1.ico" />
+    <None Include="Resources\ICSharpCode.SharpZipLib.dll" />
+    <None Include="Resources\stop.png" />
+    <None Include="Resources\monitor.png" />
+    <None Include="Resources\Image1.bmp" />
+    <None Include="Resources\cog.png" />
+    <Content Include="Resources\tag_green.png" />
+    <None Include="Resources\TrayIcon.ico" />
+    <None Include="Resources\zoom.png" />
+    <Content Include="tools\ac3filter\ac3enc.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\bsconvert.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\changes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\cpu_meter.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\equalizer.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\filter.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\gain.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\GPL.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\mpeg_demux.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\noise.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\resample.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\spdifer.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\swab.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\valdec.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\ac3filter\wavdiff.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\azid\azid.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\azid\azid.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\azid\azid_P3.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\azid\azid_P4.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\FFmpeg\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\FFmpeg\ffplay.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\FFmpeg\ffprobe.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\FFmpeg\pthreadGC2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="tools\libiconv-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\libintl-8.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\magic1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="tools\mediainfo\MediaInfo.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mediainfo\MediaInfo.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mingwm10.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="tools\MKVextractGUI.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mkvpropedit.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mkxuncat.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\mmg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="tools\mp4box\js32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mp4box\libgpac.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mp4box\MP4Box_default.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mp4box\MP4Box_044.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mp4box\MP4Box_20080413.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="tools\mp4tags.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="tools\mplayer\dsnative.dll" />
+    <Content Include="tools\mplayer\fc-cache.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\libexpat-1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\libfontconfig-1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\libfreetype-6.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\libiconv-2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\LICENSE.txt" />
+    <Content Include="tools\mplayer\mencoder.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\mplayer.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tools\mplayer\mplayer.html" />
+    <Content Include="tools\mplayer\README.txt" />
+    <Content Include="tools\mplayer\vfw2menc.exe" />
+    <None Include="tools\regex2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\wxbase28u_gcc_custom.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Release\" />
+    <Folder Include="obj\Release\" />
+    <Folder Include="temp\" />
+    <Folder Include="tools\mplayer\codecs\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,30 @@
+v0.31b - 01.10.2009
+  Bugfix release
+  ! Cannot read WAV files in some cases
+  ! Default bitrate at ac3enc fixed
+  ! Use WAVE_FORMAT_EXTENSIBLE for multichannel WAV files
+
+v0.3b - 04.08.2009
+  * Use AC3Filter 1.62 code. This includes an updated equalizer, precise PCM passthrough, etc.
+  + x64 build
+  + Large files >2Gb support
+  + RF64 WAV files support (thanks to Serge Dyomin)
+  + cpu_meter - measure the CPU time used by a program
+  + noise: seed option
+  + filter: dither option
+  * filter: corect output file size
+  * noise: correctly makes large files
+
+
+v0.2a
+  + Equalizer tool - graphic equalizer
+  + Filter tool - parametric filter
+  + Gain tool - amplify/fade
+  + Resample tool - sample rate conversion
+  + WAVDiff - measure the difference between audio files
+  * New options & some bugs fixes
+  * Built on AC3Filter 1.50a code base
+
+v0.1a - 17.08.2007
+  * Initial release
+  * Built on AC3Filter 1.46 code base

@@ -1,0 +1,652 @@
+[2011-03-01: REVISION 39 - "war59312"]
+
+[FIXED] mp4box now uses a Oct 18, 2010 development build by default, 0.4.6 rev2125. (http://www.videohelp.com/tools/mp4box)
+
+NOTE: MP4Box v0.4.6 rev. 2698 dated 21 Feb 2011 and MP4Box v0.4.6 rev. 2485 dated 14 Dec 2010 have a bug that breaks x264
+
+[CHANGED] CopyRight Updated to 2011
+
+[UPDATED] MKVToolnix v4.5.0 dated 31 Jan 2011 (http://www.bunkus.org/videotools/mkvtoolnix/)
+
+[UPDATED] FFmpeg version SVN-r26400 dated Jan 17 2011 (Last Windows 32-bit static build from http://ffmpeg.arrozcru.org/autobuilds/)
+
+[UPDATED] MPlayer/MEncoder with FFmpeg MT svn rev 32848 - "Intel Pentium 4 or better Multi Core (core2/xeon/etc)" Build (http://oss.netfarm.it/mplayer-win32.php)
+
+[2010-12-16: REVISION 38 - "war59312"]
+
+[FIXED] mkvinfo.exe was broken in build 37 (http://xenonmkv.ev98.net/forum/index.php/topic,1886.0.html)
+
+[UPDATED] MKVToolnix v4.4.0 dated 02 Nov 2010 (http://www.bunkus.org/videotools/mkvtoolnix/)
+
+[UPDATED] English Language File, Also Fixed A Typo In English.xml: "MP4Box_Start_20080403" should be "MP4Box_Start_20080413", That's April 13 instead of April 3rd.
+
+[UPDATED] mp4box now uses a December 14, 2010 development build by default, 0.4.6 rev2485. (http://www.videohelp.com/tools/mp4box), Changed Tools > Options > Last Steps Text To: "Use 0.4.6: December 14, 2010 build (default)"
+
+[2010-10-16: REVISION 37 - "war59312"]
+
+[FIXED] another mp4box framerate issue. Mentioned here:
+	http://xenonmkv.ev98.net/forum/index.php/topic,164.msg3054.html#msg3054
+
+[FIXED] mkvinfo framerate issue. Mentioned here:
+	http://xenonmkv.ev98.net/forum/index.php/topic,164.msg3135.html#msg3135
+
+[CHANGED] "Log all tool output" is now enabled by default to help in debugging.
+
+[CHANGED] Win32 build built using Visual Studio 2010 on Windows 7 x64, Also fixed compile time warning about unused variable and an error with mt.exe.
+
+[CHANGED] No longer need the Manifest file for UAC to work correctly since being buit with VS 2010, it creates its own Manifest file.
+
+[CHANGED] CopyRight Updated to 2010
+
+[CHANGED] Open About and Options windows centered screen instead of top left.
+
+[UPDATED] The first time the user runs XenonMKV it offers to automaticlly download and install the Nero AAC Encoder (neroaac.zip).
+          XenonMKV was downloading a very old build of Nero AAC Encoder version 1.3.3.0 dated Sep 17 2008.
+          XenonMKV now downlaods the latest version of Nero AAC Encoder build 1.5.4.0 dated Feb 18 2010.
+
+[UPDATED] MKVToolnix v4.3.0 dated 05 Sep 2010 (http://www.bunkus.org/videotools/mkvtoolnix/)
+
+[UPDATED] #ziplib version 0.86.0, built on 2010/05/25 (http://www.icsharpcode.net/opensource/sharpziplib/Download.aspx)
+
+[UPDATED] mp4box now uses a Sep 30 2010 development build by default, 0.4.6-dev. (http://www.videohelp.com/tools/mp4box)
+
+[UPDATED] MediaInfo v0.7.6.4 dated 2008-05-05 (note: latest useable build due to a bug that causes "Exception fired: attempted to divide by zero" in XenonMKV)
+          Downloaded from https://sourceforge.net/projects/mediainfo/files/binary/mediainfo/0.7.06.4/
+
+[UPDATED] FFmpeg version SVN-r25478 dated Oct 15 2010 (Download latest Windows 32-bit static build at http://ffmpeg.arrozcru.org/autobuilds/)
+
+[UPDATED] AC3Filter tools 0.31b dated 10/01/2009 (http://ac3filter.net/projects/tools/releases)
+
+[UPDATED] MPlayer/MEncoder with FFmpeg MT svn rev 32492 - "Intel Pentium 4 or better Multi Core (core2/xeon/etc)" Build (http://oss.netfarm.it/mplayer-win32.php)
+
+[ADDED] Use system tray icon for main exe icon
+
+[2009-03-30: REVISION 36 - "Tweaktown"]
+
+[FIXED] mp4box framerate issues. Mentioned in this thread:
+	http://xenonmkv.ev98.net/forum/index.php/topic,164.15.html
+
+[UPDATED] mp4box now uses a February 2009 development build by default, 0.4.6-dev.
+
+[2008-11-23: REVISION 35 - "New MKV Experience"]
+
+[FIXED] Scratch folder location now more restrictive and resilient. If any problems come up, XenonMKV now takes the safe route.
+	http://xenonmkv.ev98.net/forum/index.php/topic,189.0.html
+	http://xenonmkv.ev98.net/forum/index.php/topic,173.0.html
+	and similar threads
+
+[ADDED] Option to output file names in all uppercase for LaCie drives:
+	http://xenonmkv.ev98.net/forum/index.php/topic,50.msg1119.html#msg1119
+
+[ADDED] Options button now more prominent in main window:
+	http://xenonmkv.ev98.net/forum/index.php/topic,50.msg1024.html#msg1024
+
+[ADDED] Remember window size and position when exiting application:
+	http://xenonmkv.ev98.net/forum/index.php/topic,179.0.html
+	Limitation: Position saving may not work as expected on leftmost or topmost monitors from primary in multi-monitor setups.
+	When set to a negative top or left position in pixels, the window will snap back to default settings.
+	No workaround possible at this time. Requires further testing.
+
+[ADDED] Detection of file compatibility/reference frames before video is split.
+	Limitation: if the file has multiple video tracks of different sizes, this may falsely flag a video.
+	The initial detection takes the first track that contains a width/height parameter in the original MKV.
+	Workaround: Disable reference frame/Xbox 360 compatibility check.
+	http://xenonmkv.ev98.net/forum/index.php/topic,181.0.html
+
+[FIXED] Custom split timeline and text box now synchronized.
+	http://xenonmkv.ev98.net/forum/index.php/topic,178.0.html
+
+[ADDED] Better error logging if the tool requested for a launch does not exist.
+
+[ADDED] Command line support for scripting. Parameters are:
+	XenonMKV.exe -inputfile X:\path\to\input.mkv -outputfolder X:\output\
+	XenonMKV.exe -inputfolder X:\path\mkvs\ -outputfolder X:\output\
+	Limitation: Support for this hasn't been tested too heavily. Console output isn't quite there yet.
+	It will probably brick itself if you try anything too fancy or use these commands out of order.
+
+[OUTSTANDING ISSUES]
+	http://xenonmkv.ev98.net/forum/index.php/topic,158.0.html
+	Track ordering: track 2 video, track 1 audio needs further investigation
+
+[2008-09-27: REVISION 34 - "Delicious Pie"]
+
+[FIXED] Changed Nero AAC encoder extraction routine to work properly with new encoder.
+	Thanks to everyone on the forums who helped with this, especially DWells55 in this post:
+	http://xenonmkv.ev98.net/forum/index.php/topic,167.msg987.html#msg987
+
+[CHANGED] Removed SSE encoder options since the AAC encoder automatically detects this condition.
+
+[CHANGED] Enforced a "temp" directory if a user selects the root of a drive for a scratch folder.
+	Thanks to RadioHowie from the forums for this report.
+
+[CHANGED] Convert Folder UI now properly enables the Start button once a valid folder is selected.
+	Thanks to Dangelus and RadioHowie from the forums for investigating.
+
+[2008-08-23: REVISION 33 - "Delicious Cake"]
+
+[FIXED] Conversions from strings to doubles should now be more appropriate. Bug 2071837.
+
+[FIXED] Changed UI control text in XML file to 'log all tool output'.
+
+[ADDED] More information displayed when the video pixel aspect ratio (PAR) is rounded up or down.
+
+[ADDED] Custom display aspect ratio selector for files. Feature req 2072032.
+
+[FIXED] Fixed pixel aspect ratio rounding code to be more effective and less likely to round inappropriately.
+
+[FIXED] Manual track selection is much improved and should now always pick the correct codec string. Bug 2072083.
+
+[ADDED] A_MS/ACM untagged audio is now recognized as MP3, which appears to be the most common format for this type. Feature req 2072095.
+
+[FIXED] Audio and video tracks set to -1 will not display a message if an operation is cancelled.
+
+[ADDED] Video dimensions now logged for troubleshooting purposes.
+
+[FIXED] Clarified display aspect ratio versus frame size/video aspect ratio. (Read this post for details: http://forum.videohelp.com/topic174200.html)
+
+[FIXED] Allow Network Path now set as default setting and box appears checked on application reload if set.
+
+[FIXED] Updated Web URL and 404 error support in Help > Check for Update.
+
+[FIXED] Some string updates to english.xml.
+
+[2008-07-22: REVISION 32 - "The Arrow"]
+
+[ADDED] Additional logging for each process that is threaded off.
+
+[FIXED] mp4box version 0.4.5/April build now displays a proper launch message.
+
+[ADDED] A_MPEG/L3 file support added with an ".mp3" file extension.
+
+[ADDED] Error handling for aspect ratio parsing process ("divide by zero" error.)
+
+[FIXED] Added default FPS insertion in the event the FPS could not be parsed.
+
+[FIXED] Changed handling of track identifiers. Tracks are now globally managed.
+
+[FIXED] Video codec is now detected properly when track selection dialog box appears.
+
+[ADDED] Check for update option in Help > Check for Update.
+
+[2008-07-06: REVISION 31 - "Jump to Conclusions"]
+
+[CHANGED] "Show all tool output" option now logs output, causing the
+UI to remain responsive even during chatty tool sessions.
+
+[FIXED] mp4box 0.4.4 fallback now should not cause an infinite loop
+during postprocessing.
+
+[ADDED] mp4box output method: can output to scratch folder, then move;
+or output directly to destination folder.
+
+[ADDED] mkvmerge now supports safe synchronization option to correct
+for potential audio/video desynchronization.
+
+[2008-07-02: REVISION 30 - "Boiler Room"]
+
+[ADDED] More logging details for mp4box to assist in debugging.
+mp4box progress is now logged to log_output.txt.
+
+[FIXED] Some code in the Options dialog that would cause settings
+to be saved that were inaccurate.
+
+[ADDED] Fallback mode to mp4box version 0.4.4 upon failure.
+
+[2008-06-29: REVISION 29 - "Hot Beans"]
+
+[FIXED] 4/3 aspect ratio bug - 4:3 files are now processed with an
+aspect ratio of 1.333.
+
+[ADDED] Option to round up pixel aspect ratios to 1:1 if within 98%
+tolerance. This should provide better compatibility for videos with
+a 2.35 aspect ratio. This setting is on by default.
+
+[FIXED] mp4box now directly outputs files to the final directory.
+This eliminates the need for the file move process and should provide
+a workaround for anyone experiencing a FileNotFoundException.
+As a result, the Move Output File option has been disabled from
+view since it no longer has any effect.
+
+[CHANGED] Two mp4box builds are now included by default and can be changed
+from the "Last Steps" tab in Tools / Options.
+
+[CHANGED] "Allow Network Path" option is now enabled by default.
+
+[2008-06-27: REVISION 28 - "Infinite Limit"]
+
+[FIXED] Exception occurring preventing conversion of files with AC3 audio.
+This version should actually work for most people. Apologies to all who
+slit their wrists, took some pills, drowned themselves in bathtubs...
+or gave up all hope and listened to My Chemical Romance because of this.
+
+[ADDED] Even more debugging information. All builds now display global
+Exception messages, which should help in tracking down any remaining
+miscellaneous bugs.
+
+[ADDED] Option to directly read files or folders on UNC network paths.
+Scratch folders must still be local to the current system. Keep in
+mind that the entire file will be read off the network, so this will
+be a much slower process if you're not on a Gigabit setup. This is
+more of a convenience thing for testing and smaller (<1GB) files.
+
+[2008-06-21: REVISION 27 - "Big Kahuna"]
+
+[ADDED] Azid normalization options now present for AC3 downmixing.
+
+[ADDED] Option to avoid moving output file from the temporary folder.
+This should temporarily solve people's issues with FileNotFoundException
+messages - just uncheck the "Move Output File" box from the Tools menu.
+This probably won't be too useful with split files, but be aware that
+I'm still looking into this.
+
+[ADDED] MKV compatibility checker. Will determine if your file is
+definitely out of specification for the Xbox 360 and alert you that
+it may not play properly. These types of files require re-encoding.
+
+[ADDED] Additional debugging capabilities for people experiencing
+FileNotFoundException messages. This should help me track down this
+pesky bug. I suspect it has something to do with scratch folders but
+need more reports in order to take care of it.
+
+[2008-06-15: REVISION 26 - "Fancy Feast"]
+
+[FIXED] mp4box updated build download option now functional.
+
+[FIXED] Various fixes by BillRob458 from the forums. Bill is now
+an official developer on this project and has fixed a "hanging"
+issue reported in this thread:
+http://mkv.jakebillo.com/forum/index.php/topic,76.0.html
+
+[CHANGED] Some more UI changes around tooltips.
+
+[2008-05-24: REVISION 25 - "Squared Away"]
+
+[FIXED] Major glitch in which file move operations failed. I'm
+honestly ashamed that this wasn't tracked down sooner, but it's
+fairly critical and has since been resolved.
+
+[FIXED] Nero AAC Encoder download now properly handles the case where
+Nero's FTP site is inaccessible.
+
+[CHANGED] Moved mp4box build option to Tools tab.
+
+[REMOVED] Debug tab from Options dialog.
+
+[CHANGED] Moved "Delete Temporary Files" option from Debug menu to
+Tools menu.
+
+[REMOVED] Debug menu no longer required.
+
+[ADDED] Added mediainfo component to application.
+
+[ADDED] Support for aspect ratio detection and correction. A new
+message in the logfile will appear with this information.
+
+[FIXED] Some log messages now display the proper icon (wait, complete.)
+
+[2008-05-19: REVISION 24 - "This Is Debug"]
+
+[INFO] This build is being released to help some users track down the
+source of some of their problems with build 23. It may be more chatty
+than previous builds and will halt upon file exception errors.
+
+[CHANGED] Enabled debugging access for all users, including the option
+to not have temporary files deleted. Additional logging messages added.
+
+[CHANGED] Added Debug tab to options dialog that allows users to update
+to the April 13, 2008 build of mp4box by Kurtnoise (mirrored from
+http://kurtnoise.free.fr/mp4tools/)
+
+[2008-04-22: REVISION 23 - "This Is Sparta"]
+
+[CHANGED] Reverted mp4box back to September 2007 build, which fixes a
+reported issue with "mp4box.exe has stopped working." This solves the
+problem reported here:
+http://mkv.jakebillo.com/forum/index.php/topic,61.0.html
+
+[CHANGED] mkvmerge now ignores subtitle tracks when modifying files.
+This may assist in splitting performance.
+
+[CHANGED] mkvmerge now ignores button tracks when extracting files.
+This may assist in splitting performance.
+
+[FIXED] Repaired timecode issue with mkvmerge and cutting off files
+based on a time. This has been tested and works pretty well.
+
+[CHANGED] mp4box now tags the MP4 file itself and avoids using mp4tags
+for this scenario, which I hope fixes the Xbox 360 display problem.
+This solves the "output" filename problem reported here:
+http://mkv.jakebillo.com/forum/index.php/topic,61.0.html
+
+[NEW] Debugging information now available for hex edit failures.
+
+[CHANGED] mp4box forced to use selected scratch directory for muxing.
+This may fix a number of miscellaneous issues and improve performance.
+
+[FIXED] Time split option now has functional "don't ask again" checkbox.
+
+[FIXED] Time split UI now properly detects "don't ask again" state.
+
+[FIXED] Cancel button now re-enables MKV Information option.
+
+[NEW] Codename added to easily distinguish between builds.
+
+[2008-04-21: REVISION 22]
+
+[NEW] MP4 output files are now tagged with their filename as the title.
+This should help display on the Xbox 360 and other players that read
+metadata (iTunes, etc...)
+
+[FIXED] Fixed nasty mp4box bug that caused a process stall at the end
+of a split conversion process. This should fix an assortment of split
+issues, specifically the one reported in this thread:
+http://mkv.jakebillo.com/forum/index.php/topic,36.15.html
+If you're still having issues with file splits, please report them.
+
+[FIXED] Scratch folder now detected properly when one is not explicitly
+set in the Options dialog.
+
+[CHANGED] Added more debugging information when running in the VS2005 IDE.
+
+[2008-04-19: REVISION 21]
+
+[NEW] Option to directly generate mkvinfo output. This should help in
+narrowing down a few persistent problems reported by forum users.
+
+[FIXED] Change for video/audio tracks listed as identifier zero in the
+file. Related forum thread:
+http://mkv.jakebillo.com/forum/index.php/topic,47.0.html
+
+[CHANGED] Updated mp4box version to newest build. May resolve issues
+reported in threads:
+http://mkv.jakebillo.com/forum/index.php/topic,37.0.html
+http://mkv.jakebillo.com/forum/index.php/topic,40.0.html
+http://mkv.jakebillo.com/forum/index.php/topic,41.0.html
+
+[NEW] Additional error caught if video does not exist before it is
+muxed into the container.
+
+[CHANGED] Video codecs are now detected properly. However, .avi
+containers are not hex edited natively. This will be apparent as people
+try to convert anime and other oddly packaged items. Hopefully my solution
+will work out for people with stuff under 4.2 (up to 4.1) profile.
+
+[NEW] Added preliminary support for truncating files after a certain
+length to fill feature request from this post:
+http://mkv.jakebillo.com/forum/index.php/topic,50.msg335.html#msg335
+
+[2008-04-15: REVISION 20]
+
+[CHANGED] Allowed users to force the use of the non-SSE Nero AAC encoder
+after reports on HydrogenAudio that the "default" version had better
+audio precision. This is now available in the options dialog.
+
+[CHANGED] Free file size requirement now changed to 3 times the original
+file. This will be a better predictor of "failure" conditions where files
+are not properly tagged or moved. Applies to scratch folder if selected.
+
+[FIXED] Some minor progress bar updates and UI text changes.
+
+[2008-04-13: REVISION 19]
+
+[FIXED] Control placement in UI after main window is resized.
+
+[CHANGED] File merge process now reverted back to build 15 behaviour.
+This may improve compatibility for certain video files, by forcing the
+first track to work as video and the second track as audio.
+
+[FIXED] Added support files for MKV utilities back into the package.
+
+[CHANGED] In debugging mode, when "delete temporary files" is deselected,
+the split MKV files are now kept intact and not removed upon processing
+completion.
+
+[NEW] Added slider for Nero AAC encoder quality.
+
+[NEW] Added placement option for 2-pass Nero AAC encoding, not enabled yet.
+
+[2008-04-11: REVISION 18]
+
+[NEW] Multi-track selection support for MKV files containing more than one
+language. There are two options available with this mode:
+	* Default language: Selecting a default language tells the track
+	selection dialog to show the that language as the default option.
+	* "Don't ask me again" intelligent selection: If a default language is
+	set, the first available track in that language will be chosen for audio.
+	No dialog will be displayed in this mode - essentially, XenonMKV uses
+	your preferences, followed by the stream preferences, followed by the
+	track order to select which tracks to encode.
+	What does this boil down to?
+	* If you want full control over multi-language files, simply set a
+	default language. The dialog will prompt for each file with more than one
+	track.
+	* If you'd rather have quicker processing and not have to confirm things,
+	set a default language and then choose the "don't ask me again" mode.
+
+[FIXED] Multi-part split files inherit the language/video track settings of
+the first file in the set. (This never appeared in a release version, but
+I spent enough time fixing it that it was worth a mention.)
+
+[FIXED] Bug with FPS desynchronization experienced on some Vorbis streams.
+
+[FIXED] More temporary files deleted along the way, requiring less available
+disk space during processing.
+
+[CHANGED] Codec information message in strings.
+
+[REMOVED] Took dtsdec and some unnecessary DLL files out from the package.
+I'm trying to trim down the amount of space required and will make a final
+call on what stays and what goes in a few revisions. Efficiency ahoy!
+(I know not everyone wants a 60MB app to do video conversions. :))
+
+[REMOVED] Removed eac3to from package, since it required Nero 7 or another
+external DTS decoder to function properly, and Azid/Valdec seems to be working
+well for all my content.
+
+[2008-04-07: REVISION 17]
+
+[CHANGED] The Nero AAC encoder now directly outputs to a MP4 file, and
+MP4Box adds the parsed video track again. This improves efficiency slightly.
+
+[FIXED] Scratch folder save issues should now be completely resolved. Temp
+files will now go where they're supposed to.
+
+[FIXED] Split files are now deleted during post processing properly. Thanks to
+Dangelus from the forum for testing and re-reporting this condition.
+
+[FIXED] Temporary files are now deleted immediately to require less available
+disk space during processing.
+
+[CHANGED] Entry points for i18n work in About dialog now added and functional.
+
+[NEW] More descriptive messages if an I/O operation fails on the video stream.
+
+[2008-04-06: REVISION 16]
+
+[CHANGED] DTS encoding is now handled by valdec, one of the AC3Filter tools.
+This utility seems to have much better results for audio synchronization,
+although it's certainly not perfect - one of my test files still suffers from
+desync issues. You will likely need AC3Filter to take advantage of this
+component. Additionally, there will likely be need for a gain control, which
+will be a user-selectable option in an upcoming version.
+
+[NEW] Added warning for DTS files that demonstrate a high tendency to lose
+synchronization. If you see this message in your logfile, please check the
+original source for quality. If you'd like, report the file name to me by
+email or on the forums so that I can get additional examples of this bug.
+
+[FIXED] Scratch folder issues: temporary files now deleted and scratch folder
+detected properly again without using a "temp" subfolder. Text in options
+panel now clarifies this condition. Thanks to Dangelus from the forum for
+the bug reports.
+
+[CHANGED] Nero AAC encoder quality changed from 0.2 (which sounded like 128k)
+to 0.5, which should make for a marked improvement. This may be changed to a
+user-definable setting in future, as higher quality files necessitate more
+frequent splitting (for example, a 4.5GB file will no longer likely fit
+in 4GB once processing is complete.)
+
+[FIXED] changelog.txt now added to all builds.
+
+[NEW] Added preview button to user interface with associated i18n tooltip.
+
+[NEW] Added debug option to keep temporary files after processing. You need
+to be running the application in the VS2005 debugger for the Debug menu to
+appear.
+
+[CHANGED] The log now supports small images in preparation for the UI
+overhaul.
+
+[CHANGED] The UI now has more entry points for i18n work. Still remaining are
+the options dialog and the about dialogs.
+
+[CHANGED] UI strings now load from memory, rather than disk.
+
+[NEW] Added language selection control in Options panel.
+
+[FIXED] Race condition where certain processes were aborted but Nero AAC
+continued to work in the background, ignoring the exit command.
+
+[2008-04-04: REVISION 15]
+
+[FIXED] Odd issue with options dialog where settings were not saving. This
+problem may not have appeared in a release version, but it's been fixed
+anyways.
+
+[FIXED] Minor progress bar issue where certain tools could cause an exception.
+Progress bar handling is much more lenient now.
+
+[FIXED] Whitelist detection added for A_VORBIS files. (Thanks to noelthemole
+for reporting this issue on the forum.)
+
+[REMOVED] Removed dcadec and states, as it wasn't working as expected.
+
+[NEW] FFmpeg state and utility added for DTS support (yay!). Known issue: DTS
+audio is *not* normalized, so what you hear in the original MKV file is what
+you'll get on the Xbox 360. These files may require a bump in volume
+compared to their AC3 counterparts.
+I've also had an audio desynchronization issue near the end of a test file.
+Please let me know if you experience this problem.
+
+[NEW] Added French translation of some user interface components to i18n
+folder. (Huge thanks to s3mp for these translations!) There's no option at
+present to change languages, but you can either rename "french.xml" to
+"english.xml", or open XenonMKV.exe.config in a text editor and change
+english.xml to french.xml.
+I'll add the user interface option when it's possible to have all the user
+interface components available without random English text.
+
+[2008-04-03: REVISION 14]
+
+[FIXED] Exception when installing MP4 output registry patch for Windows Media
+Player. (Thanks to ssboisen:
+http://mkv.jakebillo.com/forum/index.php/topic,24.msg155.html#msg155)
+
+[FIXED] More lenient detection for AAC audio files. (Thanks to noelthemole for
+reporting:
+http://mkv.jakebillo.com/forum/index.php/topic,25.msg160.html#msg160)
+
+[NEW] Added FFmpeg to tools directory, which will likely be used in a future
+build for DTS audio support. It's not active yet though.
+
+[2008-03-30: REVISION 13]
+
+[FIXED] Exception when browsing for output folder.
+
+[2008-03-30: REVISION 12]
+
+[NEW] Added option for "scratch folder", to improve organization and
+performance on systems with multiple hard disks.
+
+[NEW] Abort/cancel button to terminate process.
+
+[NEW] XenonMKV now remembers the output folder on each launch.
+
+[CHANGED] Temporary file cleanup now runs after program completion as well as
+before.
+
+[NEW] Externalized parts of user interface to \i18n\english.xml. Potential
+support for alternate localizations is now an achievable target.
+
+[2008-03-26: REVISION 11]
+
+[NEW] Options panel now enabled:
+ * Customizable split for MKV files (default, no split, threshold)
+ * Azid normalization option
+ * Batch rename option
+
+[CHANGED] Upgraded mplayer to recent SVN revision, might improve file
+compatibility
+
+[NEW] Debug mode enabled for testing: you'll need the source version and must
+run the application under a debugger
+
+[NEW] Added dcadec module for groundwork for DTS (no full DTS support yet,
+though)
+
+[2008-03-22: REVISION 10]
+
+[CHANGED] XenonMKV now uses Azid by default to decode AC3 audio into a WAV
+file format.
+
+[NEW] An options dialog is now available to set the Azid decoder settings; at
+present, users can choose between +0dB normalization or none (quicker).
+
+[CHANGED] Slight code cleanup and reorganization.
+
+[2008-03-22: REVISION 9]
+
+[NEW] Support for registry patches to enable MP4 and other oddball file types
+to work in Windows Media Player 11, from
+http://a8t8.spaces.live.com/blog/cns!2518DD508BB713E8!156.entry?wa=wsignin1.0
+
+[FIXED] XenonMKV now properly detects the Nero AAC encoder type and uses the
+appropriate executable. (Thanks Dangelus)
+
+[FIXED] Added fallback routine for audio parsing where mplayer wouldn't create
+a file at all. If mplayer fails to work properly, eac3to is used instead. (Thanks martyn_hull56)
+
+[2008-03-20: REVISION 8]
+
+[CHANGED] XenonMKV now detects the Nero AAC encoder type on startup,
+supporting AMD Athlon 64 chips and other CPU's without SSE functionality. The
+without-SSE Nero AAC encoder is also downloaded in the event the program is
+moved to a different system.
+
+[NEW] Support for splitting files into <4GB chunks now available.
+
+[NEW] Appropriate credit for Warning icon now in About page.
+
+[NEW] Backend interfaces installed for tray icon and Options dialogs. These
+are not active yet but should be soon.
+
+[2008-03-18: REVISION 7]
+
+[REMOVED] Removed Nero AAC Encoder from default package, since it is licensed
+software. The application will now automatically download neroAacEnc_SSE.exe
+and integrate it.
+
+[CHANGED] Some UI changes and new links to this site.
+
+[NEW] GPL and README files included in source version. Will be included in the
+next build's compiled version.
+
+[2008-03-17: REVISION 6]
+
+[NEW] Added eac3to conversion tool, which uses Nero or another AC3 decoder if
+present on the system and mplayer fails to process the file properly.
+
+[CHANGED] Now compliant with the GNU General Public License. The source is
+also available for your perusal.
+
+[NEW] Manifest included for User Account Control purposes under Vista.
+
+[2008-03-08: REVISION 5]
+
+[NEW] Added release notes file to server, which employs TextMate-style formatting.
+
+[CHANGED] Error messages: now more descriptive for internal tasks.
+
+[NEW] Added direct support for A_DTS and A_MP3 audio codec types. Whether these audio types are properly detected and converted to PCM WAV, though, is undetermined.
+
+[NEW] Added always-visible status message for the detected type of audio codec.
