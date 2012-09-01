@@ -8,6 +8,22 @@ import os
 import subprocess
 import logging
 
+class MKVInfoParser:
+	@staticmethod
+	def parse_track_number(output):
+		detect = "|  + Track number: "
+		if detect in output:
+			output = output[output.index(detect) + len(detect):]
+			if "\n" in output:
+				output = output[0:output.index("\n")]
+
+			log.debug("Detected track number %s from mkvinfo output" % output)
+			return int(output)
+		else:
+			raise Exception("Could not parse track number from mkvinfo")
+
+	
+
 class MKVFile():
 	path = ""
 	tracks = []
@@ -21,7 +37,9 @@ class MKVFile():
 
 	def get_mkvinfo(self):
 		track_count = 0
+		log.debug("Executing 'mkvinfo %s'" % self.get_path())
 		result = subprocess.check_output(["mkvinfo", self.get_path()])
+		log.debug("mkvinfo finished; attempting to parse output")
 		self.parse_mkvinfo(result)
 
 	def get_duration(self):
@@ -50,6 +68,8 @@ class MKVFile():
 
 		return audio_int
 
+
+
 	def parse_mkvinfo(self, result):
 		track_detect_string = "| + A track"
 		
@@ -59,6 +79,16 @@ class MKVFile():
 		track_info = result
 		self.duration = self.parse_audio_duration(track_info)
 
+		while track_detect_string in track_info:
+			track = MKVTrack()
+			if track_detect_string in track_info:
+				track_info = track_info[track_info.index(track_detect_string) + len(track_detect_string):]
+			else:
+				break
+
+			# Get track type and number out of this block		
+			track.set_number(MKVInfoParser.parse_track_number(track_info))
+			
 
 
 		# Split output into new line array
@@ -136,6 +166,8 @@ if not os.path.isfile(source_file):
 if not os.path.isdir(destination):
 	print "Error: Destination " + destination + " does not exist"
 	sys.exit(1)
+
+log.info("Loading source file %s " % source_file)
 
 to_convert = MKVFile(source_file)
 to_convert.get_mkvinfo()
