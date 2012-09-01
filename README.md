@@ -1,4 +1,4 @@
-xenonmkv
-========
+== Requirements ==
 
-Migration of XenonMKV project (xenonmkv.ev98.net) to GitHub
+* mediainfo (sudo apt-get install mediainfo, http://mediainfo.sourceforge.net/en/Download/Ubuntu)
+* mkvtoolnix (sudo apt-get install mkvtoolnix, http://www.bunkus.org/videotools/mkvtoolnix/downloads.html)
