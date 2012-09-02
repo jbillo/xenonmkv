@@ -502,6 +502,7 @@ parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when
 parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
 parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
+parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -525,8 +526,7 @@ elif args.verbose:
 	log.setLevel(logging.INFO)
 
 log.debug("Starting XenonMKV")
-f_utils = FileUtils()
-
+f_utils = FileUtils(log)
 
 # Check if we have a full file path or are just specifying a file
 if "/" not in source_file:
@@ -613,7 +613,9 @@ os.rename(args.scratch_dir + "output.mp4", dest_path)
 log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
 
 # Delete temporary files if possible
-f_utils.delete_temp_files(args.scratch_dir)
+if not args.preserve_temp_files:
+	t = MKVTrack()
+	f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
 
 log.debug("XenonMKV run complete")
 
