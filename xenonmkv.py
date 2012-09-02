@@ -43,21 +43,18 @@ class MKVFile():
 
 		log.debug("mkvinfo finished; attempting to parse output")
 		self.parse_mkvinfo(result)
-
-	# Open the mediainfo process to obtain detailed info on the file.
-	def get_mediainfo_video(self):
-		parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,\n"
+		
+	# Open the mediainfo process to obtain detailed info on the file.		
+	def get_mediainfo(self, track_type):
+		if track_type == "video":
+			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,\n"
+		else:
+			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,\n"
+			
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
-		log.debug("mediainfo finished; attempting to parse output for video settings")
-		return self.parse_mediainfo(result)
-
-	def get_mediainfo_audio(self):
-		parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,\n"
-		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
-		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
-		log.debug("mediainfo finished; attempting to parse output for audio settings")
-		return self.parse_mediainfo(result)
+		log.debug("mediainfo finished; attempting to parse output for %s settings" % track_type)
+		return self.parse_mediainfo(result)		
 
 	def parse_mediainfo(self, result):
 		output = []
@@ -164,8 +161,8 @@ class MKVFile():
 		# Extract mediainfo profile for all tracks in file, then cross-reference them
 		# with the output from mkvinfo. This prevents running mediainfo multiple times.
 
-		mediainfo_video_output = self.get_mediainfo_video()
-		mediainfo_audio_output = self.get_mediainfo_audio()
+		mediainfo_video_output = self.get_mediainfo("video")
+		mediainfo_audio_output = self.get_mediainfo("audio")
 
 		# For ease of use, throw these values into a dictionary with the key being the track ID.
 		mediainfo = {}
@@ -341,8 +338,6 @@ class MKVFile():
 		
 class UnsupportedCodecError(Exception):
 	pass
-
-
 
 class MP4Box():
 	video_path = audio_path = video_fps = video_pixel_ar = ""
