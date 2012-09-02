@@ -1,11 +1,7 @@
-# Build and Object Folders
-bin/
-obj/
+# General/Python ignore
+/*.*~
+/*.pyc
 
-#User Specific Files
-*.user
-*.suo
-
-#Resource Caches
-_ReSharper.*
-*.sln.cache
+# Specific file conversions - we are not shipping media with this application
+/*.mp4
+/*.mkv
