@@ -422,7 +422,7 @@ parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do 
 parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
 parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
 parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
-parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Options are: \nxbox360 - use settings meant for the Xbox 360 media player\nplaybook - use settings meant for the BlackBerry PlayBook", default="")
+parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
 parser.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
 
 if len(sys.argv) < 2:
