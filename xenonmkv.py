@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# XenonMKV for PlayBook/revision 2.0
+# XenonMKV
+# Jake Billo, jake@jakebillo.com
+# https://github.com/jbillo/xenonmkv
 
 import argparse
 import sys
