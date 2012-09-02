@@ -1,7 +1,11 @@
+class UnsupportedCodecError(Exception):
+	pass
+
 class MKVTrack():
 	number = 0
 	uid = track_type = language = codec_id = ""
 	default = True
+	log = None
 
 	codec_table = {}
 	codec_table["A_AC3"] = ".ac3"
@@ -15,6 +19,9 @@ class MKVTrack():
 	codec_table["V_MS/VFW/FOURCC"] = ".avi"
 	codec_table["V_MPEG4/ISO/AVC"] = ".h264"
 	codec_table["V_MPEG2"] = ".mpg"
+	
+	def __init__(self, log):
+		self.log = log
 
 	def get_filename_extension(self):
 		if self.codec_id in self.codec_table:
@@ -23,16 +30,16 @@ class MKVTrack():
 		# Catch particular conditions where people will try and convert odd files
 		if self.codec_id == "DIV3":
 			# MP4Box will not touch DIV3 content
-			log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container.")
+			self.log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container.")
 			raise UnsupportedCodecError("DIV3 codec used in selected video track is not supported")
 
 		# Otherwise, set defaults
 		if self.codec_id.startswith("A_"):
-			log.warning("Returning default .aac extension for audio codec %s" % self.codec_id)
+			self.log.warning("Returning default .aac extension for audio codec %s" % self.codec_id)
 			return ".aac"
 
 		if self.codec_id.startswith("V_"):
-			log.warning("Returning default .avi extension for video codec %s" % self.codec_id)
+			self.log.warning("Returning default .avi extension for video codec %s" % self.codec_id)
 			return ".avi"
 
 		raise Exception("Could not detect appropriate extension for codec %s" % self.codec_id)

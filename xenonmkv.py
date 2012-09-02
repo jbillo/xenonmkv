@@ -176,7 +176,7 @@ class MKVFile():
 		info_parser = MKVInfoParser(log)
 
 		while track_detect_string in track_info:
-			track = MKVTrack()
+			track = MKVTrack(log)
 			if track_detect_string in track_info:
 				track_info = track_info[track_info.index(track_detect_string) + len(track_detect_string):]
 			else:
@@ -190,7 +190,7 @@ class MKVFile():
 			mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
-				track = VideoTrack()
+				track = VideoTrack(log)
 				track.number = track_number
 				track.default = info_parser.parse_track_is_default(track_info)
 
@@ -224,7 +224,7 @@ class MKVFile():
 
 	
 			elif track_type == "audio":
-				track = AudioTrack()
+				track = AudioTrack(log)
 				track.number = track_number
 				track.default = info_parser.parse_track_is_default(track_info)
 
@@ -335,9 +335,6 @@ class MKVFile():
 		os.chdir(prev_dir)
 		log.debug("mkvextract finished; attempting to parse output")
 		return (temp_video_file, temp_audio_file)
-		
-class UnsupportedCodecError(Exception):
-	pass
 
 class MP4Box():
 	video_path = audio_path = video_fps = video_pixel_ar = ""
