@@ -16,6 +16,7 @@ from mkv_info_parser import MKVInfoParser
 from file_utils import FileUtils
 from track import *
 from decoder import AudioDecoder
+from encoder import FAACEncoder
 
 class MKVFile():
 	path = ""
@@ -343,39 +344,6 @@ class UnsupportedCodecError(Exception):
 
 
 
-
-class FAACEncoder():
-	file_path = ""
-
-	def __init__(self, file_path):
-		self.file_path = file_path
-
-	def encode(self):
-		# Start encoding
-		log.debug("Starting AAC encoding with FAAC")
-		prev_dir = os.getcwd()
-		os.chdir(args.scratch_dir)
-
-		if args.resume_previous and os.path.isfile("audiodump.aac"):
-			os.chdir(prev_dir)
-			log.debug("audiodump.aac already exists in scratch directory; cancelling encode")
-			return True
-
-		cmd = ["faac", "-q", str(args.faac_quality), self.file_path]
-		
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-		while True:
-			err = process.stderr.read(1)
-			if err == '' and process.poll() != None:
-				break
-			if err != '' and not args.quiet:
-				sys.stderr.write(err)
-				sys.stderr.flush()
-
-		os.chdir(prev_dir)
-		log.debug("FAAC complete")
-
 class MP4Box():
 	video_path = audio_path = video_fps = video_pixel_ar = ""
 
@@ -513,7 +481,7 @@ if to_convert.get_audio_track().needs_recode:
 	audio_dec.decode()
 
 	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
-	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav")
+	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav", log, args)
 	faac_enc.encode()
 	encoded_audio = args.scratch_dir + "audiodump.aac"
 else:
