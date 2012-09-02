@@ -7,6 +7,7 @@ import sys
 import os
 import subprocess
 import logging
+import fractions
 
 import reference_frame
 
@@ -30,6 +31,16 @@ class MKVInfoParser:
 	def parse_track_type(output):
 		return MKVInfoParser._parse_to_newline(output, "|  + Track type: ", "track type")
 
+	@staticmethod
+	def parse_track_is_default(output):
+		try:
+			result = MKVInfoParser._parse_to_newline(output, "|  + Default flag: ", "default flag")		
+			return "1" in result
+		except:
+			# Could not determine whether track was default, so set it to default
+			# Usually this means that there is only one video and one audio track
+			return True
+
 
 class MKVFile():
 	path = ""
@@ -52,14 +63,14 @@ class MKVFile():
 
 	# Open the mediainfo process to obtain detailed info on the file.
 	def get_mediainfo_video(self):
-		parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,\n"
+		parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,\n"
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for video settings")
 		return self.parse_mediainfo(result)
 
 	def get_mediainfo_audio(self):
-		parameters = "Audio;%ID%,%CodecID%,\n"
+		parameters = "Audio;%ID%,%CodecID%,%Language%,\n"
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for audio settings")
@@ -75,6 +86,59 @@ class MKVFile():
 
 		return output
 
+	# Return a float value specifying the display aspect ratio.
+	def parse_display_aspect_ratio(self, dar_string):
+		log.debug("Attempting to parse display aspect ratio '%s'" % dar_string)
+		if "16/9" in dar_string:
+			return 1.778
+		elif "4/3" in dar_string:
+			return 1.333
+		elif "/" in dar_string:
+			# Halfass some math and try to get an approximate number.
+			try: 
+				numerator = int(dar_string[0:dar_string.index("/")])
+				denominator = int(dar_string[dar_string.index("/") + 1:])
+				return numerator / denominator
+			except:
+				# Couldn't divide
+				raise Exception("Could not parse display aspect ratio of %s" % dar_string)
+		else:
+			return float(dar_string.strip())
+			 
+	# Calculate the pixel aspect ratio of the track based on the height, width, and display A/R
+	def calc_pixel_aspect_ratio(self, track):
+		t_height = track.height * track.display_ar
+		t_width = track.width
+		gcd = fractions.gcd(t_height, t_width)
+		log.debug("GCD of %i height, %i width is %i" % (t_height, t_width, gcd))
+
+		if gcd == 0:
+			# Pixel aspect ratio should be 1:1
+			t_height = 1
+			t_width = 1
+			gcd = 1
+		else:
+			# We can do division on integers here because the denominator is common
+			t_height = t_height / gcd
+			t_width = t_width / gcd
+		
+		# If height and width are extraordinarily large, bring them down by a multiple of 10 simultaneously
+		while t_height > 1000 or t_width > 1000:
+			t_height = t_height / 10
+			t_width = t_width / 10
+
+		log.debug("Calculated pixel aspect ratio is %i:%i (%f)" % (t_height, t_width, t_height / t_width))
+		
+		if not args.no_round_par:
+			if t_height / t_width > 0.98 and t_height / t_width < 1:
+				log.debug("Rounding pixel aspect ratio up to 1:1")
+				t_height = t_width = 1
+			elif t_height / t_width < 1.01 and t_height / t_width > 1:
+				log.debug("Rounding pixel aspect ratio down to 1:1")
+				t_height = t_width = 1
+		
+		return str(t_height) + ":" + str(t_width)
+		
 	# Return the fixed duration of the MKV file.
 	def get_duration(self):
 		return self.duration
@@ -145,6 +209,7 @@ class MKVFile():
 			if track_type == "video":
 				track = VideoTrack()
 				track.number = track_number
+				track.default = MKVInfoParser.parse_track_is_default(track_info)
 
 				track.height = int(mediainfo_track[0])
 				track.width = int(mediainfo_track[1])
@@ -152,9 +217,12 @@ class MKVFile():
 				track.language = mediainfo_track[3]
 				track.frame_rate = float(mediainfo_track[4])
 				track.codec_id = mediainfo_track[5]
+				track.display_ar = self.parse_display_aspect_ratio(mediainfo_track[6])
+				track.pixel_ar = self.calc_pixel_aspect_ratio(track)
 
 				log.debug("Video track %i has dimensions %ix%i with %i reference frames" % (track.number, track.width, track.height, track.reference_frames))
 				log.debug("Video track %i has %f FPS and codec %s" % (track.number, track.frame_rate, track.codec_id))
+				log.debug("Video track %i has display aspect ratio %f" % (track.number, track.display_ar))
 
 				if self.reference_frames_exceeded(track):
 					raise Exception("Video track %i contains too many reference frames to play properly on low-power devices" % track.number)
@@ -162,6 +230,12 @@ class MKVFile():
 			elif track_type == "audio":
 				track = AudioTrack()
 				track.number = track_number
+				track.default = MKVInfoParser.parse_track_is_default(track_info)
+
+				track.codec_id = mediainfo_track[0]
+				track.language = mediainfo_track[1]
+
+				log.debug("Audio track %i has codec %s" % (track.number, track.codec_id))
 
 			
 			else:
@@ -174,28 +248,12 @@ class MKVFile():
 class MKVTrack():
 	number = 0
 	uid = track_type = language = codec_id = ""
-
-	def set_number(self, number):
-		self.number = number
-
-	def set_uid(self, uid):
-		self.uid = uid
-
-	def set_type(self, track_type):
-		self.track_type = track_type
-
-	def get_number(self):
-		return self.number
-
-	def get_uid(self):
-		return self.uid
-
-	def get_type(self):
-		return self.track_type
+	default = True
 
 class VideoTrack(MKVTrack):
 	height = width = reference_frames = 0
-	frame_rate = 0.0
+	frame_rate = display_ar = 0.0
+	pixel_ar = ""
 
 class AudioTrack(MKVTrack):
 	length = 0
@@ -203,7 +261,9 @@ class AudioTrack(MKVTrack):
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
 parser.add_argument('source_file', help='Path to the source MKV file')
 parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
-parser.add_argument('-v', '--verbose', help='Verbose and debug output', action='store_true')
+parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
+parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
+parser.add_argument('--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -218,10 +278,10 @@ log.addHandler(console_handler)
 args = parser.parse_args()
 source_file = args.source_file
 destination = args.destination
-if args.verbose:
+if args.very_verbose:
 	log.setLevel(logging.DEBUG)
-	log.debug("Using verbose mode for output")
-else:
+	log.debug("Using debug/very verbose mode output")
+elif args.verbose:
 	log.setLevel(logging.INFO)
 
 log.debug("Starting XenonMKV")
