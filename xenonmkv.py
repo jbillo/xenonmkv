@@ -52,21 +52,26 @@ class MKVFile():
 
 	# Open the mediainfo process to obtain detailed info on the file.
 	def get_mediainfo_video(self):
-		parameters = "Video;%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%"
+		parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,\n"
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for video settings")
 		return self.parse_mediainfo(result)
 
 	def get_mediainfo_audio(self):
-		parameters = "Video;%Height%,%Width%,%Format_Settings_RefFrames%"
+		parameters = "Audio;%ID%,%CodecID%,\n"
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for audio settings")
 		return self.parse_mediainfo(result)
 
 	def parse_mediainfo(self, result):
-		output = result.split(",")
+		output = []
+		lines = result.split("\n")
+		for line in lines:
+			# remove last \n element from array that will always be present
+			values = result.split(",")[0:-1] 
+			output.append(values)
 
 		return output
 
@@ -108,6 +113,21 @@ class MKVFile():
 		track_info = result
 		self.duration = self.parse_audio_duration(track_info)
 
+		# Multiple track support:
+		# Extract mediainfo profile for all tracks in file, then cross-reference them
+		# with the output from mkvinfo. This prevents running mediainfo multiple times.
+
+		mediainfo_video_output = self.get_mediainfo_video()
+		mediainfo_audio_output = self.get_mediainfo_audio()
+
+		# For ease of use, throw these values into a dictionary with the key being the track ID.
+		mediainfo = {}
+
+		for mediainfo_track in mediainfo_video_output:
+			mediainfo[int(mediainfo_track[0])] = mediainfo_track[1:]
+		for mediainfo_track in mediainfo_audio_output:
+			mediainfo[int(mediainfo_track[0])] = mediainfo_track[1:]
+
 		while track_detect_string in track_info:
 			track = MKVTrack()
 			if track_detect_string in track_info:
@@ -119,33 +139,30 @@ class MKVFile():
 			track_type = MKVInfoParser.parse_track_type(track_info)
 			track_number = MKVInfoParser.parse_track_number(track_info)
 
+			# Set individual track properties for the object by track ID
+			mediainfo_track = mediainfo[track_number]
+
 			if track_type == "video":
 				track = VideoTrack()
 				track.number = track_number
 
-				# height, width, reference_frames are returned in mediainfo
-				mediainfo = self.get_mediainfo_video()
-				track.height = int(mediainfo[0])
-				track.width = int(mediainfo[1])
-				track.reference_frames = int(mediainfo[2])
-				track.language = mediainfo[3]
-				track.frame_rate = float(mediainfo[4])
-				track.codec_id = mediainfo[5]
+				track.height = int(mediainfo_track[0])
+				track.width = int(mediainfo_track[1])
+				track.reference_frames = int(mediainfo_track[2])
+				track.language = mediainfo_track[3]
+				track.frame_rate = float(mediainfo_track[4])
+				track.codec_id = mediainfo_track[5]
 
-				log.debug("Video track has dimensions %ix%i with %i reference frames" % (track.width, track.height, track.reference_frames))
-				log.debug("Video track has %f FPS and codec %s" % (track.frame_rate, track.codec_id))
+				log.debug("Video track %i has dimensions %ix%i with %i reference frames" % (track.number, track.width, track.height, track.reference_frames))
+				log.debug("Video track %i has %f FPS and codec %s" % (track.number, track.frame_rate, track.codec_id))
 
 				if self.reference_frames_exceeded(track):
-					raise Exception("Video file contains too many reference frames to play properly on low-power devices")
+					raise Exception("Video track %i contains too many reference frames to play properly on low-power devices" % track.number)
 				
-				
-					
-
 			elif track_type == "audio":
 				track = AudioTrack()
 				track.number = track_number
 
-				mediainfo = self.get_mediainfo_audio()
 			
 			else:
 				raise Exception("Unrecognized track type %s" % track_type)
