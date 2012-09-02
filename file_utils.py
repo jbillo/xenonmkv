@@ -7,6 +7,16 @@ class FileUtils:
 
 	def __init__(self, log):
 		self.log = log
+		
+	def check_dest_dir(self, destination):
+		if not os.path.isdir(destination):
+			log.critical("Destination directory %s does not exist" % destination)
+			sys.exit(1)
+			
+	def check_source_file(self, source_file):
+		if not os.path.isfile(source_file):
+			log.critical("Source file %s does not exist" % source_file)
+			sys.exit(1)
 
 	def hex_edit_video_file(self, path):
 		with open(path, 'r+b') as f:

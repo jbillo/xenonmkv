@@ -516,7 +516,7 @@ log.addHandler(console_handler)
 
 args = parser.parse_args()
 source_file = args.source_file
-destination = args.destination
+
 if args.quiet:
 	log.setLevel(logging.ERROR)
 elif args.very_verbose:
@@ -535,16 +535,14 @@ if "/" not in source_file:
 	log.debug("%s will be used to reference the original MKV file" % source_file)
 
 # Always ensure destination path ends with a slash
-if not destination.endswith('/'):
-	destination += '/'
+if not args.destination.endswith('/'):
+	args.destination += '/'
 
 if not args.scratch_dir.endswith('/'):
 	args.scratch_dir += '/'
 
 # Check if source file exists
-if not os.path.isfile(source_file):
-	log.critical("Source file %s does not exist" % source_file)
-	sys.exit(1)
+f_utils.check_source_file(source_file)
 
 source_basename = os.path.basename(source_file)
 source_noext = source_basename[0:source_basename.rindex(".")]
@@ -554,9 +552,7 @@ if not args.name:
 	log.debug("Using '%s' as final container name" % args.name)	
 
 # Check if destination directory exists
-if not os.path.isdir(destination):
-	log.critical("Destination directory %s does not exist" % destination)
-	sys.exit(1)
+f_utils.check_dest_dir(args.destination)
 
 log.info("Loading source file %s " % source_file)
 
@@ -607,7 +603,7 @@ mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate, video_track.p
 mp4box.package()
 
 # Move the file to the destination directory with the original name
-dest_path = destination + source_noext + ".mp4"
+dest_path = args.destination + source_noext + ".mp4"
 os.rename(args.scratch_dir + "output.mp4", dest_path)
 
 log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
