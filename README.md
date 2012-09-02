@@ -6,6 +6,7 @@ XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but m
 
 * mediainfo (sudo apt-get install mediainfo, http://mediainfo.sourceforge.net/en/Download/Ubuntu)
 * mkvtoolnix (sudo apt-get install mkvtoolnix, http://www.bunkus.org/videotools/mkvtoolnix/downloads.html)
+* mplayer (sudo apt-get install mplayer)
 
 # Suggested Applications
 

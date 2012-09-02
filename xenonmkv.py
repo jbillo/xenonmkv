@@ -276,6 +276,12 @@ class MKVFile():
 			elif track.track_type == "audio" and track.default:
 				self.audio_track_id = track.number
 
+	def get_audio_track(self):
+		return self.tracks[self.audio_track_id]
+
+	def get_video_track(self):
+		return self.tracks[self.video_track_id]
+
 	def extract_mkv(self):
 		log.debug("Executing mkvextract on %s'" % self.get_path())
 		prev_dir = os.getcwd()
@@ -310,8 +316,12 @@ class MKVFile():
 				sys.stdout.write(out)
 				sys.stdout.flush()
 
+		temp_video_file = os.getcwd() + "/" + temp_video_file
+		temp_audio_file = os.getcwd() + "/" + temp_audio_file
+
 		os.chdir(prev_dir)
 		log.debug("mkvextract finished; attempting to parse output")
+		return (temp_video_file, temp_audio_file)
 
 class MKVTrack():
 	number = 0
@@ -353,6 +363,60 @@ class VideoTrack(MKVTrack):
 
 class AudioTrack(MKVTrack):
 	length = 0
+
+class AudioDecoder():
+	extension = ""
+	file_path = ""
+	decoder = ""
+
+	def __init__(self, file_path):
+		self.file_path = file_path
+		self.extension = file_path[file_path.rindex("."):]
+
+	def detect_decoder(self):
+		if self.extension == ".ac3":
+			self.decoder = "mplayer"
+		elif self.extension == ".dts":
+			self.decoder = "valdec"
+		else:
+			self.decoder = "mplayer"	
+
+	def decode(self):
+		if not self.decoder:
+			self.detect_decoder()
+
+		prev_dir = os.getcwd()
+		os.chdir(args.scratch_dir)
+
+		# Based on the decoder, perform the appropriate operation
+		if self.decoder == "mplayer":
+			self.decode_mplayer()
+		
+		os.chdir(prev_dir)
+
+	def decode_mplayer(self):
+		print self.file_path
+		cmd = ["mplayer", self.file_path, "-vc", "null", "-vo", "null", "-ao", "pcm:fast"]
+		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		while True:
+			out = process.stdout.read(1)
+			if out == '' and process.poll() != None:
+				break
+			if out != '':
+				sys.stdout.write(out)
+				sys.stdout.flush()
+
+		log.debug("mplayer complete")
+
+
+def hex_edit_video_file(path):
+	with open(path, 'r+b') as f:
+		f.seek(7)
+		f.write("\x29")
+		
+
+# Main program begins
 
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
 parser.add_argument('source_file', help='Path to the source MKV file')
@@ -413,6 +477,14 @@ else:
 	log.debug("Source file %s has 1 audio and 1 video track; using these" % source_file)
 	to_convert.set_default_av_tracks()
 
-# Next phase: Extract MKV file
-to_convert.extract_mkv()
+# Next phase: Extract MKV files to scratch directory
+(video_file, audio_file) = to_convert.extract_mkv()
+
+# If needed, hex edit the video file to make it compliant with a lower h264 profile level
+if video_file.endswith(".h264"):
+	hex_edit_video_file(video_file)
+
+# Detect which audio codec is in place and dump audio to WAV accordingly
+audio_dec = AudioDecoder(audio_file)
+audio_dec.decode()
 
