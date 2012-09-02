@@ -15,6 +15,7 @@ from reference_frame import ReferenceFrameValidator
 from mkv_info_parser import MKVInfoParser
 from file_utils import FileUtils
 from track import *
+from decoder import AudioDecoder
 
 class MKVFile():
 	path = ""
@@ -340,60 +341,7 @@ class MKVFile():
 class UnsupportedCodecError(Exception):
 	pass
 
-class AudioDecoder():
-	extension = ""
-	file_path = ""
-	decoder = ""
 
-	def __init__(self, file_path):
-		self.file_path = file_path
-		self.extension = file_path[file_path.rindex("."):]
-
-	def detect_decoder(self):
-		# New decoders can be added here when necessary
-		if self.extension == ".ac3":
-			self.decoder = "mplayer"
-		elif self.extension == ".dts":
-			self.decoder = "mplayer"
-		else:
-			self.decoder = "mplayer"	
-
-	def decode(self):
-		if not self.decoder:
-			self.detect_decoder()
-
-		prev_dir = os.getcwd()
-		os.chdir(args.scratch_dir)
-
-		# Based on the decoder, perform the appropriate operation
-		if self.decoder == "mplayer":
-			self.decode_mplayer()
-		
-		os.chdir(prev_dir)
-
-	def decode_mplayer(self):
-		log.debug("Starting decoding file to WAV with mplayer")
-		# Check for existing audiodump.wav (already changed to temp directory)
-		if os.path.isfile("audiodump.wav"):
-			if args.resume_previous:
-				log.debug("audiodump.wav already exists in scratch directory; cancelling decode")
-				return True
-
-			log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
-			os.unlink("audiodump.wav")
-
-		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-ao", "pcm:fast"]
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-		while True:
-			out = process.stdout.read(1)
-			if out == '' and process.poll() != None:
-				break
-			if out != '' and not args.quiet:
-				sys.stdout.write(out)
-				sys.stdout.flush()
-
-		log.debug("mplayer decoding complete")
 
 
 class FAACEncoder():
@@ -561,7 +509,7 @@ if video_file.endswith(".h264"):
 # Detect which audio codec is in place and dump audio to WAV accordingly
 if to_convert.get_audio_track().needs_recode:
 	log.debug("Audio track %s needs to be re-encoded to a 2-channel AAC file" % audio_file)
-	audio_dec = AudioDecoder(audio_file)
+	audio_dec = AudioDecoder(audio_file, log, args)
 	audio_dec.decode()
 
 	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
