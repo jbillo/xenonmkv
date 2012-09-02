@@ -631,9 +631,9 @@ if to_convert.get_audio_track().needs_recode:
 	audio_dec.decode()
 
 	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
-	faac_enc = FAACEncoder(args.scratch_dir + "/audiodump.wav")
+	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav")
 	faac_enc.encode()
-	encoded_audio = args.scratch_dir + "/audiodump.aac"
+	encoded_audio = args.scratch_dir + "audiodump.aac"
 else:
 	# Bypass this whole encoding shenanigans and just reference the already-valid audio file
 	encoded_audio = audio_file
@@ -645,7 +645,7 @@ mp4box.package()
 
 # Move the file to the destination directory with the original name
 dest_path = destination + source_noext + ".mp4"
-os.rename(args.scratch_dir + "/output.mp4", dest_path)
+os.rename(args.scratch_dir + "output.mp4", dest_path)
 
 log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
 
