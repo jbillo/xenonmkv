@@ -368,6 +368,12 @@ class MKVTrack():
 
 		raise Exception("Could not detect appropriate extension for codec %s" % self.codec_id)
 
+	def get_possible_extensions(self):
+		extensions = set()
+		for key in self.codec_table:
+			extensions.add(self.codec_table[key])
+
+		return extensions
 
 class VideoTrack(MKVTrack):
 	height = width = reference_frames = 0
@@ -503,6 +509,29 @@ def hex_edit_video_file(path):
 		f.write("\x29")
 	# File is automatically closed		
 
+
+def delete_temp_files(scratch_dir):
+	# Get possible file extensions 
+	t = MKVTrack()
+	extensions = t.get_possible_extensions()
+
+	for extension in extensions:
+		temp_video = scratch_dir + "temp_video" + extension
+		temp_audio = scratch_dir + "temp_audio" + extension
+		if os.path.isfile(temp_video):
+			log.debug("Cleaning up: deleting %s" % temp_video)
+			os.unlink(temp_video)
+		if os.path.isfile(temp_audio):
+			log.debug("Cleaning up: deleting %s" % temp_audio)
+			os.unlink(temp_audio)
+
+	# Check for audiodump.aac and audiodump.wav
+	other_files = ('audiodump.aac', 'audiodump.wav')
+	for name in other_files:
+		if os.path.isfile(scratch_dir + name):
+			log.debug("Cleaning up: deleting %s" % scratch_dir + name)
+			os.unlink(scratch_dir + name)
+
 # Main program begins
 
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
@@ -513,7 +542,7 @@ parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true
 parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
 parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
 parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
-parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /tmp/)', default='/tmp/')
+parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /var/tmp/)', default='/var/tmp/')
 parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
 parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
@@ -545,6 +574,9 @@ log.debug("Starting XenonMKV")
 # Always ensure destination path ends with a slash
 if not destination.endswith('/'):
 	destination += '/'
+
+if not args.scratch_dir.endswith('/'):
+	args.scratch_dir += '/'
 
 # Check if source file exists
 if not os.path.isfile(source_file):
@@ -617,4 +649,8 @@ os.rename(args.scratch_dir + "/output.mp4", dest_path)
 
 log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
 
+# Delete temporary files if possible
+delete_temp_files(args.scratch_dir)
+
+log.debug("XenonMKV run complete")
 
