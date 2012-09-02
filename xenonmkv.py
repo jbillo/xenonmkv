@@ -47,6 +47,8 @@ class MKVFile():
 	tracks = []
 	duration = 0
 
+	video_track_id = audio_track_id = 0
+
 	def __init__(self, path):
 		self.path = path
 	
@@ -225,8 +227,13 @@ class MKVFile():
 				log.debug("Video track %i has display aspect ratio %f" % (track.number, track.display_ar))
 
 				if self.reference_frames_exceeded(track):
-					raise Exception("Video track %i contains too many reference frames to play properly on low-power devices" % track.number)
-				
+					log.warning("Video track %i contains too many reference frames to play properly on low-powered devices" % track.number)
+					if not args.ignore_reference_frames:
+						sys.exit(1)
+				else:
+					log.debug("Video track %i has a reasonable number of reference frames, and should be compatible with low-powered devices" % track.number)
+
+	
 			elif track_type == "audio":
 				track = AudioTrack()
 				track.number = track_number
@@ -235,15 +242,36 @@ class MKVFile():
 				track.codec_id = mediainfo_track[0]
 				track.language = mediainfo_track[1]
 
-				log.debug("Audio track %i has codec %s" % (track.number, track.codec_id))
-
+				log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
 			
 			else:
 				raise Exception("Unrecognized track type %s" % track_type)
 
+			log.debug("All properties set for %s track %i" % (track_type, track.number))
+			self.tracks.append(track)
+
+		# All tracks detected here
+		log.debug("All tracks detected from mkvinfo output; total number is %i" % len(self.tracks))
 
 	def reference_frames_exceeded(self, video_track):
 		return reference_frame.ReferenceFrameValidator.validate(video_track.height, video_track.width, video_track.reference_frames)
+
+	def has_multiple_av_tracks(self):
+		video_tracks = audio_tracks = 0
+		for track in self.tracks:
+			if track.track_type == "video":
+				video_tracks += 1
+			elif track.track_type == "audio":
+				audio_tracks += 1
+
+		return (video_tracks > 1 or audio_tracks > 1)
+
+	def set_default_av_tracks(self):
+		for track in self.tracks:
+			if track.track_type == "video" and track.default:
+				self.video_track_id = track.number
+			elif track.track_type == "audio" and track.default:
+				self.audio_track_id = track.number
 
 class MKVTrack():
 	number = 0
@@ -263,7 +291,8 @@ parser.add_argument('source_file', help='Path to the source MKV file')
 parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
 parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
-parser.add_argument('--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
+parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
+parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -304,6 +333,16 @@ log.info("Loading source file %s " % source_file)
 
 to_convert = MKVFile(source_file)
 to_convert.get_mkvinfo()
+
+# Check for multiple tracks
+if to_convert.has_multiple_av_tracks():
+	# Handle this scenario: either prompt the user to select specific tracks,
+	# or automatically detect tracks based on MKV defaults
+	log.debug("Source file %s has multiple A/V tracks" % source_file)
+else:
+	# Pick appropriate audio/video tracks
+	log.debug("Source file %s has 1 audio and 1 video track; using these" % source_file)
+	to_convert.set_default_av_tracks()
 
 
 

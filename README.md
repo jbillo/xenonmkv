@@ -1,5 +1,9 @@
 # System Requirements
 
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but most of the utilities and requirements here are available for most popular *nix distributions.
+
+## Packages to Install
+
 * mediainfo (sudo apt-get install mediainfo, http://mediainfo.sourceforge.net/en/Download/Ubuntu)
 * mkvtoolnix (sudo apt-get install mkvtoolnix, http://www.bunkus.org/videotools/mkvtoolnix/downloads.html)
 
