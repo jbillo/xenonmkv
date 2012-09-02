@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 class MKVInfoParser:
 	log = None
 

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 class MKVTrack():
 	number = 0
 	uid = track_type = language = codec_id = ""
