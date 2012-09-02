@@ -29,3 +29,17 @@ Run xenonmkv.py --help to see all command line arguments.
 # Suggestions/Caveats
 
 * If your files to convert aren't too large, distributions that mount /tmp as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use "--scratch-dir /tmp". Right now for future proofing, the scratch directory is set to /var/tmp.
+* Use -vv to find display debug information and output exactly what's going on during the processing stages.
+* Native multiple file support will be coming (eg: convert an entire directory of MKVs) but you can do something like this in the meantime to queue up a list:
+
+		cd ~/mymkvdir
+		for i in `ls *.mkv`; do /path/to/xenonmkv.py $i --destination ~/mymp4dir; done
+
+* Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western Digital Black SATA hard drive:
+
+	A 442MB source MKV file with h.264 video and 6-channel AC3 audio is converted into a PlayBook-compatible MP4 (same video, 2-channel AAC audio, quality q=150) in 40.6 seconds. This does not have any enhancements such as a tmpfs mount.
+
+	You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.
+
+
+

@@ -1,14 +1,7 @@
-### VB.NET ignore ###
-
-# Build and Object Folders
-bin/
-obj/
-#User Specific Files
-*.user
-*.suo
-#Resource Caches
-_ReSharper.*
-*.sln.cache
-### General/Python ignore ###
+# General/Python ignore
 /*.*~
 /*.pyc
+
+# Specific file conversions - we are not shipping media with this application
+/*.mp4
+/*.mkv
