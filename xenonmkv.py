@@ -44,7 +44,7 @@ class MKVInfoParser:
 
 class MKVFile():
 	path = ""
-	tracks = []
+	tracks = {}
 	duration = 0
 
 	video_track_id = audio_track_id = 0
@@ -248,7 +248,8 @@ class MKVFile():
 				raise Exception("Unrecognized track type %s" % track_type)
 
 			log.debug("All properties set for %s track %i" % (track_type, track.number))
-			self.tracks.append(track)
+			track.track_type = track_type
+			self.tracks[track.number] = track
 
 		# All tracks detected here
 		log.debug("All tracks detected from mkvinfo output; total number is %i" % len(self.tracks))
@@ -258,7 +259,8 @@ class MKVFile():
 
 	def has_multiple_av_tracks(self):
 		video_tracks = audio_tracks = 0
-		for track in self.tracks:
+		for track_id in self.tracks:
+			track = self.tracks[track_id]
 			if track.track_type == "video":
 				video_tracks += 1
 			elif track.track_type == "audio":
@@ -267,16 +269,82 @@ class MKVFile():
 		return (video_tracks > 1 or audio_tracks > 1)
 
 	def set_default_av_tracks(self):
-		for track in self.tracks:
+		for track_id in self.tracks:
+			track = self.tracks[track_id]
 			if track.track_type == "video" and track.default:
 				self.video_track_id = track.number
 			elif track.track_type == "audio" and track.default:
 				self.audio_track_id = track.number
 
+	def extract_mkv(self):
+		log.debug("Executing mkvextract on %s'" % self.get_path())
+		prev_dir = os.getcwd()
+
+		if args.scratch_dir != ".":
+			log.debug("Using %s as scratch directory for MKV extraction" % args.scratch_dir)
+			os.chdir(args.scratch_dir)
+
+		temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
+		temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+	
+		# Remove any existing files with the same names
+		if os.path.isfile(temp_video_file):
+			log.debug("Deleting temporary video file %s" % os.getcwd() + "/" + temp_video_file)
+			os.unlink(temp_video_file)
+
+		if os.path.isfile(temp_audio_file):
+			log.debug("Deleting temporary audio file %s" % os.getcwd() + "/" + temp_audio_file)
+			os.unlink(temp_audio_file)		
+
+		video_output = str(self.video_track_id) + ":" + temp_video_file
+		audio_output = str(self.audio_track_id) + ":" + temp_audio_file
+
+		cmd = ["mkvextract", "tracks", self.get_path(), video_output, audio_output]
+		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		while True:
+			out = process.stdout.read(1)
+			if out == '' and process.poll() != None:
+				break
+			if out != '':
+				sys.stdout.write(out)
+				sys.stdout.flush()
+
+		os.chdir(prev_dir)
+		log.debug("mkvextract finished; attempting to parse output")
+
 class MKVTrack():
 	number = 0
 	uid = track_type = language = codec_id = ""
 	default = True
+
+	codec_table = {}
+	codec_table["A_AC3"] = ".ac3"
+	codec_table["A_AAC"] = ".aac"
+	codec_table["A_DTS"] = ".dts"
+	codec_table["A_MP3"] = ".mp3"
+	codec_table["A_MPEG/L3"] = ".mp3"
+	codec_table["A_MS/ACM"] = ".mp3" # because people like to run anime through this thing
+	codec_table["A_VORBIS"] = ".ogg"
+	codec_table["V_MS/VFW/FOURCC"] = ".avi"
+	codec_table["V_MPEG4/ISO/AVC"] = ".h264"
+	codec_table["V_MPEG2"] = ".mpg"
+
+	def get_filename_extension(self):
+		if self.codec_id in self.codec_table:
+			return self.codec_table[self.codec_id]
+
+		# Otherwise, set defaults
+		if self.codec_id.startswith("A_"):
+			log.warning("Returning default .aac extension for audio codec %s" % self.codec_id)
+			return ".aac"
+
+		if self.codec_id.startswith("V_"):
+			log.warning("Returning default .avi extension for video codec %s" % self.codec_id)
+			return ".avi"
+
+		raise Exception("Could not detect appropriate extension for codec %s" % self.codec_id)
+
 
 class VideoTrack(MKVTrack):
 	height = width = reference_frames = 0
@@ -293,6 +361,7 @@ parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true
 parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
 parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
 parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
+parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: current directory)', default='.')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -344,5 +413,6 @@ else:
 	log.debug("Source file %s has 1 audio and 1 video track; using these" % source_file)
 	to_convert.set_default_av_tracks()
 
-
+# Next phase: Extract MKV file
+to_convert.extract_mkv()
 
