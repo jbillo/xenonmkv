@@ -300,7 +300,7 @@ class MKVFile():
 
 		if os.path.isfile(temp_audio_file):
 			log.debug("Deleting temporary audio file %s" % os.getcwd() + "/" + temp_audio_file)
-			os.unlink(temp_audio_file)		
+			os.unlink(temp_audio_file)
 
 		video_output = str(self.video_track_id) + ":" + temp_video_file
 		audio_output = str(self.audio_track_id) + ":" + temp_audio_file
@@ -312,7 +312,7 @@ class MKVFile():
 			out = process.stdout.read(1)
 			if out == '' and process.poll() != None:
 				break
-			if out != '':
+			if out != '' and not args.quiet:
 				sys.stdout.write(out)
 				sys.stdout.flush()
 
@@ -395,15 +395,19 @@ class AudioDecoder():
 		os.chdir(prev_dir)
 
 	def decode_mplayer(self):
-		print self.file_path
-		cmd = ["mplayer", self.file_path, "-vc", "null", "-vo", "null", "-ao", "pcm:fast"]
+		# Check for existing audiodump.wav (already changed to temp directory)
+		if os.path.isfile("audiodump.wav"):
+			log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
+			os.unlink("audiodump.wav")
+
+		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-ao", "pcm:fast"]
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		while True:
 			out = process.stdout.read(1)
 			if out == '' and process.poll() != None:
 				break
-			if out != '':
+			if out != '' and not args.quiet:
 				sys.stdout.write(out)
 				sys.stdout.flush()
 
@@ -414,13 +418,14 @@ def hex_edit_video_file(path):
 	with open(path, 'r+b') as f:
 		f.seek(7)
 		f.write("\x29")
-		
+	# File is automatically closed		
 
 # Main program begins
 
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
 parser.add_argument('source_file', help='Path to the source MKV file')
-parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
+parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: /tmp/)', default='/tmp/')
+parser.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
 parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
 parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
@@ -487,4 +492,6 @@ if video_file.endswith(".h264"):
 # Detect which audio codec is in place and dump audio to WAV accordingly
 audio_dec = AudioDecoder(audio_file)
 audio_dec.decode()
+
+# Once audio has been decoded to a WAV, 
 
