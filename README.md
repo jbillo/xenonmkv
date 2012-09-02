@@ -13,7 +13,8 @@ XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but m
 You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 ### Install All Dependencies
-		sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
+
+	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
 
 ### Individual Package Requirements
 
