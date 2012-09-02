@@ -196,7 +196,15 @@ class MKVFile():
 
 				track.height = int(mediainfo_track[0])
 				track.width = int(mediainfo_track[1])
-				track.reference_frames = int(mediainfo_track[2])
+				
+				try:
+					# Possible condition: no reference frames detected
+					# If so, just set to zero and log a debug message				
+					track.reference_frames = int(mediainfo_track[2])
+				except ValueError:
+					track.reference_frames = 0
+					log.debug("Reference frame value '%s' in track %i could not be parsed; assuming 0 reference frames" % (mediainfo_track[2], track.number))
+					
 				track.language = mediainfo_track[3]
 				track.frame_rate = float(mediainfo_track[4])
 				track.codec_id = mediainfo_track[5]
@@ -276,9 +284,16 @@ class MKVFile():
 		if args.scratch_dir != ".":
 			log.debug("Using %s as scratch directory for MKV extraction" % args.scratch_dir)
 			os.chdir(args.scratch_dir)
+			
+		log.debug("Using video track from MKV file with ID %i" % self.video_track_id)
+		log.debug("Using audio track from MKV file with ID %i" % self.audio_track_id)
 
-		temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
-		temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+		try:
+			temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
+			temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+		except UnsupportedCodecError:
+			log.critical("The codec used for the video or audio track is unsupported")
+			return None, None
 
 		if args.resume_previous and os.path.isfile(temp_video_file) and os.path.isfile(temp_audio_file):
 			log.debug("Temporary video and audio files already exist; cancelling extract")
@@ -320,6 +335,9 @@ class MKVFile():
 		os.chdir(prev_dir)
 		log.debug("mkvextract finished; attempting to parse output")
 		return (temp_video_file, temp_audio_file)
+		
+class UnsupportedCodecError(Exception):
+	pass
 
 class MKVTrack():
 	number = 0
@@ -329,6 +347,7 @@ class MKVTrack():
 	codec_table = {}
 	codec_table["A_AC3"] = ".ac3"
 	codec_table["A_AAC"] = ".aac"
+	codec_table["A_AAC/MPEG2/LC"] = ".aac"
 	codec_table["A_DTS"] = ".dts"
 	codec_table["A_MP3"] = ".mp3"
 	codec_table["A_MPEG/L3"] = ".mp3"
@@ -341,6 +360,12 @@ class MKVTrack():
 	def get_filename_extension(self):
 		if self.codec_id in self.codec_table:
 			return self.codec_table[self.codec_id]
+			
+		# Catch particular conditions where people will try and convert odd files
+		if self.codec_id == "DIV3":
+			# MP4Box will not touch DIV3 content
+			log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container.")
+			raise UnsupportedCodecError("DIV3 codec used in selected video track is not supported")
 
 		# Otherwise, set defaults
 		if self.codec_id.startswith("A_"):
@@ -578,6 +603,10 @@ else:
 
 # Next phase: Extract MKV files to scratch directory
 (video_file, audio_file) = to_convert.extract_mkv()
+
+if not video_file or not audio_file:
+	log.critical("One or more errors occurred during MKV extraction")
+	sys.exit(1)
 
 # If needed, hex edit the video file to make it compliant with a lower h264 profile level
 if video_file.endswith(".h264"):
