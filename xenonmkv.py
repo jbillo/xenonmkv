@@ -527,6 +527,7 @@ elif args.verbose:
 log.debug("Starting XenonMKV")
 f_utils = FileUtils()
 
+
 # Check if we have a full file path or are just specifying a file
 if "/" not in source_file:
 	log.debug("Ensuring that we have a complete path to %s" % source_file)
