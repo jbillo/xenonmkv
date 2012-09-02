@@ -9,7 +9,7 @@ import subprocess
 import logging
 import fractions
 
-import reference_frame
+from reference_frame import ReferenceFrameValidator
 
 class MKVInfoParser:
 	@staticmethod
@@ -59,7 +59,12 @@ class MKVFile():
 	def get_mkvinfo(self):
 		track_count = 0
 		log.debug("Executing 'mkvinfo %s'" % self.get_path())
-		result = subprocess.check_output(["mkvinfo", self.get_path()])
+		try: 
+			result = subprocess.check_output(["mkvinfo", self.get_path()])
+		except subprocess.CalledProcessError:
+			log.critical("Error occurred while obtaining MKV information for %s - please make sure the file exists and is readable" % self.get_path())
+			sys.exit(1)
+
 		log.debug("mkvinfo finished; attempting to parse output")
 		self.parse_mkvinfo(result)
 
@@ -261,7 +266,7 @@ class MKVFile():
 		log.debug("All tracks detected from mkvinfo output; total number is %i" % len(self.tracks))
 
 	def reference_frames_exceeded(self, video_track):
-		return reference_frame.ReferenceFrameValidator.validate(video_track.height, video_track.width, video_track.reference_frames)
+		return ReferenceFrameValidator.validate(video_track.height, video_track.width, video_track.reference_frames)
 
 	def has_multiple_av_tracks(self):
 		video_tracks = audio_tracks = 0
@@ -328,6 +333,10 @@ class MKVFile():
 			if out != '' and not args.quiet:
 				sys.stdout.write(out)
 				sys.stdout.flush()
+
+		if process.returncode != 0:
+			log.critical("An error occurred while extracting tracks from %s - please make sure this file exists and is readable" % self.get_path())
+			sys.exit(1)
 
 		temp_video_file = os.getcwd() + "/" + temp_video_file
 		temp_audio_file = os.getcwd() + "/" + temp_audio_file
