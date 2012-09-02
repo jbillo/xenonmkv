@@ -239,9 +239,14 @@ class MKVFile():
 				track.language = mediainfo_track[1]
 				track.channels = int(mediainfo_track[2])
 
-				# Preemptively indicate if the audio track needs a recode
-				# If we have an AAC file with two channels, nothing needs to happen
-				track.needs_recode = (track.codec_id != "A_AAC" or track.channels != 2)
+				# Indicate if the audio track needs a recode. By default, it does.
+				# Check that the audio type is AAC, and if the number of channels in the file
+				# is less than or equal to what was specified on the command line, no recode is necessary
+				if track.codec_id == "A_AAC":
+					# Check on the number of channels in the file versus the argument passed.
+					if track.channels <= args.channels:
+						log.debug("Audio track %i will not need to be re-encoded (%s channels specified, %i channels in file)" % (track.number, args.channels, track.channels))
+						track.needs_recode = False
 
 				log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
 				log.debug("Audio track %i has %i channel(s)" % (track.number, track.channels))
@@ -411,11 +416,14 @@ parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', ac
 parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
 parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
 parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /var/tmp/)', default='/var/tmp/')
+parser.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default="6")
 parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
 parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
 parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
 parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
+parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Options are: \nxbox360 - use settings meant for the Xbox 360 media player\nplaybook - use settings meant for the BlackBerry PlayBook", default="")
+parser.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -428,7 +436,6 @@ console_handler.setFormatter(formatter)
 log.addHandler(console_handler)
 
 args = parser.parse_args()
-source_file = args.source_file
 
 if args.quiet:
 	log.setLevel(logging.ERROR)
@@ -437,16 +444,35 @@ elif args.very_verbose:
 	log.debug("Using debug/very verbose mode output")
 elif args.verbose:
 	log.setLevel(logging.INFO)
+	
+# Check for 5.1/7.1 audio with the channels setting
+if args.channels == "5.1":
+	args.channels = "6"
+elif args.channels == "7.1":
+	args.channels = "8"
+if args.channels not in ('2', '4', '6', '8'):
+	log.warning("An invalid number of channels was specified. Falling back to 2-channel stereo audio.")
+	args.channels = "2"
+	
+if args.profile:
+	if args.profile == "xbox360":
+		args.channels = "2"
+		args.error_filesize = True
+	elif args.profile == "playbook":
+		args.channels = "6"
+		args.error_filesize = False
+	else:
+		log.warning("Unrecognized device profile %s" % args.profile)
+		args.profile = ""
 
 log.debug("Starting XenonMKV")
-f_utils = FileUtils(log)
 
 # Check if we have a full file path or are just specifying a file
-if "/" not in source_file:
-	log.debug("Ensuring that we have a complete path to %s" % source_file)
-	source_file = os.getcwd() + "/" + source_file
-	log.debug("%s will be used to reference the original MKV file" % source_file)
-
+if "/" not in args.source_file:
+	log.debug("Ensuring that we have a complete path to %s" % args.source_file)
+	args.source_file = os.getcwd() + "/" + args.source_file
+	log.debug("%s will be used to reference the original MKV file" % args.source_file)
+	
 # Always ensure destination path ends with a slash
 if not args.destination.endswith('/'):
 	args.destination += '/'
@@ -454,10 +480,13 @@ if not args.destination.endswith('/'):
 if not args.scratch_dir.endswith('/'):
 	args.scratch_dir += '/'
 
-# Check if source file exists
-f_utils.check_source_file(source_file)
+# Initialize file utilities
+f_utils = FileUtils(log, args)
 
-source_basename = os.path.basename(source_file)
+# Check if source file exists and is an appropriate size
+f_utils.check_source_file(args.source_file)
+
+source_basename = os.path.basename(args.source_file)
 source_noext = source_basename[0:source_basename.rindex(".")]
 
 if not args.name:
@@ -467,14 +496,14 @@ if not args.name:
 # Check if destination directory exists
 f_utils.check_dest_dir(args.destination)
 
-log.info("Loading source file %s " % source_file)
+log.info("Loading source file %s " % args.source_file)
 
-to_convert = MKVFile(source_file)
+to_convert = MKVFile(args.source_file)
 to_convert.get_mkvinfo()
 
 # Check for multiple tracks
 if to_convert.has_multiple_av_tracks():
-	log.debug("Source file %s has multiple audio and/or video tracks" % source_file)
+	log.debug("Source file %s has multiple audio and/or video tracks" % args.source_file)
 	if args.select_tracks:
 		# TODO: Add selector for tracks
 		# Handle this scenario: prompt the user to select specific tracks,
@@ -486,7 +515,7 @@ if to_convert.has_multiple_av_tracks():
 		to_convert.set_default_av_tracks()
 else:
 	# Pick default (or only) audio/video tracks
-	log.debug("Source file %s has 1 audio and 1 video track; using these" % source_file)
+	log.debug("Source file %s has 1 audio and 1 video track; using these" % args.source_file)
 	to_convert.set_default_av_tracks()
 
 # Next phase: Extract MKV files to scratch directory
@@ -502,7 +531,7 @@ if video_file.endswith(".h264"):
 
 # Detect which audio codec is in place and dump audio to WAV accordingly
 if to_convert.get_audio_track().needs_recode:
-	log.debug("Audio track %s needs to be re-encoded to a 2-channel AAC file" % audio_file)
+	log.debug("Audio track %s needs to be re-encoded" % audio_file)
 	audio_dec = AudioDecoder(audio_file, log, args)
 	audio_dec.decode()
 
@@ -523,7 +552,7 @@ mp4box.package()
 dest_path = args.destination + source_noext + ".mp4"
 os.rename(args.scratch_dir + "output.mp4", dest_path)
 
-log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
+log.info("Processing of %s complete; file saved as %s" % (args.source_file, dest_path))
 
 # Delete temporary files if possible
 if not args.preserve_temp_files:

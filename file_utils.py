@@ -1,10 +1,12 @@
 import os
 
 class FileUtils:
-	log = None
+	log = args = None
+	FOUR_GIGS = (4*1024*1024*1024)
 
-	def __init__(self, log):
+	def __init__(self, log, args):
 		self.log = log
+		self.args = args
 		
 	def check_dest_dir(self, destination):
 		if not os.path.isdir(destination):
@@ -15,6 +17,13 @@ class FileUtils:
 		if not os.path.isfile(source_file):
 			log.critical("Source file %s does not exist" % source_file)
 			sys.exit(1)
+			
+		filesize = os.path.getsize(source_file)
+		if (filesize >= self.FOUR_GIGS):
+			log.warning("File size of %s is %i, which is over 4GiB. This file may not play on certain devices and cannot be copied to a FAT32-formatted storage medium." % (source_file, filesize))
+			if self.args.error_filesize:
+				log.critical("Cancelling processing as file size limit of 4GiB is exceeded")
+				sys.exit(1)
 
 	def hex_edit_video_file(self, path):
 		with open(path, 'r+b') as f:
