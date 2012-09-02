@@ -298,6 +298,13 @@ class MKVFile():
 
 		temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
 		temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+
+		if args.resume_previous and os.path.isfile(temp_video_file) and os.path.isfile(temp_audio_file):
+			log.debug("Temporary video and audio files already exist; cancelling extract")
+			temp_video_file = os.getcwd() + "/" + temp_video_file
+			temp_audio_file = os.getcwd() + "/" + temp_audio_file
+			os.chdir(prev_dir)
+			return (temp_video_file, temp_audio_file)
 	
 		# Remove any existing files with the same names
 		if os.path.isfile(temp_video_file):
@@ -381,10 +388,11 @@ class AudioDecoder():
 		self.extension = file_path[file_path.rindex("."):]
 
 	def detect_decoder(self):
+		# New decoders can be added here when necessary
 		if self.extension == ".ac3":
 			self.decoder = "mplayer"
 		elif self.extension == ".dts":
-			self.decoder = "valdec"
+			self.decoder = "mplayer"
 		else:
 			self.decoder = "mplayer"	
 
@@ -402,8 +410,13 @@ class AudioDecoder():
 		os.chdir(prev_dir)
 
 	def decode_mplayer(self):
+		log.debug("Starting decoding file to WAV with mplayer")
 		# Check for existing audiodump.wav (already changed to temp directory)
 		if os.path.isfile("audiodump.wav"):
+			if args.resume_previous:
+				log.debug("audiodump.wav already exists in scratch directory; cancelling decode")
+				return True
+
 			log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
 			os.unlink("audiodump.wav")
 
@@ -418,30 +431,70 @@ class AudioDecoder():
 				sys.stdout.write(out)
 				sys.stdout.flush()
 
-		log.debug("mplayer complete")
+		log.debug("mplayer decoding complete")
 
 
-class NeroEncoder():
+class FAACEncoder():
 	file_path = ""
 
 	def __init__(self, file_path):
-		# Check if Nero encoder exists on system
-		nero_exists = False
-		for p in os.environ["PATH"].split(os.pathsep):
-			if os.path.isfile(p + "/neroAacEnc"):
-				log.debug("Found Nero AAC codec executable in %s" % p + "/neroAacEnc")
-				nero_exists = True
-				break
-
-		if not nero_exists:
-			log.critical("Could not find the Nero AAC codec executable (neroAacEnc) in your PATH variable.")
-			sys.exit(1)
-
 		self.file_path = file_path
 
 	def encode(self):
 		# Start encoding
-		print "Encoding away!"
+		log.debug("Starting AAC encoding with FAAC")
+		prev_dir = os.getcwd()
+		os.chdir(args.scratch_dir)
+
+		if args.resume_previous and os.path.isfile("audiodump.aac"):
+			os.chdir(prev_dir)
+			log.debug("audiodump.aac already exists in scratch directory; cancelling encode")
+			return True
+
+		cmd = ["faac", "-q", str(args.faac_quality), self.file_path]
+		
+		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		while True:
+			err = process.stderr.read(1)
+			if err == '' and process.poll() != None:
+				break
+			if err != '' and not args.quiet:
+				sys.stderr.write(err)
+				sys.stderr.flush()
+
+		os.chdir(prev_dir)
+		log.debug("FAAC complete")
+
+class MP4Box():
+	video_path = audio_path = video_fps = video_pixel_ar = ""
+
+	def __init__(self, video_path, audio_path, video_fps, video_pixel_ar):
+		self.video_path = video_path
+		self.audio_path = audio_path
+		self.video_fps = str(video_fps)
+		self.video_pixel_ar = video_pixel_ar
+
+	def package(self):
+		prev_dir = os.getcwd()
+		os.chdir(args.scratch_dir)
+
+		cmd = ["MP4Box", "output.mp4", "-add", self.video_path, "-fps", self.video_fps, "-par", "1=" + self.video_pixel_ar, "-add", self.audio_path, "-tmp", args.scratch_dir, "-itags", "name=" + args.name]
+
+		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+		while True:
+			out = process.stdout.read(1)
+			if out == '' and process.poll() != None:
+				break
+			if out != '' and not args.quiet:
+				sys.stdout.write(out)
+				sys.stdout.flush()
+
+		log.debug("MP4Box process complete")
+
+		# When complete, change back to original directory
+		os.chdir(prev_dir)
 
 
 def hex_edit_video_file(path):
@@ -454,13 +507,16 @@ def hex_edit_video_file(path):
 
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
 parser.add_argument('source_file', help='Path to the source MKV file')
-parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: /tmp/)', default='/tmp/')
+parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
 parser.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
 parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
 parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
 parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
-parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: current directory)', default='.')
+parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /tmp/)', default='/tmp/')
+parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
+parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a run has already succeeded.', action='store_true')
+parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.',default="")
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -493,6 +549,13 @@ if not destination.endswith('/'):
 if not os.path.isfile(source_file):
 	log.critical("Source file %s does not exist" % source_file)
 	sys.exit(1)
+
+source_basename = os.path.basename(source_file)
+source_noext = source_basename[0:source_basename.rindex(".")]
+
+if not args.name:
+	args.name = source_noext
+	log.debug("Using '%s' as final container name" % args.name)	
 
 # Check if destination directory exists
 if not os.path.isdir(destination):
@@ -527,12 +590,23 @@ if to_convert.get_audio_track().needs_recode:
 	audio_dec = AudioDecoder(audio_file)
 	audio_dec.decode()
 
-	# Once audio has been decoded to a WAV, use the Nero AAC codec to encode it to .aac
-	nero_enc = NeroEncoder(args.scratch_dir + "/audiodump.wav")
-	nero_enc.encode()
-	encoded_audio = ""
+	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
+	faac_enc = FAACEncoder(args.scratch_dir + "/audiodump.wav")
+	faac_enc.encode()
+	encoded_audio = args.scratch_dir + "/audiodump.aac"
 else:
 	# Bypass this whole encoding shenanigans and just reference the already-valid audio file
 	encoded_audio = audio_file
+
+# Now, throw things back together into a .mp4 container with MP4Box.
+video_track = to_convert.get_video_track()
+mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate, video_track.pixel_ar)
+mp4box.package()
+
+# Move the file to the destination directory with the original name
+dest_path = destination + source_noext + ".mp4"
+os.rename(args.scratch_dir + "/output.mp4", dest_path)
+
+log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
 
 
