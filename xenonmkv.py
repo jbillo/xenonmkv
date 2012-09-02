@@ -72,7 +72,7 @@ class MKVFile():
 		return self.parse_mediainfo(result)
 
 	def get_mediainfo_audio(self):
-		parameters = "Audio;%ID%,%CodecID%,%Language%,\n"
+		parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,\n"
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for audio settings")
@@ -241,8 +241,14 @@ class MKVFile():
 
 				track.codec_id = mediainfo_track[0]
 				track.language = mediainfo_track[1]
+				track.channels = int(mediainfo_track[2])
+
+				# Preemptively indicate if the audio track needs a recode
+				# If we have an AAC file with two channels, nothing needs to happen
+				track.needs_recode = (track.codec_id != "A_AAC" or track.channels != 2)
 
 				log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
+				log.debug("Audio track %i has %i channel(s)" % (track.number, track.channels))
 			
 			else:
 				raise Exception("Unrecognized track type %s" % track_type)
@@ -362,7 +368,8 @@ class VideoTrack(MKVTrack):
 	pixel_ar = ""
 
 class AudioTrack(MKVTrack):
-	length = 0
+	length = channels = 0
+	needs_recode = True
 
 class AudioDecoder():
 	extension = ""
@@ -414,6 +421,29 @@ class AudioDecoder():
 		log.debug("mplayer complete")
 
 
+class NeroEncoder():
+	file_path = ""
+
+	def __init__(self, file_path):
+		# Check if Nero encoder exists on system
+		nero_exists = False
+		for p in os.environ["PATH"].split(os.pathsep):
+			if os.path.isfile(p + "/neroAacEnc"):
+				log.debug("Found Nero AAC codec executable in %s" % p + "/neroAacEnc")
+				nero_exists = True
+				break
+
+		if not nero_exists:
+			log.critical("Could not find the Nero AAC codec executable (neroAacEnc) in your PATH variable.")
+			sys.exit(1)
+
+		self.file_path = file_path
+
+	def encode(self):
+		# Start encoding
+		print "Encoding away!"
+
+
 def hex_edit_video_file(path):
 	with open(path, 'r+b') as f:
 		f.seek(7)
@@ -445,7 +475,9 @@ log.addHandler(console_handler)
 args = parser.parse_args()
 source_file = args.source_file
 destination = args.destination
-if args.very_verbose:
+if args.quiet:
+	log.setLevel(logging.ERROR)
+elif args.very_verbose:
 	log.setLevel(logging.DEBUG)
 	log.debug("Using debug/very verbose mode output")
 elif args.verbose:
@@ -459,12 +491,12 @@ if not destination.endswith('/'):
 
 # Check if source file exists
 if not os.path.isfile(source_file):
-	print "Error: File " + source_file + " does not exist"
+	log.critical("Source file %s does not exist" % source_file)
 	sys.exit(1)
 
 # Check if destination directory exists
 if not os.path.isdir(destination):
-	print "Error: Destination " + destination + " does not exist"
+	log.critical("Destination directory %s does not exist" % destination)
 	sys.exit(1)
 
 log.info("Loading source file %s " % source_file)
@@ -490,8 +522,17 @@ if video_file.endswith(".h264"):
 	hex_edit_video_file(video_file)
 
 # Detect which audio codec is in place and dump audio to WAV accordingly
-audio_dec = AudioDecoder(audio_file)
-audio_dec.decode()
+if to_convert.get_audio_track().needs_recode:
+	log.debug("Audio track %s needs to be re-encoded to a 2-channel AAC file" % audio_file)
+	audio_dec = AudioDecoder(audio_file)
+	audio_dec.decode()
 
-# Once audio has been decoded to a WAV, 
+	# Once audio has been decoded to a WAV, use the Nero AAC codec to encode it to .aac
+	nero_enc = NeroEncoder(args.scratch_dir + "/audiodump.wav")
+	nero_enc.encode()
+	encoded_audio = ""
+else:
+	# Bypass this whole encoding shenanigans and just reference the already-valid audio file
+	encoded_audio = audio_file
+
 
