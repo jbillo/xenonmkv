@@ -47,9 +47,9 @@ class MKVFile():
 	# Open the mediainfo process to obtain detailed info on the file.		
 	def get_mediainfo(self, track_type):
 		if track_type == "video":
-			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,\n"
+			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,~"
 		else:
-			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,\n"
+			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,~"
 			
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
@@ -58,10 +58,16 @@ class MKVFile():
 
 	def parse_mediainfo(self, result):
 		output = []
-		lines = result.split("\n")
+		result = result.replace("\n", "")
+		
+		# Obtain multiple tracks if they are present
+		lines = result.split("~")
+		lines = lines[0:-1] # remove last tilde separator character
+		
 		for line in lines:
 			# remove last \n element from array that will always be present
-			values = result.split(",")[0:-1] 
+			values = line.split(",")
+			# print values
 			output.append(values)
 
 		return output
@@ -270,6 +276,30 @@ class MKVFile():
 				self.video_track_id = track.number
 			elif track.track_type == "audio" and track.default:
 				self.audio_track_id = track.number
+				
+		# Check again if we have tracks specified here. If not, nothing was hinted as default
+		# in the MKV file and we should really pick the first audio and first video track.
+		if not self.video_track_id:
+			log.debug("No default video track was specified in '%s'; using first available" % self.path)
+			for track_id in self.tracks:
+				track = self.tracks[track_id]
+				if track.track_type == "video":
+					self.video_track_id = track.number
+					log.debug("First available video track in file is %i" % self.video_track_id)
+					break
+					
+		if not self.audio_track_id:
+			log.debug("No default audio track was specified in '%s'; using first available" % self.path)
+			for track_id in self.tracks:
+				track = self.tracks[track_id]
+				if track.track_type == "audio":
+					self.audio_track_id = track.number
+					log.debug("First available audio track in file is %i" % self.audio_track_id)
+					break
+					
+		# If we still don't have a video and audio track specified, it's time to throw an error.
+		if not self.video_track_id or not self.audio_track_id:
+			raise Exception("Could not select an audio and video track for MKV file '%s'" % self.path)
 
 	def get_audio_track(self):
 		return self.tracks[self.audio_track_id]
@@ -440,7 +470,7 @@ to_convert.get_mkvinfo()
 
 # Check for multiple tracks
 if to_convert.has_multiple_av_tracks():
-	log.debug("Source file %s has multiple A/V tracks" % source_file)
+	log.debug("Source file %s has multiple audio and/or video tracks" % source_file)
 	if args.select_tracks:
 		# TODO: Add selector for tracks
 		# Handle this scenario: prompt the user to select specific tracks,
@@ -493,7 +523,7 @@ log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path
 
 # Delete temporary files if possible
 if not args.preserve_temp_files:
-	t = MKVTrack()
+	t = MKVTrack(log)
 	f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
 
 log.debug("XenonMKV run complete")

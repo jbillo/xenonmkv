@@ -30,7 +30,7 @@ class MKVTrack():
 		# Catch particular conditions where people will try and convert odd files
 		if self.codec_id == "DIV3":
 			# MP4Box will not touch DIV3 content
-			self.log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container.")
+			self.log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container")
 			raise UnsupportedCodecError("DIV3 codec used in selected video track is not supported")
 
 		# Otherwise, set defaults
@@ -59,3 +59,5 @@ class VideoTrack(MKVTrack):
 class AudioTrack(MKVTrack):
 	length = channels = 0
 	needs_recode = True
+	
+

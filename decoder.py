@@ -58,4 +58,4 @@ class AudioDecoder():
 				sys.stdout.write(out)
 				sys.stdout.flush()
 
-		self.log.debug("mplayer decoding complete")
+		self.log.debug("mplayer decoding to PCM WAV file complete")

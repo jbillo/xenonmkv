@@ -35,4 +35,4 @@ class FAACEncoder():
 				sys.stderr.flush()
 
 		os.chdir(prev_dir)
-		self.log.debug("FAAC complete")
+		self.log.debug("FAAC encoding to AAC audio file complete")
