@@ -6,5 +6,5 @@
 # Suggested Applications
 
 * vlc
-	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio
-	and video tracks.
+
+	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks.
