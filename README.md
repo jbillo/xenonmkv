@@ -10,11 +10,12 @@ XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but m
 * faac (sudo apt-get install faac)
 * MP4Box (sudo apt-get install gpac)
 
-
-## Other Dependencies
-
 # Suggested Applications
 
 * vlc
 
 	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks.
+
+# Usage
+
+Run xenonmkv.py --help to see all command line arguments.

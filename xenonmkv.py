@@ -515,8 +515,9 @@ parser.add_argument('-nrp', '--no-round-par', help='When processing video, do no
 parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
 parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /tmp/)', default='/tmp/')
 parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
-parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a run has already succeeded.', action='store_true')
-parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.',default="")
+parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
+parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
+parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -569,11 +570,18 @@ to_convert.get_mkvinfo()
 
 # Check for multiple tracks
 if to_convert.has_multiple_av_tracks():
-	# Handle this scenario: either prompt the user to select specific tracks,
-	# or automatically detect tracks based on MKV defaults
 	log.debug("Source file %s has multiple A/V tracks" % source_file)
+	if args.select_tracks:
+		# TODO: Add selector for tracks
+		# Handle this scenario: prompt the user to select specific tracks,
+		# or read command line arguments, or something.
+		log.warning("Multiple track selection support is not yet implemented. Using default tracks")
+		to_convert.set_default_av_tracks()
+	else:
+		log.debug("Selecting default audio and video tracks")
+		to_convert.set_default_av_tracks()
 else:
-	# Pick appropriate audio/video tracks
+	# Pick default (or only) audio/video tracks
 	log.debug("Source file %s has 1 audio and 1 video track; using these" % source_file)
 	to_convert.set_default_av_tracks()
 
