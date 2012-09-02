@@ -12,37 +12,7 @@ import logging
 import fractions
 
 from reference_frame import ReferenceFrameValidator
-
-class MKVInfoParser:
-	@staticmethod
-	def _parse_to_newline(output, detect, what="value"):
-		if detect in output:
-			output = output[output.index(detect) + len(detect):]
-			if "\n" in output:
-				output = output[0:output.index("\n")]
-			log.debug("Detected %s '%s' from mkvinfo output" % (what, output))
-			return output
-		else:
-			raise Exception("Could not parse %s from mkvinfo" % what)
-		
-	@staticmethod
-	def parse_track_number(output):
-		return int(MKVInfoParser._parse_to_newline(output, "|  + Track number: ", "track number"))
-
-	@staticmethod
-	def parse_track_type(output):
-		return MKVInfoParser._parse_to_newline(output, "|  + Track type: ", "track type")
-
-	@staticmethod
-	def parse_track_is_default(output):
-		try:
-			result = MKVInfoParser._parse_to_newline(output, "|  + Default flag: ", "default flag")		
-			return "1" in result
-		except:
-			# Could not determine whether track was default, so set it to default
-			# Usually this means that there is only one video and one audio track
-			return True
-
+from mkv_info_parser import MKVInfoParser
 
 class MKVFile():
 	path = ""
@@ -201,6 +171,9 @@ class MKVFile():
 		for mediainfo_track in mediainfo_audio_output:
 			mediainfo[int(mediainfo_track[0])] = mediainfo_track[1:]
 
+		# Create a new parser that can be used for all tracks
+		info_parser = MKVInfoParser(log)
+
 		while track_detect_string in track_info:
 			track = MKVTrack()
 			if track_detect_string in track_info:
@@ -209,8 +182,8 @@ class MKVFile():
 				break
 
 			# Get track type and number out of this block
-			track_type = MKVInfoParser.parse_track_type(track_info)
-			track_number = MKVInfoParser.parse_track_number(track_info)
+			track_type = info_parser.parse_track_type(track_info)
+			track_number = info_parser.parse_track_number(track_info)
 
 			# Set individual track properties for the object by track ID
 			mediainfo_track = mediainfo[track_number]
@@ -218,7 +191,7 @@ class MKVFile():
 			if track_type == "video":
 				track = VideoTrack()
 				track.number = track_number
-				track.default = MKVInfoParser.parse_track_is_default(track_info)
+				track.default = info_parser.parse_track_is_default(track_info)
 
 				track.height = int(mediainfo_track[0])
 				track.width = int(mediainfo_track[1])
@@ -244,7 +217,7 @@ class MKVFile():
 			elif track_type == "audio":
 				track = AudioTrack()
 				track.number = track_number
-				track.default = MKVInfoParser.parse_track_is_default(track_info)
+				track.default = info_parser.parse_track_is_default(track_info)
 
 				track.codec_id = mediainfo_track[0]
 				track.language = mediainfo_track[1]
