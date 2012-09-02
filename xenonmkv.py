@@ -193,7 +193,8 @@ class MKVFile():
 			track_number = info_parser.parse_track_number(track_info)
 
 			# Set individual track properties for the object by track ID
-			mediainfo_track = mediainfo[track_number]
+			if track_type in ("video", "audio"):
+				mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
 				track = VideoTrack(log)
@@ -244,9 +245,12 @@ class MKVFile():
 
 				log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
 				log.debug("Audio track %i has %i channel(s)" % (track.number, track.channels))
-			
+				
 			else:
-				raise Exception("Unrecognized track type %s" % track_type)
+				# Unrecognized track type. Don't completely abort processing, but do log it.
+				# Do not proceed to add this to the global tracks list.
+				log.debug("Unrecognized track type '%s' in %i; skipping" % (track_type, track_number)) 
+				continue
 
 			log.debug("All properties set for %s track %i" % (track_type, track.number))
 			track.track_type = track_type
