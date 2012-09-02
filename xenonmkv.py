@@ -580,6 +580,12 @@ elif args.verbose:
 
 log.debug("Starting XenonMKV")
 
+# Check if we have a full file path or are just specifying a file
+if "/" not in source_file:
+	log.debug("Ensuring that we have a complete path to %s" % source_file)
+	source_file = os.getcwd() + "/" + source_file
+	log.debug("%s will be used to reference the original MKV file" % source_file)
+
 # Always ensure destination path ends with a slash
 if not destination.endswith('/'):
 	destination += '/'
