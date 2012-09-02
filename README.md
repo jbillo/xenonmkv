@@ -53,7 +53,17 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 # Usage
 
-Run xenonmkv.py --help to see all command line arguments. 
+Basic usage with default settings:
+
+	xenonmkv.py /path/to/file.mkv
+
+To see all command line arguments:
+
+	xenonmkv.py --help
+	
+For a quiet run (batch processing or in a cronjob):
+	
+	xenonmkv.py /path/to/file.mkv -q
 
 # Suggestions/Caveats
 

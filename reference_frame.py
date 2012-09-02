@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 class ReferenceFrameValidator:
 	@staticmethod
 	def validate(height, width, reference_frames):

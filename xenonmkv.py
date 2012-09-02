@@ -12,37 +12,11 @@ import logging
 import fractions
 
 from reference_frame import ReferenceFrameValidator
-
-class MKVInfoParser:
-	@staticmethod
-	def _parse_to_newline(output, detect, what="value"):
-		if detect in output:
-			output = output[output.index(detect) + len(detect):]
-			if "\n" in output:
-				output = output[0:output.index("\n")]
-			log.debug("Detected %s '%s' from mkvinfo output" % (what, output))
-			return output
-		else:
-			raise Exception("Could not parse %s from mkvinfo" % what)
-		
-	@staticmethod
-	def parse_track_number(output):
-		return int(MKVInfoParser._parse_to_newline(output, "|  + Track number: ", "track number"))
-
-	@staticmethod
-	def parse_track_type(output):
-		return MKVInfoParser._parse_to_newline(output, "|  + Track type: ", "track type")
-
-	@staticmethod
-	def parse_track_is_default(output):
-		try:
-			result = MKVInfoParser._parse_to_newline(output, "|  + Default flag: ", "default flag")		
-			return "1" in result
-		except:
-			# Could not determine whether track was default, so set it to default
-			# Usually this means that there is only one video and one audio track
-			return True
-
+from mkv_info_parser import MKVInfoParser
+from file_utils import FileUtils
+from track import *
+from decoder import AudioDecoder
+from encoder import FAACEncoder
 
 class MKVFile():
 	path = ""
@@ -69,28 +43,31 @@ class MKVFile():
 
 		log.debug("mkvinfo finished; attempting to parse output")
 		self.parse_mkvinfo(result)
-
-	# Open the mediainfo process to obtain detailed info on the file.
-	def get_mediainfo_video(self):
-		parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,\n"
+		
+	# Open the mediainfo process to obtain detailed info on the file.		
+	def get_mediainfo(self, track_type):
+		if track_type == "video":
+			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,~"
+		else:
+			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,~"
+			
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
 		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
-		log.debug("mediainfo finished; attempting to parse output for video settings")
-		return self.parse_mediainfo(result)
-
-	def get_mediainfo_audio(self):
-		parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,\n"
-		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
-		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
-		log.debug("mediainfo finished; attempting to parse output for audio settings")
-		return self.parse_mediainfo(result)
+		log.debug("mediainfo finished; attempting to parse output for %s settings" % track_type)
+		return self.parse_mediainfo(result)		
 
 	def parse_mediainfo(self, result):
 		output = []
-		lines = result.split("\n")
+		result = result.replace("\n", "")
+		
+		# Obtain multiple tracks if they are present
+		lines = result.split("~")
+		lines = lines[0:-1] # remove last tilde separator character
+		
 		for line in lines:
 			# remove last \n element from array that will always be present
-			values = result.split(",")[0:-1] 
+			values = line.split(",")
+			# print values
 			output.append(values)
 
 		return output
@@ -190,8 +167,8 @@ class MKVFile():
 		# Extract mediainfo profile for all tracks in file, then cross-reference them
 		# with the output from mkvinfo. This prevents running mediainfo multiple times.
 
-		mediainfo_video_output = self.get_mediainfo_video()
-		mediainfo_audio_output = self.get_mediainfo_audio()
+		mediainfo_video_output = self.get_mediainfo("video")
+		mediainfo_audio_output = self.get_mediainfo("audio")
 
 		# For ease of use, throw these values into a dictionary with the key being the track ID.
 		mediainfo = {}
@@ -201,28 +178,40 @@ class MKVFile():
 		for mediainfo_track in mediainfo_audio_output:
 			mediainfo[int(mediainfo_track[0])] = mediainfo_track[1:]
 
+		# Create a new parser that can be used for all tracks
+		info_parser = MKVInfoParser(log)
+
 		while track_detect_string in track_info:
-			track = MKVTrack()
+			track = MKVTrack(log)
 			if track_detect_string in track_info:
 				track_info = track_info[track_info.index(track_detect_string) + len(track_detect_string):]
 			else:
 				break
 
 			# Get track type and number out of this block
-			track_type = MKVInfoParser.parse_track_type(track_info)
-			track_number = MKVInfoParser.parse_track_number(track_info)
+			track_type = info_parser.parse_track_type(track_info)
+			track_number = info_parser.parse_track_number(track_info)
 
 			# Set individual track properties for the object by track ID
-			mediainfo_track = mediainfo[track_number]
+			if track_type in ("video", "audio"):
+				mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
-				track = VideoTrack()
+				track = VideoTrack(log)
 				track.number = track_number
-				track.default = MKVInfoParser.parse_track_is_default(track_info)
+				track.default = info_parser.parse_track_is_default(track_info)
 
 				track.height = int(mediainfo_track[0])
 				track.width = int(mediainfo_track[1])
-				track.reference_frames = int(mediainfo_track[2])
+				
+				try:
+					# Possible condition: no reference frames detected
+					# If so, just set to zero and log a debug message				
+					track.reference_frames = int(mediainfo_track[2])
+				except ValueError:
+					track.reference_frames = 0
+					log.debug("Reference frame value '%s' in track %i could not be parsed; assuming 0 reference frames" % (mediainfo_track[2], track.number))
+					
 				track.language = mediainfo_track[3]
 				track.frame_rate = float(mediainfo_track[4])
 				track.codec_id = mediainfo_track[5]
@@ -242,9 +231,9 @@ class MKVFile():
 
 	
 			elif track_type == "audio":
-				track = AudioTrack()
+				track = AudioTrack(log)
 				track.number = track_number
-				track.default = MKVInfoParser.parse_track_is_default(track_info)
+				track.default = info_parser.parse_track_is_default(track_info)
 
 				track.codec_id = mediainfo_track[0]
 				track.language = mediainfo_track[1]
@@ -256,9 +245,12 @@ class MKVFile():
 
 				log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
 				log.debug("Audio track %i has %i channel(s)" % (track.number, track.channels))
-			
+				
 			else:
-				raise Exception("Unrecognized track type %s" % track_type)
+				# Unrecognized track type. Don't completely abort processing, but do log it.
+				# Do not proceed to add this to the global tracks list.
+				log.debug("Unrecognized track type '%s' in %i; skipping" % (track_type, track_number)) 
+				continue
 
 			log.debug("All properties set for %s track %i" % (track_type, track.number))
 			track.track_type = track_type
@@ -288,6 +280,30 @@ class MKVFile():
 				self.video_track_id = track.number
 			elif track.track_type == "audio" and track.default:
 				self.audio_track_id = track.number
+				
+		# Check again if we have tracks specified here. If not, nothing was hinted as default
+		# in the MKV file and we should really pick the first audio and first video track.
+		if not self.video_track_id:
+			log.debug("No default video track was specified in '%s'; using first available" % self.path)
+			for track_id in self.tracks:
+				track = self.tracks[track_id]
+				if track.track_type == "video":
+					self.video_track_id = track.number
+					log.debug("First available video track in file is %i" % self.video_track_id)
+					break
+					
+		if not self.audio_track_id:
+			log.debug("No default audio track was specified in '%s'; using first available" % self.path)
+			for track_id in self.tracks:
+				track = self.tracks[track_id]
+				if track.track_type == "audio":
+					self.audio_track_id = track.number
+					log.debug("First available audio track in file is %i" % self.audio_track_id)
+					break
+					
+		# If we still don't have a video and audio track specified, it's time to throw an error.
+		if not self.video_track_id or not self.audio_track_id:
+			raise Exception("Could not select an audio and video track for MKV file '%s'" % self.path)
 
 	def get_audio_track(self):
 		return self.tracks[self.audio_track_id]
@@ -302,9 +318,16 @@ class MKVFile():
 		if args.scratch_dir != ".":
 			log.debug("Using %s as scratch directory for MKV extraction" % args.scratch_dir)
 			os.chdir(args.scratch_dir)
+			
+		log.debug("Using video track from MKV file with ID %i" % self.video_track_id)
+		log.debug("Using audio track from MKV file with ID %i" % self.audio_track_id)
 
-		temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
-		temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+		try:
+			temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
+			temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
+		except UnsupportedCodecError:
+			log.critical("The codec used for the video or audio track is unsupported")
+			return None, None
 
 		if args.resume_previous and os.path.isfile(temp_video_file) and os.path.isfile(temp_audio_file):
 			log.debug("Temporary video and audio files already exist; cancelling extract")
@@ -347,142 +370,6 @@ class MKVFile():
 		log.debug("mkvextract finished; attempting to parse output")
 		return (temp_video_file, temp_audio_file)
 
-class MKVTrack():
-	number = 0
-	uid = track_type = language = codec_id = ""
-	default = True
-
-	codec_table = {}
-	codec_table["A_AC3"] = ".ac3"
-	codec_table["A_AAC"] = ".aac"
-	codec_table["A_DTS"] = ".dts"
-	codec_table["A_MP3"] = ".mp3"
-	codec_table["A_MPEG/L3"] = ".mp3"
-	codec_table["A_MS/ACM"] = ".mp3" # because people like to run anime through this thing
-	codec_table["A_VORBIS"] = ".ogg"
-	codec_table["V_MS/VFW/FOURCC"] = ".avi"
-	codec_table["V_MPEG4/ISO/AVC"] = ".h264"
-	codec_table["V_MPEG2"] = ".mpg"
-
-	def get_filename_extension(self):
-		if self.codec_id in self.codec_table:
-			return self.codec_table[self.codec_id]
-
-		# Otherwise, set defaults
-		if self.codec_id.startswith("A_"):
-			log.warning("Returning default .aac extension for audio codec %s" % self.codec_id)
-			return ".aac"
-
-		if self.codec_id.startswith("V_"):
-			log.warning("Returning default .avi extension for video codec %s" % self.codec_id)
-			return ".avi"
-
-		raise Exception("Could not detect appropriate extension for codec %s" % self.codec_id)
-
-	def get_possible_extensions(self):
-		extensions = set()
-		for key in self.codec_table:
-			extensions.add(self.codec_table[key])
-
-		return extensions
-
-class VideoTrack(MKVTrack):
-	height = width = reference_frames = 0
-	frame_rate = display_ar = 0.0
-	pixel_ar = ""
-
-class AudioTrack(MKVTrack):
-	length = channels = 0
-	needs_recode = True
-
-class AudioDecoder():
-	extension = ""
-	file_path = ""
-	decoder = ""
-
-	def __init__(self, file_path):
-		self.file_path = file_path
-		self.extension = file_path[file_path.rindex("."):]
-
-	def detect_decoder(self):
-		# New decoders can be added here when necessary
-		if self.extension == ".ac3":
-			self.decoder = "mplayer"
-		elif self.extension == ".dts":
-			self.decoder = "mplayer"
-		else:
-			self.decoder = "mplayer"	
-
-	def decode(self):
-		if not self.decoder:
-			self.detect_decoder()
-
-		prev_dir = os.getcwd()
-		os.chdir(args.scratch_dir)
-
-		# Based on the decoder, perform the appropriate operation
-		if self.decoder == "mplayer":
-			self.decode_mplayer()
-		
-		os.chdir(prev_dir)
-
-	def decode_mplayer(self):
-		log.debug("Starting decoding file to WAV with mplayer")
-		# Check for existing audiodump.wav (already changed to temp directory)
-		if os.path.isfile("audiodump.wav"):
-			if args.resume_previous:
-				log.debug("audiodump.wav already exists in scratch directory; cancelling decode")
-				return True
-
-			log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
-			os.unlink("audiodump.wav")
-
-		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-ao", "pcm:fast"]
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-		while True:
-			out = process.stdout.read(1)
-			if out == '' and process.poll() != None:
-				break
-			if out != '' and not args.quiet:
-				sys.stdout.write(out)
-				sys.stdout.flush()
-
-		log.debug("mplayer decoding complete")
-
-
-class FAACEncoder():
-	file_path = ""
-
-	def __init__(self, file_path):
-		self.file_path = file_path
-
-	def encode(self):
-		# Start encoding
-		log.debug("Starting AAC encoding with FAAC")
-		prev_dir = os.getcwd()
-		os.chdir(args.scratch_dir)
-
-		if args.resume_previous and os.path.isfile("audiodump.aac"):
-			os.chdir(prev_dir)
-			log.debug("audiodump.aac already exists in scratch directory; cancelling encode")
-			return True
-
-		cmd = ["faac", "-q", str(args.faac_quality), self.file_path]
-		
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-		while True:
-			err = process.stderr.read(1)
-			if err == '' and process.poll() != None:
-				break
-			if err != '' and not args.quiet:
-				sys.stderr.write(err)
-				sys.stderr.flush()
-
-		os.chdir(prev_dir)
-		log.debug("FAAC complete")
-
 class MP4Box():
 	video_path = audio_path = video_fps = video_pixel_ar = ""
 
@@ -513,36 +400,6 @@ class MP4Box():
 		# When complete, change back to original directory
 		os.chdir(prev_dir)
 
-
-def hex_edit_video_file(path):
-	with open(path, 'r+b') as f:
-		f.seek(7)
-		f.write("\x29")
-	# File is automatically closed		
-
-
-def delete_temp_files(scratch_dir):
-	# Get possible file extensions 
-	t = MKVTrack()
-	extensions = t.get_possible_extensions()
-
-	for extension in extensions:
-		temp_video = scratch_dir + "temp_video" + extension
-		temp_audio = scratch_dir + "temp_audio" + extension
-		if os.path.isfile(temp_video):
-			log.debug("Cleaning up: deleting %s" % temp_video)
-			os.unlink(temp_video)
-		if os.path.isfile(temp_audio):
-			log.debug("Cleaning up: deleting %s" % temp_audio)
-			os.unlink(temp_audio)
-
-	# Check for audiodump.aac and audiodump.wav
-	other_files = ('audiodump.aac', 'audiodump.wav')
-	for name in other_files:
-		if os.path.isfile(scratch_dir + name):
-			log.debug("Cleaning up: deleting %s" % scratch_dir + name)
-			os.unlink(scratch_dir + name)
-
 # Main program begins
 
 parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
@@ -558,6 +415,7 @@ parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when
 parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
 parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
+parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
 
 if len(sys.argv) < 2:
 	parser.print_help()
@@ -571,7 +429,7 @@ log.addHandler(console_handler)
 
 args = parser.parse_args()
 source_file = args.source_file
-destination = args.destination
+
 if args.quiet:
 	log.setLevel(logging.ERROR)
 elif args.very_verbose:
@@ -581,6 +439,7 @@ elif args.verbose:
 	log.setLevel(logging.INFO)
 
 log.debug("Starting XenonMKV")
+f_utils = FileUtils(log)
 
 # Check if we have a full file path or are just specifying a file
 if "/" not in source_file:
@@ -589,16 +448,14 @@ if "/" not in source_file:
 	log.debug("%s will be used to reference the original MKV file" % source_file)
 
 # Always ensure destination path ends with a slash
-if not destination.endswith('/'):
-	destination += '/'
+if not args.destination.endswith('/'):
+	args.destination += '/'
 
 if not args.scratch_dir.endswith('/'):
 	args.scratch_dir += '/'
 
 # Check if source file exists
-if not os.path.isfile(source_file):
-	log.critical("Source file %s does not exist" % source_file)
-	sys.exit(1)
+f_utils.check_source_file(source_file)
 
 source_basename = os.path.basename(source_file)
 source_noext = source_basename[0:source_basename.rindex(".")]
@@ -608,9 +465,7 @@ if not args.name:
 	log.debug("Using '%s' as final container name" % args.name)	
 
 # Check if destination directory exists
-if not os.path.isdir(destination):
-	log.critical("Destination directory %s does not exist" % destination)
-	sys.exit(1)
+f_utils.check_dest_dir(args.destination)
 
 log.info("Loading source file %s " % source_file)
 
@@ -619,7 +474,7 @@ to_convert.get_mkvinfo()
 
 # Check for multiple tracks
 if to_convert.has_multiple_av_tracks():
-	log.debug("Source file %s has multiple A/V tracks" % source_file)
+	log.debug("Source file %s has multiple audio and/or video tracks" % source_file)
 	if args.select_tracks:
 		# TODO: Add selector for tracks
 		# Handle this scenario: prompt the user to select specific tracks,
@@ -637,18 +492,22 @@ else:
 # Next phase: Extract MKV files to scratch directory
 (video_file, audio_file) = to_convert.extract_mkv()
 
+if not video_file or not audio_file:
+	log.critical("One or more errors occurred during MKV extraction")
+	sys.exit(1)
+
 # If needed, hex edit the video file to make it compliant with a lower h264 profile level
 if video_file.endswith(".h264"):
-	hex_edit_video_file(video_file)
+	f_utils.hex_edit_video_file(video_file)
 
 # Detect which audio codec is in place and dump audio to WAV accordingly
 if to_convert.get_audio_track().needs_recode:
 	log.debug("Audio track %s needs to be re-encoded to a 2-channel AAC file" % audio_file)
-	audio_dec = AudioDecoder(audio_file)
+	audio_dec = AudioDecoder(audio_file, log, args)
 	audio_dec.decode()
 
 	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
-	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav")
+	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav", log, args)
 	faac_enc.encode()
 	encoded_audio = args.scratch_dir + "audiodump.aac"
 else:
@@ -661,13 +520,15 @@ mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate, video_track.p
 mp4box.package()
 
 # Move the file to the destination directory with the original name
-dest_path = destination + source_noext + ".mp4"
+dest_path = args.destination + source_noext + ".mp4"
 os.rename(args.scratch_dir + "output.mp4", dest_path)
 
 log.info("Processing of %s complete; file saved as %s" % (source_file, dest_path))
 
 # Delete temporary files if possible
-delete_temp_files(args.scratch_dir)
+if not args.preserve_temp_files:
+	t = MKVTrack(log)
+	f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
 
 log.debug("XenonMKV run complete")
 
