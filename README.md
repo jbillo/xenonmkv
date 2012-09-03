@@ -108,8 +108,9 @@ Certain video files, when MP4Box loads them to rejoin into an MP4 container, wil
 	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
 	/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 			
-This occurs with the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. When using the 173 driver (173.14.35) the backtrace is different:
+This occurs with the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. When using the 173 or 173-updates driver (173.14.35) the free() error is the same, but the backtrace is different:
 
+	*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x00000000022d2420 ***
 	======= Backtrace: =========
 	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f5e9820a626]
 	/usr/lib/x86_64-linux-gnu/libgpac.so.1(minf_del+0x3f)[0x7f5e9867c69f]
