@@ -39,7 +39,7 @@
 
 <h1>System Requirements</h1>
 
-<p>XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but most of the utilities and requirements here are available for most popular *nix distributions.</p>
+<p>XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular *nix distributions. You will need at least Python 2.7 for the argparse library, and all code was tested on Python 2.7.3.</p>
 
 <h2>Packages to Install</h2>
 
@@ -54,38 +54,70 @@
 
 <ul>
 <li>
-<p>mediainfo
-<a href="http://mediainfo.sourceforge.net/en/Download/Ubuntu">http://mediainfo.sourceforge.net/en/Download/Ubuntu</a></p>
+<p>mediainfo</p>
+
+<p><a href="http://mediainfo.sourceforge.net/en/Download/Ubuntu">http://mediainfo.sourceforge.net/en/Download/Ubuntu</a></p>
 
 <pre><code>sudo apt-get install mediainfo
 </code></pre>
+
+<p>Alternatively, add the official mediainfo PPA and install the package, which the developer suggests:</p>
+
+<pre><code>sudo add-apt-repository ppa:shiki/mediainfo
+sudo apt-get update
+sudo apt-get install mediainfo
+</code></pre>
 </li>
 <li>
-<p>mkvtoolnix
-<a href="http://www.bunkus.org/videotools/mkvtoolnix/downloads.html">http://www.bunkus.org/videotools/mkvtoolnix/downloads.html</a></p>
+<p>mkvtoolnix</p>
+
+<p><a href="http://www.bunkus.org/videotools/mkvtoolnix/downloads.html">http://www.bunkus.org/videotools/mkvtoolnix/downloads.html</a></p>
 
 <pre><code>sudo apt-get install mkvtoolnix
 </code></pre>
 </li>
 <li>
-<p>mplayer
-<a href="http://www.mplayerhq.hu/design7/news.html">http://www.mplayerhq.hu/design7/news.html</a></p>
+<p>mplayer</p>
+
+<p><a href="http://www.mplayerhq.hu/design7/news.html">http://www.mplayerhq.hu/design7/news.html</a></p>
 
 <pre><code>sudo apt-get install mplayer
 </code></pre>
 </li>
 <li>
-<p>faac 
-<a href="http://www.audiocoding.com/downloads.html">http://www.audiocoding.com/downloads.html</a></p>
+<p>faac </p>
+
+<p><a href="http://www.audiocoding.com/downloads.html">http://www.audiocoding.com/downloads.html</a></p>
 
 <pre><code>sudo apt-get install faac
 </code></pre>
 </li>
 <li>
-<p>MP4Box 
-<a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a></p>
+<p>MP4Box </p>
+
+<p><a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a></p>
 
 <pre><code>sudo apt-get install gpac
+</code></pre>
+</li>
+</ul><h2>Ubuntu 10.04</h2>
+
+<p>As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:</p>
+
+<ul>
+<li>
+<p>Install Python 2.7, either from source or add the appropriate PPA:</p>
+
+<pre><code>sudo add-apt-repository ppa:fkrull/deadsnakes
+sudo apt-get update
+sudo apt-get install python2.7
+</code></pre>
+</li>
+<li><p>Install mediainfo by adding the PPA referenced above as it is not in the 10.04 package repository.</p></li>
+<li>
+<p>Run the application directly referencing Python 2.7:</p>
+
+<pre><code>/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 </code></pre>
 </li>
 </ul><h1>Suggested Applications</h1>
@@ -102,6 +134,11 @@
 <p>Basic usage with default settings:</p>
 
 <pre><code>xenonmkv.py /path/to/file.mkv
+</code></pre>
+
+<p>To ensure your Xbox 360 will play the resulting file, at a possible expense of audio quality:</p>
+
+<pre><code>xenonmkv.py /path/to/file.mkv --profile xbox360
 </code></pre>
 
 <p>To see all command line arguments:</p>
@@ -133,6 +170,73 @@ for i in `ls *.mkv`; do /path/to/xenonmkv.py $i --destination ~/mymp4dir; done
 
 <p>You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.</p>
 </li>
+</ul><h1>Audio Downmixing/Re-Encoding</h1>
+
+<p>By default, XenonMKV tries not to have to resample, downmix or re-encode any part of the content provided. However, chances are your source files will contain AC3, DTS or MP3 audio that needs to be re-encoded. In this case, the original source audio will always be downmixed to a two channel AAC file before it is repackaged. </p>
+
+<p>If the audio track in your MKV file is already AAC, the next thing to consider is your playback device. The Xbox 360 will not play audio in an MP4 container unless it is 2-channel stereo, which is a highly stupid limitation. Other devices, like the PlayBook, will happily parse up to 5.1 channel audio. By using either the "--channels" or "--profile" settings, you can tell XenonMKV how many channels of audio are acceptable from an AAC source before it will aggressively re-encode and downmix to 2-channel stereo. </p>
+
+<p>In short, if you plan to play MP4s on your Xbox 360, definitely use the "--profile xbox360" setting to make sure that no more than two channels make it into the output file. If your device is more reasonable, the default settings should be fine. More profiles will be added as users confirm their own device capabilities.</p>
+
+<h1>Known Issues</h1>
+
+<h2>MP4Box crash with backtrace</h2>
+
+<p>Certain video files, when MP4Box loads them to rejoin into an MP4 container, will throw a glibc error beginning with:</p>
+
+<pre><code>*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
+======= Backtrace: =========
+/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
+/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
+</code></pre>
+
+<p>This occurs with both nVidia proprietary and Nouveau open source drivers. The message above is displayed when using the "current" or "current-updates" versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or Nouveau open-source driver, the free() error is the same, but the backtrace is different:</p>
+
+<pre><code>*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x00000000022d2420 ***
+======= Backtrace: =========
+/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f5e9820a626]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(minf_del+0x3f)[0x7f5e9867c69f]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(mdia_del+0x25)[0x7f5e9867c395]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(trak_del+0x33)[0x7f5e98680c03]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_box_array_del+0x37)[0x7f5e98692c87]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(moov_del+0x58)[0x7f5e9867c9c8]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_box_array_del+0x37)[0x7f5e98692c87]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_delete_movie+0x3a)[0x7f5e9869ad5a]
+/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_close+0x39)[0x7f5e9869c779]
+MP4Box[0x40d30c]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xed)[0x7f5e981ad76d]
+MP4Box[0x4085c1]
+</code></pre>
+
+<p>The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version, which is why multiple versions of MP4Box were bundled and used for fallback.</p>
+
+<p>If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to get the file to convert by using different command line options, such as <em>--resume-previous --preserve-temp-files</em> or including or excluding <em>-vv</em>.</p>
+
+<p>Relevant system information:</p>
+
+<pre><code>$ uname -a
+Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+</code></pre>
+
+<p>My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package, which is 0.4.5+svn3462~dfsg0-1:</p>
+
+<pre><code>$ MP4Box -version
+MP4Box - GPAC version 0.4.6-DEV-rev
+GPAC Copyright: (c) Jean Le Feuvre 2000-2005
+(c) ENST 2005-200X
+GPAC Configuration: --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix}/include --mandir=${prefix}/share/man --infodir=${prefix}/share/info --sysconfdir=/etc --localstatedir=/var --libdir=${prefix}/lib/x86_64-linux-gnu --libexecdir=${prefix}/lib/x86_64-linux-gnu --disable-maintainer-mode --disable-dependency-tracking --prefix=/usr --mandir=${prefix}/share/man --libdir=lib/x86_64-linux-gnu --extra-cflags='-Wall -fPIC -DPIC -I/usr/include/mozjs -DXP_UNIX' --enable-joystick --enable-debug --disable-ssl
+Features: GPAC_HAS_JPEG GPAC_HAS_PNG 
+</code></pre>
+
+<p>There is a 0.5.0 version available at <a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a> that may also be worth building and trying. The version included with Ubuntu 10.04 (0.4.5-0.3ubuntu6) also does not appear to trigger this bug.</p>
+
+<h1>TODO</h1>
+
+<ul>
+<li>Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <a href="http://docs.python.org/library/configparser.html">http://docs.python.org/library/configparser.html</a>
+</li>
+<li>Add support for custom tool locations (eg: use newer MP4Box build in a custom directory, rather than the version defined in PATH)</li>
+<li>Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults</li>
 </ul>
         </section>
 
