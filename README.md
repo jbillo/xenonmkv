@@ -127,3 +127,10 @@ My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
 
 There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> that may also be worth building and trying.
 
+# TODO
+
+* Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
+
+* Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults
+
+
