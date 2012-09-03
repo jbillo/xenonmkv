@@ -12,7 +12,7 @@ class FileUtils:
 	# Check if all dependent applications are installed on the system and present in PATH
 	# TODO: Allow custom path to be specified for each of these if it is in a config file
 	def check_dependencies(self):
-		dependencies = ('mkvinfo', 'mkvextract', 'mplayer', 'faac', 'MP4Box')
+		dependencies = ('mkvinfo', 'mediainfo', 'mkvextract', 'mplayer', 'faac', 'MP4Box')
 		ospath = os.defpath.split(os.pathsep)
 		for app in dependencies:
 			app_present = False
