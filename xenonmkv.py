@@ -436,6 +436,7 @@ parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks
 parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
 parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
 parser.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
+parser.add_argument('-cfg', '--config-file', help='Provide a configuration file that contains default arguments or settings for the application', default='')
 
 if len(sys.argv) < 2:
 	parser.print_help()
