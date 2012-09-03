@@ -6,7 +6,7 @@ You'll find this tool useful to converting videos for devices that support H.264
 
 # System Requirements
 
-XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but most of the utilities and requirements here are available for most popular *nix distributions.
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular *nix distributions. You will need at least Python 2.7 for the argparse library, and all code was tested on Python 2.7.3.
 
 ## Packages to Install
 
@@ -48,6 +48,20 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 		sudo apt-get install gpac
 
+
+## Ubuntu 10.04
+
+As I still have a few systems around running Ubuntu 10.04, here are the changes required:
+
+* Install Python 2.7, either from source or add the appropriate PPA:
+
+		sudo add-apt-repository ppa:fkrull/deadsnakes
+		sudo apt-get update
+		sudo apt-get install python2.7
+		
+* Run the application directly referencing Python 2.7:
+
+		/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 
 # Suggested Applications
 
@@ -108,7 +122,7 @@ Certain video files, when MP4Box loads them to rejoin into an MP4 container, wil
 	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
 	/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 			
-This occurs with the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. When using the 173 or 173-updates driver (173.14.35) the free() error is the same, but the backtrace is different:
+This occurs with both nVidia proprietary and Nouveau open source drivers. The message above is displayed when using the "current" or "current-updates" versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or Nouveau open-source driver, the free() error is the same, but the backtrace is different:
 
 	*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x00000000022d2420 ***
 	======= Backtrace: =========
@@ -125,9 +139,9 @@ This occurs with the "version current" proprietary nVidia driver (295.40) and "v
 	/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xed)[0x7f5e981ad76d]
 	MP4Box[0x4085c1]
 
-The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
+The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version, which is why multiple versions of MP4Box were bundled and used for fallback.
 	
-I plan to try the open source Nouveau driver if possible to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to get the file to convert by using different command line options, such as *--resume-previous --preserve-temp-files* or including or excluding *-vv*.
+If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to get the file to convert by using different command line options, such as *--resume-previous --preserve-temp-files* or including or excluding *-vv*.
 
 Relevant system information:
 
@@ -135,7 +149,8 @@ Relevant system information:
 	Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
 	
 My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
-	
+
+	$ MP4Box -version
 	MP4Box - GPAC version 0.4.6-DEV-rev
 	GPAC Copyright: (c) Jean Le Feuvre 2000-2005
 	(c) ENST 2005-200X

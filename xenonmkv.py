@@ -4,9 +4,17 @@
 # Jake Billo, jake@jakebillo.com
 # https://github.com/jbillo/xenonmkv
 
-import argparse
+
 import sys
 import os
+
+# Check for Python version before running argparse import
+if sys.version_info[0] == 2 and sys.version_info[1] < 7:
+	print "You need to be running at least Python 2.7 to use this application."
+	print "Try running /usr/bin/python2.7 %s" % sys.argv[0]
+	sys.exit(1)
+
+import argparse
 import subprocess
 import logging
 import fractions
