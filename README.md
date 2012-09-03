@@ -23,6 +23,12 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 	<http://mediainfo.sourceforge.net/en/Download/Ubuntu>
 
 		sudo apt-get install mediainfo
+		
+	Alternatively, add the official mediainfo PPA and install the package, which the developer suggests:
+	
+		sudo add-apt-repository ppa:shiki/mediainfo
+		sudo apt-get update
+		sudo apt-get install mediainfo
 	
 * mkvtoolnix
 
@@ -51,13 +57,15 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 ## Ubuntu 10.04
 
-As I still have a few systems around running Ubuntu 10.04, here are the changes required:
+As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
 
 * Install Python 2.7, either from source or add the appropriate PPA:
 
 		sudo add-apt-repository ppa:fkrull/deadsnakes
 		sudo apt-get update
 		sudo apt-get install python2.7
+		
+* Install mediainfo by adding the PPA referenced above as it is not in the 10.04 package repository.
 		
 * Run the application directly referencing Python 2.7:
 
