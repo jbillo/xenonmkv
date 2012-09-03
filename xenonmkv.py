@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # XenonMKV
 # Jake Billo, jake@jakebillo.com
@@ -25,6 +25,7 @@ from file_utils import FileUtils
 from track import *
 from decoder import AudioDecoder
 from encoder import FAACEncoder
+from process_handler import ProcessHandler
 
 class MKVFile():
 	path = ""
@@ -44,13 +45,16 @@ class MKVFile():
 		track_count = 0
 		log.debug("Executing 'mkvinfo %s'" % self.get_path())
 		try: 
-			result = subprocess.check_output(["mkvinfo", self.get_path()])
+			result = subprocess.check_output([args.tool_paths["mkvinfo"], self.get_path()])
 		except subprocess.CalledProcessError:
 			log.critical("Error occurred while obtaining MKV information for %s - please make sure the file exists and is readable" % self.get_path())
-			sys.exit(1)
+			raise Exception("Could not execute mkvinfo application for %s" % self.get_path())
 
 		log.debug("mkvinfo finished; attempting to parse output")
-		self.parse_mkvinfo(result)
+		try:
+			self.parse_mkvinfo(result)
+		except:
+			raise Exception("Could not parse output from mkvinfo")
 		
 	# Open the mediainfo process to obtain detailed info on the file.		
 	def get_mediainfo(self, track_type):
@@ -60,7 +64,7 @@ class MKVFile():
 			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,~"
 			
 		log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
-		result = subprocess.check_output(["mediainfo", "--Inform=" + parameters, self.get_path()])
+		result = subprocess.check_output([args.tool_paths["mediainfo"], "--Inform=" + parameters, self.get_path()])
 		log.debug("mediainfo finished; attempting to parse output for %s settings" % track_type)
 		return self.parse_mediainfo(result)		
 
@@ -233,7 +237,7 @@ class MKVFile():
 				if self.reference_frames_exceeded(track):
 					log.warning("Video track %i contains too many reference frames to play properly on low-powered devices" % track.number)
 					if not args.ignore_reference_frames:
-						sys.exit(1)
+						raise Exception("Video track %i has too many reference frames")
 				else:
 					log.debug("Video track %i has a reasonable number of reference frames, and should be compatible with low-powered devices" % track.number)
 
@@ -285,13 +289,25 @@ class MKVFile():
 				audio_tracks += 1
 
 		return (video_tracks > 1 or audio_tracks > 1)
+		
+	def set_video_track(self, track_id):
+		if self.tracks[track_id] and self.tracks[track_id].track_type == "video":
+			self.video_track_id = track_id
+		else:
+			raise Exception("Video track with ID %i was not found in file" % track_id)
+	
+	def set_audio_track(self, track_id):
+		if self.tracks[track_id] and self.tracks[track_id].track_type == "audio":
+			self.audio_track_id = track_id
+		else:
+			raise Exception("Audio track with ID %i was not found in file" % track_id)
 
 	def set_default_av_tracks(self):
 		for track_id in self.tracks:
 			track = self.tracks[track_id]
-			if track.track_type == "video" and track.default:
+			if track.track_type == "video" and track.default and not self.video_track_id:
 				self.video_track_id = track.number
-			elif track.track_type == "audio" and track.default:
+			elif track.track_type == "audio" and track.default and not self.audio_track_id:
 				self.audio_track_id = track.number
 				
 		# Check again if we have tracks specified here. If not, nothing was hinted as default
@@ -340,7 +356,7 @@ class MKVFile():
 			temp_audio_file = "temp_audio" + self.tracks[self.audio_track_id].get_filename_extension()
 		except UnsupportedCodecError:
 			log.critical("The codec used for the video or audio track is unsupported")
-			return None, None
+			raise Exception("Unsupported coded for video or audio track")
 
 		if args.resume_previous and os.path.isfile(temp_video_file) and os.path.isfile(temp_audio_file):
 			log.debug("Temporary video and audio files already exist; cancelling extract")
@@ -361,8 +377,9 @@ class MKVFile():
 		video_output = str(self.video_track_id) + ":" + temp_video_file
 		audio_output = str(self.audio_track_id) + ":" + temp_audio_file
 
-		cmd = ["mkvextract", "tracks", self.get_path(), video_output, audio_output]
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		cmd = [args.tool_paths["mkvextract"], "tracks", self.get_path(), video_output, audio_output]
+		ph = ProcessHandler(args)
+		process = ph.start_process(cmd)
 
 		while True:
 			out = process.stdout.read(1)
@@ -374,13 +391,17 @@ class MKVFile():
 
 		if process.returncode != 0:
 			log.critical("An error occurred while extracting tracks from %s - please make sure this file exists and is readable" % self.get_path())
-			sys.exit(1)
+			raise Exception("Could not extract tracks from %s" % self.get_path())
 
 		temp_video_file = os.path.join(os.getcwd(), temp_video_file)
 		temp_audio_file = os.path.join(os.getcwd(), temp_audio_file)
 
 		os.chdir(prev_dir)
 		log.debug("mkvextract finished; attempting to parse output")
+		
+		if not temp_video_file or not temp_audio_file:
+			raise Exception("Audio or video file missing from mkvextract output")
+		
 		return (temp_video_file, temp_audio_file)
 
 class MP4Box():
@@ -395,52 +416,56 @@ class MP4Box():
 	def package(self):
 		prev_dir = os.getcwd()
 		os.chdir(args.scratch_dir)
+		
+		# Make sure there is no 'output.mp4' in the scratch directory
+		# MP4Box has a tendency to add tracks
+		output_file = os.path.join(os.getcwd(), "output.mp4")
+		if os.path.isfile(output_file):
+			os.unlink(output_file)
+		
+		run_attempts = 1
+		
+		while run_attempts <= args.mp4box_retries:
+			cmd = [args.tool_paths["mp4box"], "output.mp4", "-add", self.video_path, "-fps", self.video_fps, "-par", "1=" + self.video_pixel_ar, "-add", self.audio_path, "-tmp", args.scratch_dir, "-itags", "name=" + args.name]
 
-		cmd = ["MP4Box", "output.mp4", "-add", self.video_path, "-fps", self.video_fps, "-par", "1=" + self.video_pixel_ar, "-add", self.audio_path, "-tmp", args.scratch_dir, "-itags", "name=" + args.name]
+			ph = ProcessHandler(args)
+			process = ph.start_process(cmd)
 
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			while True:
+				out = process.stdout.read(1)
+				if out == '' and process.poll() != None:
+					break
+				if out != '' and not args.quiet:
+					sys.stdout.write(out)
+					sys.stdout.flush()
 
-		while True:
-			out = process.stdout.read(1)
-			if out == '' and process.poll() != None:
+			if process.returncode != 0:
+				# Destroy temporary file so it does not have multiple tracks imported
+				os.unlink(output_file)
+				log.warning("An error occurred while creating an MP4 file with MP4Box; %i retries left" % (int(args.mp4box_retries) - run_attempts))
+				run_attempts += 1
+				# Continue retrying to create the file
+			else:
+				# File was created successfully; exit retry loop
 				break
-			if out != '' and not args.quiet:
-				sys.stdout.write(out)
-				sys.stdout.flush()
-
-		if process.returncode != 0:
-			log.critical("An error occurred while creating an MP4 file with MP4Box")
-			sys.exit(1)
+				
+		if run_attempts > args.mp4box_retries:
+			log.critical("Could not create MP4 file after %i retries; giving up." % int(args.mp4box_retries))
+			# Delete the temporary file so that nobody gets tempted to use it
+			os.unlink(output_file)
+			raise Exception("MP4Box could not create file")
 
 		log.debug("MP4Box process complete")
 
 		# When complete, change back to original directory
 		os.chdir(prev_dir)
 
+def cleanup_temp_files():
+	if not args.preserve_temp_files:
+		t = MKVTrack(log)
+		f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
+
 # Main program begins
-
-parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
-parser.add_argument('source_file', help='Path to the source MKV file')
-parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
-parser.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
-parser.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
-parser.add_argument('-vv', '--very-verbose', help='Verbose and debug output', action='store_true')
-parser.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
-parser.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
-parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /var/tmp/)', default='/var/tmp/')
-parser.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default="6")
-parser.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
-parser.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
-parser.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
-parser.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
-parser.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
-parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
-parser.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
-parser.add_argument('-cfg', '--config-file', help='Provide a configuration file that contains default arguments or settings for the application', default='')
-
-if len(sys.argv) < 2:
-	parser.print_help()
-	sys.exit(1)
 
 log = logging.getLogger("xenonmkv")
 console_handler = logging.StreamHandler()
@@ -448,14 +473,54 @@ formatter = logging.Formatter('%(asctime)s - %(name)s [%(levelname)s] %(message)
 console_handler.setFormatter(formatter)
 log.addHandler(console_handler)
 
+dependencies = ('mkvinfo', 'mediainfo', 'mkvextract', 'mplayer', 'faac', 'MP4Box')
+
+parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
+parser.add_argument('source_file', help='Path to the source MKV file')
+parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
+parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /var/tmp/)', default='/var/tmp/')
+parser.add_argument('-cfg', '--config-file', help='(Not yet implemented) Provide a configuration file that contains default arguments or settings for the application', default='')
+parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
+
+output_group = parser.add_argument_group("Output options")
+output_group.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
+output_group.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
+output_group.add_argument('-vv', '--debug', help='Highly verbose debug output', action='store_true')
+
+video_group = parser.add_argument_group("Video options", "Options for processing video.")
+video_group.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
+video_group.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
+
+audio_group = parser.add_argument_group("Audio options", "Select custom audio decoding and encoding options.")
+audio_group.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default="6")
+audio_group.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
+
+proc_group = parser.add_argument_group("File and processing options", "These options determine how XenonMKV processes files and their contents.")
+proc_group.add_argument('-st', '--select-tracks', help="(Not yet implemented) If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
+proc_group.add_argument('-vt', '--video-track', help="Use the specified video track. If not present in the file, the default track will be used.", type=int)
+proc_group.add_argument('-at', '--audio-track', help="Use the specified audio track. If not present in the file, the default track will be used.", type=int)
+proc_group.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
+proc_group.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
+proc_group.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
+proc_group.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
+proc_group.add_argument('--mp4box-retries', help="Set the number of retry attempts for MP4Box to attempt to create a file (default: 3)", default=3, type=int)
+
+dep_group = parser.add_argument_group("Custom paths", "Set custom paths for the utilities used by XenonMKV.")
+for dependency in dependencies:
+	dep_group.add_argument("--" + dependency.lower() + "-path", help="Set a custom complete path for the " + dependency + " tool. Any library under that path will also be loaded.")
+
+if len(sys.argv) < 2:
+	parser.print_help()
+	sys.exit(1)
+
 args = parser.parse_args()
 
 # Depending on the arguments, set the logging level appropriately.
 if args.quiet:
 	log.setLevel(logging.ERROR)
-elif args.very_verbose:
+elif args.debug:
 	log.setLevel(logging.DEBUG)
-	log.debug("Using debug/very verbose mode output")
+	log.debug("Using debug/highly verbose mode output")
 elif args.verbose:
 	log.setLevel(logging.INFO)
 	
@@ -497,11 +562,16 @@ if not args.scratch_dir.endswith(os.sep):
 # Initialize file utilities
 f_utils = FileUtils(log, args)
 
-# Check if all dependent applications are installed and available in PATH
-f_utils.check_dependencies()
+# Check if all dependent applications are installed and available in PATH, or if they are specified
+# If so, store them in args.tool_paths so all classes have access to them as needed
+(args.tool_paths, args.library_paths) = f_utils.check_dependencies(dependencies)
 
 # Check if source file exists and is an appropriate size
-f_utils.check_source_file(args.source_file)
+try: 
+	f_utils.check_source_file(args.source_file)
+except IOError as e:
+	log.critical(e.message)
+	sys.exit(1)
 
 source_basename = os.path.basename(args.source_file)
 source_noext = source_basename[0:source_basename.rindex(".")]
@@ -511,12 +581,34 @@ if not args.name:
 	log.debug("Using '%s' as final container name" % args.name)	
 
 # Check if destination directory exists
-f_utils.check_dest_dir(args.destination)
+try:
+	f_utils.check_dest_dir(args.destination)
+except IOError as e:
+	log.critical(e.message)
+	sys.exit(1)
 
 log.info("Loading source file %s " % args.source_file)
 
-to_convert = MKVFile(args.source_file)
-to_convert.get_mkvinfo()
+try:
+	to_convert = MKVFile(args.source_file)
+	to_convert.get_mkvinfo()
+except Exception as e:
+	log.critical(e.message)
+	cleanup_temp_files()
+	sys.exit(1)
+
+# If the user knows which A/V tracks they want, set them. MKVFile will not overwrite them.
+try: 
+	if args.video_track:
+		to_convert.set_video_track(args.video_track)
+except Exception as e:
+	log.warning(e.message)
+	
+try:
+	if args.audio_track:
+		to_convert.set_audio_track(args.audio_track)	
+except Exception as e:
+	log.warning(e.message)
 
 # Check for multiple tracks
 if to_convert.has_multiple_av_tracks():
@@ -536,10 +628,11 @@ else:
 	to_convert.set_default_av_tracks()
 
 # Next phase: Extract MKV files to scratch directory
-(video_file, audio_file) = to_convert.extract_mkv()
-
-if not video_file or not audio_file:
-	log.critical("One or more errors occurred during MKV extraction")
+try:
+	(video_file, audio_file) = to_convert.extract_mkv()
+except Exception as e:
+	log.critical(e.message)
+	cleanup_temp_files()
 	sys.exit(1)
 
 # If needed, hex edit the video file to make it compliant with a lower h264 profile level
@@ -563,7 +656,12 @@ else:
 # Now, throw things back together into a .mp4 container with MP4Box.
 video_track = to_convert.get_video_track()
 mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate, video_track.pixel_ar)
-mp4box.package()
+try:
+	mp4box.package()
+except Exception as e:
+	log.critical(e.message)
+	cleanup_temp_files()
+	sys.exit(1)
 
 # Move the file to the destination directory with the original name
 dest_path = os.path.join(args.destination, source_noext + ".mp4")
@@ -572,9 +670,7 @@ os.rename(os.path.join(args.scratch_dir, "output.mp4"), dest_path)
 log.info("Processing of %s complete; file saved as %s" % (args.source_file, dest_path))
 
 # Delete temporary files if possible
-if not args.preserve_temp_files:
-	t = MKVTrack(log)
-	f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
+cleanup_temp_files()
 
-log.debug("XenonMKV run complete")
+log.debug("XenonMKV completed processing")
 

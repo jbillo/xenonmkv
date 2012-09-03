@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+from process_handler import ProcessHandler
+
 class AudioDecoder():
 	extension = ""
 	file_path = ""
@@ -39,16 +41,17 @@ class AudioDecoder():
 	def decode_mplayer(self):
 		self.log.debug("Starting decoding file to WAV with mplayer")
 		# Check for existing audiodump.wav (already changed to temp directory)
-		if os.path.isfile("audiodump.wav"):
+		if os.path.isfile(os.path.join(os.getcwd(), "audiodump.wav")):
 			if self.args.resume_previous:
 				self.log.debug("audiodump.wav already exists in scratch directory; cancelling decode")
 				return True
 
-			self.log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
-			os.unlink(os.getcwd() + "/audiodump.wav")
+			self.log.debug("Deleting temporary mplayer output file %s" % (os.path.join(os.getcwd(), "audiodump.wav")))
+			os.unlink(os.path.join(os.getcwd(), "audiodump.wav"))
 
-		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub", "-ao", "pcm:fast"]
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		cmd = [self.args.tool_paths["mplayer"], self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub", "-ao", "pcm:fast"]
+		ph = ProcessHandler(self.args)
+		process = ph.start_process(cmd)
 
 		while True:
 			out = process.stdout.read(1)

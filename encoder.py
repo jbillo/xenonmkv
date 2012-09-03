@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+from process_handler import ProcessHandler
+
 class FAACEncoder():
 	file_path = ""
 	log = args = None
@@ -22,9 +24,9 @@ class FAACEncoder():
 			self.log.debug("audiodump.aac already exists in scratch directory; cancelling encode")
 			return True
 
-		cmd = ["faac", "-q", str(self.args.faac_quality), self.file_path]
-		
-		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		cmd = [self.args.tool_paths["faac"], "-q", str(self.args.faac_quality), self.file_path]
+		ph = ProcessHandler(self.args)
+		process = ph.start_process(cmd)
 
 		while True:
 			err = process.stderr.read(1)
