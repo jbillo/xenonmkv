@@ -108,9 +108,14 @@ Certain video files, when MP4Box loads them to rejoin into an MP4 container, wil
 	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
 	/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 			
-This is with the "version current" proprietary nVidia driver (295.40, September 2012, Ubuntu 12.04) and a GeForce 8600 GT. The problem appears to be intermittent enough that two successive runs can produce different results. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
+This occurs with both the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
 	
-I plan to try several different combinations of nVidia video drivers (173, 173-updates, current-updates) as well as the open source version to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options, such as including or excluding -vv, which appears to cause a different memory usage profile and avoid the crash.
+I plan to try some older versions of nVidia video drivers (173, 173-updates) as well as the open source Nouveau if possible to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options, such as including or excluding -vv, which appears to cause a different memory usage profile and avoid the crash.
+
+Relevant system information:
+
+	$ uname -a
+	Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
 	
 My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
 	
