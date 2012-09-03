@@ -14,34 +14,43 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 ### Individual Package Requirements
 *	mediainfo (<http://mediainfo.sourceforge.net/en/Download/Ubuntu>)
+
 		sudo apt-get install mediainfo	
 	Alternatively, add the official mediainfo PPA and install the package, which the developer suggests might be a good idea:
+	
 		sudo add-apt-repository ppa:shiki/mediainfo
 		sudo apt-get update
 		sudo apt-get install mediainfo
 *	mkvtoolnix (<http://www.bunkus.org/videotools/mkvtoolnix/downloads.html>)
+
 		sudo apt-get install mkvtoolnix
 *	mplayer (<http://www.mplayerhq.hu/design7/news.html>)
+
 		sudo apt-get install mplayer
 *	faac (<http://www.audiocoding.com/downloads.html>)
+
 		sudo apt-get install faac
 * 	MP4Box (<https://sourceforge.net/projects/gpac/>)
+
 		sudo apt-get install gpac
 
 ## Ubuntu 10.04
 As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
 
 *	Install Python 2.7, either from source or add the appropriate PPA:
+
 		sudo add-apt-repository ppa:fkrull/deadsnakes
 		sudo apt-get update
 		sudo apt-get install python2.7	
 *	Install mediainfo by adding the PPA referenced above as it is not in the 10.04 package repository.
 *	Run the application directly referencing Python 2.7:
+
 		/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 
 # Suggested Applications
 *	vlc
 	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks and generally confirm that your video output works as expected.
+	
 		sudo apt-get install vlc
 
 # Usage
