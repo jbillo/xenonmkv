@@ -18,39 +18,29 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 
 ### Individual Package Requirements
 
-* mediainfo
-
-	<http://mediainfo.sourceforge.net/en/Download/Ubuntu>
+* mediainfo (<http://mediainfo.sourceforge.net/en/Download/Ubuntu>)
 
 		sudo apt-get install mediainfo
 		
-	Alternatively, add the official mediainfo PPA and install the package, which the developer suggests:
+	Alternatively, add the official mediainfo PPA and install the package, which the developer suggests might be a good idea:
 	
 		sudo add-apt-repository ppa:shiki/mediainfo
 		sudo apt-get update
 		sudo apt-get install mediainfo
 	
-* mkvtoolnix
-
-	<http://www.bunkus.org/videotools/mkvtoolnix/downloads.html>
+* mkvtoolnix (<http://www.bunkus.org/videotools/mkvtoolnix/downloads.html>)
 
 		sudo apt-get install mkvtoolnix
 
-* mplayer
-
-	<http://www.mplayerhq.hu/design7/news.html>
+* mplayer (<http://www.mplayerhq.hu/design7/news.html>)
 
 		sudo apt-get install mplayer
 
-* faac 
-
-	<http://www.audiocoding.com/downloads.html>
+* faac (<http://www.audiocoding.com/downloads.html>)
 
 		sudo apt-get install faac
 
-* MP4Box 
-
-	<https://sourceforge.net/projects/gpac/>
+* MP4Box (<https://sourceforge.net/projects/gpac/>)
 
 		sudo apt-get install gpac
 
@@ -74,7 +64,6 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 # Suggested Applications
 
 * vlc
-
 	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks and generally confirm that your video output works as expected.
 		sudo apt-get install vlc
 
