@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>XenonMKV by jbillo</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>XenonMKV</h1>
+          <h2>Convert MKV files to MP4 for your Xbox 360, BlackBerry PlayBook and other portable devices.</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/jbillo/xenonmkv/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/jbillo/xenonmkv/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/jbillo/xenonmkv" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>About XenonMKV</h1>
+
+<p>XenonMKV is a video format conversion tool that takes MKV files and outputs them as MP4 files. It does not re-encode video, and only decodes and encodes audio as necessary.</p>
+
+<p>You'll find this tool useful to converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my <a href="http://blackberry.com/playbook">BlackBerry PlayBook</a>.</p>
+
+<h1>System Requirements</h1>
+
+<p>XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation, but most of the utilities and requirements here are available for most popular *nix distributions.</p>
+
+<h2>Packages to Install</h2>
+
+<p>You will need some supporting packages. Instructions below work on Ubuntu 12.04.</p>
+
+<h3>Install All Dependencies</h3>
+
+<pre><code>sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
+</code></pre>
+
+<h3>Individual Package Requirements</h3>
+
+<ul>
+<li>
+<p>mediainfo
+<a href="http://mediainfo.sourceforge.net/en/Download/Ubuntu">http://mediainfo.sourceforge.net/en/Download/Ubuntu</a></p>
+
+<pre><code>sudo apt-get install mediainfo
+</code></pre>
+</li>
+<li>
+<p>mkvtoolnix
+<a href="http://www.bunkus.org/videotools/mkvtoolnix/downloads.html">http://www.bunkus.org/videotools/mkvtoolnix/downloads.html</a></p>
+
+<pre><code>sudo apt-get install mkvtoolnix
+</code></pre>
+</li>
+<li>
+<p>mplayer
+<a href="http://www.mplayerhq.hu/design7/news.html">http://www.mplayerhq.hu/design7/news.html</a></p>
+
+<pre><code>sudo apt-get install mplayer
+</code></pre>
+</li>
+<li>
+<p>faac 
+<a href="http://www.audiocoding.com/downloads.html">http://www.audiocoding.com/downloads.html</a></p>
+
+<pre><code>sudo apt-get install faac
+</code></pre>
+</li>
+<li>
+<p>MP4Box 
+<a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a></p>
+
+<pre><code>sudo apt-get install gpac
+</code></pre>
+</li>
+</ul><h1>Suggested Applications</h1>
+
+<ul>
+<li>
+<p>vlc</p>
+
+<p>VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks and generally confirm that your video output works as expected.
+    sudo apt-get install vlc</p>
+</li>
+</ul><h1>Usage</h1>
+
+<p>Basic usage with default settings:</p>
+
+<pre><code>xenonmkv.py /path/to/file.mkv
+</code></pre>
+
+<p>To see all command line arguments:</p>
+
+<pre><code>xenonmkv.py --help
+</code></pre>
+
+<p>For a quiet run (batch processing or in a cronjob):</p>
+
+<pre><code>xenonmkv.py /path/to/file.mkv -q
+</code></pre>
+
+<h1>Suggestions/Caveats</h1>
+
+<ul>
+<li>If your files to convert aren't too large, distributions that mount /tmp as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use "--scratch-dir /tmp". Right now for future proofing, the scratch directory is set to /var/tmp.</li>
+<li>Use -vv to find display debug information and output exactly what's going on during the processing stages.</li>
+<li>
+<p>Native multiple file support will be coming (eg: convert an entire directory of MKVs) but you can do something like this in the meantime to queue up a list:</p>
+
+<pre><code>cd ~/mymkvdir
+for i in `ls *.mkv`; do /path/to/xenonmkv.py $i --destination ~/mymp4dir; done
+</code></pre>
+</li>
+<li>
+<p>Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western Digital Black SATA hard drive:</p>
+
+<p>A 442MB source MKV file with h.264 video and 6-channel AC3 audio is converted into a PlayBook-compatible MP4 (same video, 2-channel AAC audio, quality q=150) in 40.6 seconds. This does not have any enhancements such as a tmpfs mount.</p>
+
+<p>You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.</p>
+</li>
+</ul>
+        </section>
+
+        <footer>
+          XenonMKV is maintained by <a href="https://github.com/jbillo">jbillo</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
