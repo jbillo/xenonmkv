@@ -91,3 +91,20 @@ By default, XenonMKV tries not to have to resample, downmix or re-encode any par
 If the audio track in your MKV file is already AAC, the next thing to consider is your playback device. The Xbox 360 will not play audio in an MP4 container unless it is 2-channel stereo, which is a highly stupid limitation. Other devices, like the PlayBook, will happily parse up to 5.1 channel audio. By using either the "--channels" or "--profile" settings, you can tell XenonMKV how many channels of audio are acceptable from an AAC source before it will aggressively re-encode and downmix to 2-channel stereo. 
 
 In short, if you plan to play MP4s on your Xbox 360, definitely use the "--profile xbox360" setting to make sure that no more than two channels make it into the output file. If your device is more reasonable, the default settings should be fine. More profiles will be added as users confirm their own device capabilities.
+
+# Known Issues
+
+* MP4Box crash with backtrace
+
+	Certain video files, when MP4Box loads them to rejoin into an MP4 container, will throw a glibc error beginning with:
+	
+			*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
+			======= Backtrace: =========
+			/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
+			/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
+			
+	This is with the "version current" proprietary nVidia driver (295.40, September 2012, Ubuntu 12.04) and a GeForce 8600 GT. The problem appears to be intermittent enough that two successive runs can produce different results. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
+	
+	I plan to try several different combinations of nVidia video drivers (173, 173-updates, current-updates) as well as the open source version to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options (including or excluding -vv, for example, which appears to cause a different memory usage profile.)
+
+

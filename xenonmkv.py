@@ -336,18 +336,18 @@ class MKVFile():
 
 		if args.resume_previous and os.path.isfile(temp_video_file) and os.path.isfile(temp_audio_file):
 			log.debug("Temporary video and audio files already exist; cancelling extract")
-			temp_video_file = os.getcwd() + "/" + temp_video_file
-			temp_audio_file = os.getcwd() + "/" + temp_audio_file
+			temp_video_file = os.path.join(os.getcwd(), temp_video_file)
+			temp_audio_file = os.path.join(os.getcwd(), temp_audio_file)
 			os.chdir(prev_dir)
 			return (temp_video_file, temp_audio_file)
 	
 		# Remove any existing files with the same names
 		if os.path.isfile(temp_video_file):
-			log.debug("Deleting temporary video file %s" % os.getcwd() + "/" + temp_video_file)
+			log.debug("Deleting temporary video file %s" % os.path.join(os.getcwd(), temp_video_file))
 			os.unlink(temp_video_file)
 
 		if os.path.isfile(temp_audio_file):
-			log.debug("Deleting temporary audio file %s" % os.getcwd() + "/" + temp_audio_file)
+			log.debug("Deleting temporary audio file %s" % os.path.join(os.getcwd(), temp_audio_file))
 			os.unlink(temp_audio_file)
 
 		video_output = str(self.video_track_id) + ":" + temp_video_file
@@ -368,8 +368,8 @@ class MKVFile():
 			log.critical("An error occurred while extracting tracks from %s - please make sure this file exists and is readable" % self.get_path())
 			sys.exit(1)
 
-		temp_video_file = os.getcwd() + "/" + temp_video_file
-		temp_audio_file = os.getcwd() + "/" + temp_audio_file
+		temp_video_file = os.path.join(os.getcwd(), temp_video_file)
+		temp_audio_file = os.path.join(os.getcwd(), temp_audio_file)
 
 		os.chdir(prev_dir)
 		log.debug("mkvextract finished; attempting to parse output")
@@ -399,6 +399,10 @@ class MP4Box():
 			if out != '' and not args.quiet:
 				sys.stdout.write(out)
 				sys.stdout.flush()
+
+		if process.returncode != 0:
+			log.critical("An error occurred while creating an MP4 file with MP4Box")
+			sys.exit(1)
 
 		log.debug("MP4Box process complete")
 
@@ -437,6 +441,7 @@ log.addHandler(console_handler)
 
 args = parser.parse_args()
 
+# Depending on the arguments, set the logging level appropriately.
 if args.quiet:
 	log.setLevel(logging.ERROR)
 elif args.very_verbose:
@@ -468,17 +473,17 @@ if args.profile:
 log.debug("Starting XenonMKV")
 
 # Check if we have a full file path or are just specifying a file
-if "/" not in args.source_file:
+if os.sep not in args.source_file:
 	log.debug("Ensuring that we have a complete path to %s" % args.source_file)
-	args.source_file = os.getcwd() + "/" + args.source_file
+	args.source_file = os.path.join(os.getcwd(), args.source_file)
 	log.debug("%s will be used to reference the original MKV file" % args.source_file)
 	
 # Always ensure destination path ends with a slash
-if not args.destination.endswith('/'):
-	args.destination += '/'
+if not args.destination.endswith(os.sep):
+	args.destination += os.sep
 
-if not args.scratch_dir.endswith('/'):
-	args.scratch_dir += '/'
+if not args.scratch_dir.endswith(os.sep):
+	args.scratch_dir += os.sep
 
 # Initialize file utilities
 f_utils = FileUtils(log, args)
@@ -536,9 +541,9 @@ if to_convert.get_audio_track().needs_recode:
 	audio_dec.decode()
 
 	# Once audio has been decoded to a WAV, use the FAAC application to encode it to .aac
-	faac_enc = FAACEncoder(args.scratch_dir + "audiodump.wav", log, args)
+	faac_enc = FAACEncoder(os.path.join(args.scratch_dir, "audiodump.wav"), log, args)
 	faac_enc.encode()
-	encoded_audio = args.scratch_dir + "audiodump.aac"
+	encoded_audio = os.path.join(args.scratch_dir, "audiodump.aac")
 else:
 	# Bypass this whole encoding shenanigans and just reference the already-valid audio file
 	encoded_audio = audio_file
@@ -549,8 +554,8 @@ mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate, video_track.p
 mp4box.package()
 
 # Move the file to the destination directory with the original name
-dest_path = args.destination + source_noext + ".mp4"
-os.rename(args.scratch_dir + "output.mp4", dest_path)
+dest_path = os.path.join(args.destination, source_noext + ".mp4")
+os.rename(os.path.join(args.scratch_dir, "output.mp4"), dest_path)
 
 log.info("Processing of %s complete; file saved as %s" % (args.source_file, dest_path))
 

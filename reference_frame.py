@@ -36,7 +36,7 @@ class ReferenceFrameValidator:
 
 		current_test = frame_list[index]
 		if height < current_test[0]:
-			return recurse_width(frame_list, index + 1, height, reference_frames)
+			return ReferenceFrameValidator.recurse_width(frame_list, index + 1, height, reference_frames)
 		elif height == current_test[0]:
 			return reference_frames > current_test[1]
 		else: # height > current_test[0]:

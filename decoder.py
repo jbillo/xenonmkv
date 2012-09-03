@@ -47,7 +47,7 @@ class AudioDecoder():
 			self.log.debug("Deleting temporary mplayer output file %s/audiodump.wav" % os.getcwd())
 			os.unlink(os.getcwd() + "/audiodump.wav")
 
-		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-ao", "pcm:fast"]
+		cmd = ["mplayer", self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub", "-ao", "pcm:fast"]
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 		while True:
