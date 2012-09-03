@@ -98,14 +98,14 @@ In short, if you plan to play MP4s on your Xbox 360, definitely use the "--profi
 
 	Certain video files, when MP4Box loads them to rejoin into an MP4 container, will throw a glibc error beginning with:
 	
-			*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
-			======= Backtrace: =========
-			/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
-			/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
+		*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
+		======= Backtrace: =========
+		/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
+		/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 			
 	This is with the "version current" proprietary nVidia driver (295.40, September 2012, Ubuntu 12.04) and a GeForce 8600 GT. The problem appears to be intermittent enough that two successive runs can produce different results. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
 	
-	I plan to try several different combinations of nVidia video drivers (173, 173-updates, current-updates) as well as the open source version to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options (including or excluding -vv, for example, which appears to cause a different memory usage profile.)
+	I plan to try several different combinations of nVidia video drivers (173, 173-updates, current-updates) as well as the open source version to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options, such as including or excluding -vv, which appears to cause a different memory usage profile and avoid the crash.
 	
 	My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
 	
@@ -115,5 +115,5 @@ In short, if you plan to play MP4s on your Xbox 360, definitely use the "--profi
 		GPAC Configuration: --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix}/include --mandir=${prefix}/share/man --infodir=${prefix}/share/info --sysconfdir=/etc --localstatedir=/var --libdir=${prefix}/lib/x86_64-linux-gnu --libexecdir=${prefix}/lib/x86_64-linux-gnu --disable-maintainer-mode --disable-dependency-tracking --prefix=/usr --mandir=${prefix}/share/man --libdir=lib/x86_64-linux-gnu --extra-cflags='-Wall -fPIC -DPIC -I/usr/include/mozjs -DXP_UNIX' --enable-joystick --enable-debug --disable-ssl
 		Features: GPAC_HAS_JPEG GPAC_HAS_PNG 
 
-	There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> that I will also try.
+	There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> that may also be worth building and trying.
 
