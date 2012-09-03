@@ -108,9 +108,25 @@ Certain video files, when MP4Box loads them to rejoin into an MP4 container, wil
 	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
 	/usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 			
-This occurs with both the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
+This occurs with the "version current" proprietary nVidia driver (295.40) and "version current-updates" (295.49). The video card in question is a GeForce 8600 GT. When using the 173 driver (173.14.35) the backtrace is different:
+
+	======= Backtrace: =========
+	/lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f5e9820a626]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(minf_del+0x3f)[0x7f5e9867c69f]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(mdia_del+0x25)[0x7f5e9867c395]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(trak_del+0x33)[0x7f5e98680c03]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_box_array_del+0x37)[0x7f5e98692c87]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(moov_del+0x58)[0x7f5e9867c9c8]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_box_array_del+0x37)[0x7f5e98692c87]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_delete_movie+0x3a)[0x7f5e9869ad5a]
+	/usr/lib/x86_64-linux-gnu/libgpac.so.1(gf_isom_close+0x39)[0x7f5e9869c779]
+	MP4Box[0x40d30c]
+	/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xed)[0x7f5e981ad76d]
+	MP4Box[0x4085c1]
+
+The problem appears to be intermittent: two successive runs can produce different results. It is also noticeable immediately after a reboot. At this time I'm not sure whether it's the proprietary driver, my system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version which is why multiple versions of MP4Box were bundled and retried. 
 	
-I plan to try some older versions of nVidia video drivers (173, 173-updates) as well as the open source Nouveau if possible to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to resolve it by using different command line options, such as including or excluding -vv, which appears to cause a different memory usage profile and avoid the crash.
+I plan to try the open source Nouveau driver if possible to try and narrow this down a bit further. If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to get the file to convert by using different command line options, such as *--resume-previous --preserve-temp-files* or including or excluding *-vv*.
 
 Relevant system information:
 
