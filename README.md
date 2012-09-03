@@ -19,27 +19,32 @@ You will need some supporting packages. Instructions below work on Ubuntu 12.04.
 ### Individual Package Requirements
 
 * mediainfo
-	http://mediainfo.sourceforge.net/en/Download/Ubuntu
+
+	<http://mediainfo.sourceforge.net/en/Download/Ubuntu>
 
 		sudo apt-get install mediainfo
 	
 * mkvtoolnix
-	http://www.bunkus.org/videotools/mkvtoolnix/downloads.html
+
+	<http://www.bunkus.org/videotools/mkvtoolnix/downloads.html>
 
 		sudo apt-get install mkvtoolnix
 
 * mplayer
-	http://www.mplayerhq.hu/design7/news.html
+
+	<http://www.mplayerhq.hu/design7/news.html>
 
 		sudo apt-get install mplayer
 
 * faac 
-	http://www.audiocoding.com/downloads.html
+
+	<http://www.audiocoding.com/downloads.html>
 
 		sudo apt-get install faac
 
 * MP4Box 
-	https://sourceforge.net/projects/gpac/
+
+	<https://sourceforge.net/projects/gpac/>
 
 		sudo apt-get install gpac
 
