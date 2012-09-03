@@ -156,7 +156,7 @@ Relevant system information:
 	$ uname -a
 	Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
 	
-My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
+My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package, which is 0.4.5+svn3462~dfsg0-1:
 
 	$ MP4Box -version
 	MP4Box - GPAC version 0.4.6-DEV-rev
@@ -165,7 +165,7 @@ My MP4Box version is the default from the 'gpac' Ubuntu package, which is:
 	GPAC Configuration: --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix}/include --mandir=${prefix}/share/man --infodir=${prefix}/share/info --sysconfdir=/etc --localstatedir=/var --libdir=${prefix}/lib/x86_64-linux-gnu --libexecdir=${prefix}/lib/x86_64-linux-gnu --disable-maintainer-mode --disable-dependency-tracking --prefix=/usr --mandir=${prefix}/share/man --libdir=lib/x86_64-linux-gnu --extra-cflags='-Wall -fPIC -DPIC -I/usr/include/mozjs -DXP_UNIX' --enable-joystick --enable-debug --disable-ssl
 	Features: GPAC_HAS_JPEG GPAC_HAS_PNG 
 
-There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> that may also be worth building and trying.
+There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> that may also be worth building and trying. The version included with Ubuntu 10.04 (0.4.5-0.3ubuntu6) also does not appear to trigger this bug.
 
 # TODO
 
