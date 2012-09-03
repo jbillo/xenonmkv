@@ -8,6 +8,25 @@ class FileUtils:
 		self.log = log
 		self.args = args
 		
+	# Check if all dependent applications are installed on the system and present in PATH
+	# TODO: Allow custom path to be specified for each of these if it is in a config file
+	def check_dependencies(self):
+		dependencies = ('mkvinfo', 'mkvextract', 'mplayer', 'faac', 'MP4Box')
+		ospath = os.defpath.split(os.pathsep)
+		for app in dependencies:
+			app_present = False
+			for path in ospath:
+				if os.path.isfile(os.path.join(path, app)):
+					self.log.debug("Found dependent application %s in %s" % (app, path))
+					app_present = True
+					break
+					
+			if not app_present:
+				self.log.critical("Dependent application '%s' was not found in PATH. Please make sure it is installed." % app)
+				sys.exit(1)
+		
+		return True
+		
 	def check_dest_dir(self, destination):
 		if not os.path.isdir(destination):
 			log.critical("Destination directory %s does not exist" % destination)

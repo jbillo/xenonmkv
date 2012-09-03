@@ -162,7 +162,7 @@ There is a 0.5.0 version available at <https://sourceforge.net/projects/gpac/> t
 # TODO
 
 * Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
-
+* Add support for custom tool locations (eg: use newer MP4Box build in a custom directory, rather than the version defined in PATH)
 * Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults
 
 

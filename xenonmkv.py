@@ -496,6 +496,9 @@ if not args.scratch_dir.endswith(os.sep):
 # Initialize file utilities
 f_utils = FileUtils(log, args)
 
+# Check if all dependent applications are installed and available in PATH
+f_utils.check_dependencies()
+
 # Check if source file exists and is an appropriate size
 f_utils.check_source_file(args.source_file)
 
