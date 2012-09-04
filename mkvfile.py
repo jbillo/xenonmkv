@@ -1,6 +1,7 @@
 import subprocess
 import fractions
 import os
+import sys
 
 from reference_frame import ReferenceFrameValidator
 from mkv_info_parser import MKVInfoParser

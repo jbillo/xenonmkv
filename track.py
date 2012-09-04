@@ -9,7 +9,7 @@ class MKVTrack():
 
 	codec_table = {}
 	codec_table["A_AC3"] = ".ac3"
-	codec_table["A_EAC3"] = ".ac3"
+	codec_table["A_EAC3"] = ".eac3" # mplayer should play this with the correct codecs
 	codec_table["A_AAC"] = ".aac"
 	codec_table["A_AAC/MPEG2/LC"] = ".aac"
 	codec_table["A_DTS"] = ".dts"
