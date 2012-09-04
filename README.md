@@ -69,6 +69,12 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 	
 		sudo apt-get install vlc
 
+*	mkvtoolnix-gui
+
+	The GUI version of mkvtoolnix allows editing of MKV files. It is useful for constructing MKV files for test cases, or extracting specific content.
+	
+		sudo apt-get install mkvtoolnix-gui
+
 # Usage
 Basic usage with default settings:
 

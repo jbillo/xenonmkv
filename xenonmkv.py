@@ -186,22 +186,26 @@ def main():
 	except Exception as e:
 		log_exception(log, "set_audio_track", e, "warning")
 
-	# Check for multiple tracks
-	if to_convert.has_multiple_av_tracks():
-		log.debug("Source file %s has multiple audio and/or video tracks" % args.source_file)
-		if args.select_tracks:
-			# TODO: Add selector for tracks
-			# Handle this scenario: prompt the user to select specific tracks,
-			# or read command line arguments, or something.
-			log.warning("Multiple track selection support is not yet implemented. Using default tracks")
-			to_convert.set_default_av_tracks()
+	try: 
+		# Check for multiple tracks
+		if to_convert.has_multiple_av_tracks():
+			log.debug("Source file %s has multiple audio and/or video tracks" % args.source_file)
+			if args.select_tracks:
+				# TODO: Add selector for tracks
+				# Handle this scenario: prompt the user to select specific tracks,
+				# or read command line arguments, or something.
+				log.warning("Multiple track selection support is not yet implemented. Using default tracks")
+				to_convert.set_default_av_tracks()
+			else:
+				log.debug("Selecting default audio and video tracks")
+				to_convert.set_default_av_tracks()
 		else:
-			log.debug("Selecting default audio and video tracks")
+			# Pick default (or only) audio/video tracks
+			log.debug("Source file %s has 1 audio and 1 video track; using these" % args.source_file)
 			to_convert.set_default_av_tracks()
-	else:
-		# Pick default (or only) audio/video tracks
-		log.debug("Source file %s has 1 audio and 1 video track; using these" % args.source_file)
-		to_convert.set_default_av_tracks()
+	except Exception as e:
+		cleanup_temp_files(args, log)
+		log_exception(log, "set_default_av_tracks", e)		
 
 	# Next phase: Extract MKV files to scratch directory
 	try:

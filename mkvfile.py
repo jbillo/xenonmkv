@@ -30,8 +30,9 @@ class MKVFile():
 		self.log.debug("Executing 'mkvinfo %s'" % self.get_path())
 		try: 
 			result = subprocess.check_output([self.args.tool_paths["mkvinfo"], self.get_path()])
-		except subprocess.CalledProcessError:
-			raise Exception("Error occurred while obtaining MKV information for %s - please make sure the file exists and is readable" % self.get_path())
+		except subprocess.CalledProcessError as e:
+			self.log.debug("mkvinfo process error: " + e.output)
+			raise Exception("Error occurred while obtaining MKV information for %s - please make sure the file exists, is readable and a valid MKV file" % self.get_path())
 
 		self.log.debug("mkvinfo finished; attempting to parse output")
 		try:
@@ -176,6 +177,7 @@ class MKVFile():
 
 		# Create a new parser that can be used for all tracks
 		info_parser = MKVInfoParser(self.log)
+		has_audio = has_video = False
 
 		while track_detect_string in track_info:
 			track = MKVTrack(self.log)
@@ -193,6 +195,7 @@ class MKVFile():
 				mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
+				has_video = True
 				track = VideoTrack(self.log)
 				track.number = track_number
 				track.default = info_parser.parse_track_is_default(track_info)
@@ -227,6 +230,7 @@ class MKVFile():
 
 	
 			elif track_type == "audio":
+				has_audio = True
 				track = AudioTrack(self.log)
 				track.number = track_number
 				track.default = info_parser.parse_track_is_default(track_info)
@@ -259,6 +263,12 @@ class MKVFile():
 
 		# All tracks detected here
 		self.log.debug("All tracks detected from mkvinfo output; total number is %i" % len(self.tracks))
+		
+		# Make sure that there is at least one audio and one video track and throw an exception if not
+		if not has_video:
+			raise Exception("No video track found in MKV file %s" % self.path)
+		elif not has_audio:
+			raise Exception("No audio track found in MKV file %s" % self.path)
 
 	def reference_frames_exceeded(self, video_track):
 		return ReferenceFrameValidator.validate(video_track.height, video_track.width, video_track.reference_frames)
