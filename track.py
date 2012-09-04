@@ -9,6 +9,7 @@ class MKVTrack():
 
 	codec_table = {}
 	codec_table["A_AC3"] = ".ac3"
+	codec_table["A_EAC3"] = ".ac3"
 	codec_table["A_AAC"] = ".aac"
 	codec_table["A_AAC/MPEG2/LC"] = ".aac"
 	codec_table["A_DTS"] = ".dts"
@@ -28,11 +29,10 @@ class MKVTrack():
 			return self.codec_table[self.codec_id]
 			
 		# Catch particular conditions where people will try and convert odd files
-		if self.codec_id == "DIV3":
-			# MP4Box will not touch DIV3 content
-			self.log.critical("The video track selected uses the DIV3 codec, which is not supported in a MP4 container")
-			raise UnsupportedCodecError("DIV3 codec used in selected video track is not supported")
-
+		if self.codec_id in ('DIV3', 'WVC1'):
+			# MP4Box will not touch this content
+			raise UnsupportedCodecError(self.codec_id + " codec in selected video track is not supported in an MP4 container")
+					
 		# Otherwise, set defaults
 		if self.codec_id.startswith("A_"):
 			self.log.warning("Returning default .aac extension for audio codec %s" % self.codec_id)

@@ -14,6 +14,7 @@ def main():
 		"mkv_file_no_usable_tracks",
 		"mkv_file_no_video_track",
 		"mkv_file_no_audio_track",
+		"invalid_codec_wvc1",
 	]
 	
 	for test in tests:
@@ -73,6 +74,12 @@ def test_mkv_file_no_audio_track():
 	# Expected result: output contains 'CRITICAL' and specifically mentions lack of an audio track.
 	output = call(["tests/no_audio_track.mkv"])
 	return in_output(["[CRITICAL]", "No audio track found"], output)
+	
+def test_invalid_codec_wvc1():
+	# Pass a file that contains a WVC1 video track.
+	# Expected result: output contains 'CRITICAL' and specifically mentions that WVC1 is not supported
+	output = call(["tests/invalid_codec_wvc1.mkv"])
+	return in_output(["[CRITICAL]", "WVC1 codec in selected video track is not supported"], output)
 	
 def in_output(strings, output):
 	if "Exception" in output:
