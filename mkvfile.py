@@ -245,8 +245,8 @@ class MKVFile():
 				# is less than or equal to what was specified on the command line, no recode is necessary
 				if track.codec_id == "A_AAC":
 					# Check on the number of channels in the file versus the argument passed.
-					if track.channels <= args.channels:
-						self.log.debug("Audio track %i will not need to be re-encoded (%s channels specified, %i channels in file)" % (track.number, args.channels, track.channels))
+					if track.channels <= self.args.channels:
+						self.log.debug("Audio track %i will not need to be re-encoded (%s channels specified, %i channels in file)" % (track.number, self.args.channels, track.channels))
 						track.needs_recode = False
 
 				self.log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
@@ -313,7 +313,7 @@ class MKVFile():
 				track = self.tracks[track_id]
 				if track.track_type == "video":
 					self.video_track_id = track.number
-					log.debug("First available video track in file is %i" % self.video_track_id)
+					self.log.debug("First available video track in file is %i" % self.video_track_id)
 					break
 					
 		if not self.audio_track_id:
@@ -322,7 +322,7 @@ class MKVFile():
 				track = self.tracks[track_id]
 				if track.track_type == "audio":
 					self.audio_track_id = track.number
-					log.debug("First available audio track in file is %i" % self.audio_track_id)
+					self.log.debug("First available audio track in file is %i" % self.audio_track_id)
 					break
 					
 		# If we still don't have a video and audio track specified, it's time to throw an error.
