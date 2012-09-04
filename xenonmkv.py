@@ -450,10 +450,15 @@ class MP4Box():
 				break
 				
 		if run_attempts > args.mp4box_retries:
-			log.critical("Could not create MP4 file after %i retries; giving up." % int(args.mp4box_retries))
 			# Delete the temporary file so that nobody gets tempted to use it
-			os.unlink(output_file)
-			raise Exception("MP4Box could not create file")
+			if os.path.isfile(output_file):
+				try:
+					os.unlink(output_file)
+				except:
+					# Don't really care, just as long as the file is gone.
+					pass
+				
+			raise Exception("MP4Box could not create file after %i retries; giving up." % args.mp4box_retries)
 
 		log.debug("MP4Box process complete")
 
@@ -486,6 +491,7 @@ output_group = parser.add_argument_group("Output options")
 output_group.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
 output_group.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 output_group.add_argument('-vv', '--debug', help='Highly verbose debug output', action='store_true')
+output_group.add_argument('-pf', '--print-file', help='Output filenames before and after converting', action='store_true')
 
 video_group = parser.add_argument_group("Video options", "Options for processing video.")
 video_group.add_argument('-nrp', '--no-round-par', help='When processing video, do not round pixel aspect ratio from 0.98 to 1.01 to 1:1.', action='store_true')
@@ -589,6 +595,9 @@ except IOError as e:
 
 log.info("Loading source file %s " % args.source_file)
 
+if args.print_file:
+	print "Processing: %s" % args.source_file
+
 try:
 	to_convert = MKVFile(args.source_file)
 	to_convert.get_mkvinfo()
@@ -673,4 +682,8 @@ log.info("Processing of %s complete; file saved as %s" % (args.source_file, dest
 cleanup_temp_files()
 
 log.debug("XenonMKV completed processing")
+if args.print_file:
+	print "Completed: %s" % dest_path
+	
+
 

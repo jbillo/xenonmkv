@@ -27,14 +27,20 @@ class FileUtils:
 					# Because some applications have libraries in their own directory, add the base path of custom_path
 					# to a variable that can later be used to set LD_LIBRARY_PATH.
 					library_paths.append(os.path.dirname(custom_path))
+					
+					# Proceed to next application and do not let this one get overwritten with the default later on.
 					continue
+				elif not custom_path:
+					# Fall through and set default version, but do not warn since the dependent application is not set
+					pass
 				else:
 					self.log.error("Dependent application %s does not exist as %s; looking for default version" % (app, custom_path))
-			
+	
 			for path in ospath:
-				if os.path.isfile(os.path.join(path, app)):
+				app_path = os.path.join(path, app)
+				if os.path.isfile(app_path):
 					self.log.debug("Found dependent application %s in %s" % (app, path))
-					dependency_paths[app.lower()] = os.path.join(path, app)
+					dependency_paths[app.lower()] = app_path
 					app_present = True
 					break
 					
