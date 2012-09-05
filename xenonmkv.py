@@ -68,7 +68,7 @@ def main():
 	video_group.add_argument('-irf', '--ignore-reference-frames', help='If the source video has too many reference frames to play on low-powered devices (Xbox, PlayBook), continue converting anyway', action='store_true')
 
 	audio_group = parser.add_argument_group("Audio options", "Select custom audio decoding and encoding options.")
-	audio_group.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default="6")
+	audio_group.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default=6)
 	audio_group.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
 
 	proc_group = parser.add_argument_group("File and processing options", "These options determine how XenonMKV processes files and their contents.")
@@ -102,23 +102,26 @@ def main():
 	
 	# Check for 5.1/7.1 audio with the channels setting
 	if args.channels == "5.1":
-		args.channels = "6"
+		args.channels = 6
 	elif args.channels == "7.1":
-		args.channels = "8"
+		args.channels = 8
 	if args.channels not in ('2', '4', '6', '8'):
 		log.warning("An invalid number of channels was specified. Falling back to 2-channel stereo audio.")
-		args.channels = "2"
+		args.channels = 2
 	
 	if args.profile:
 		if args.profile == "xbox360":
-			args.channels = "2"
+			args.channels = 2
 			args.error_filesize = True
 		elif args.profile == "playbook":
-			args.channels = "6"
+			args.channels = 6
 			args.error_filesize = False
 		else:
 			log.warning("Unrecognized device profile %s" % args.profile)
 			args.profile = ""
+
+	# Enforce channels as integer for comparison purposes later on
+	args.channels = int(args.channels)
 
 	log.debug("Starting XenonMKV")
 

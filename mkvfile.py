@@ -246,7 +246,8 @@ class MKVFile():
 				if track.codec_id == "A_AAC":
 					# Check on the number of channels in the file versus the argument passed.
 					if track.channels <= self.args.channels:
-						self.log.debug("Audio track %i will not need to be re-encoded (%s channels specified, %i channels in file)" % (track.number, self.args.channels, track.channels))
+						# Reasonable message to log at info level
+						self.log.info("Audio track %i will not need to be re-encoded (%s channels specified, %i channels in file)" % (track.number, self.args.channels, track.channels))
 						track.needs_recode = False
 
 				self.log.debug("Audio track %i has codec %s and language %s" % (track.number, track.codec_id, track.language))
