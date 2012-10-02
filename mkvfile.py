@@ -212,7 +212,7 @@ class MKVFile():
 					track.reference_frames = 0
 					self.log.debug("Reference frame value '%s' in track %i could not be parsed; assuming 0 reference frames" % (mediainfo_track[2], track.number))
 					
-				track.language = mediainfo_track[3]
+				track.language = mediainfo_track[3].lower()
 				track.frame_rate = float(mediainfo_track[4])
 				track.codec_id = mediainfo_track[5]
 				track.display_ar = self.parse_display_aspect_ratio(mediainfo_track[6])
@@ -237,7 +237,7 @@ class MKVFile():
 				track.default = info_parser.parse_track_is_default(track_info)
 
 				track.codec_id = mediainfo_track[0]
-				track.language = mediainfo_track[1]
+				track.language = mediainfo_track[1].lower()
 				track.channels = int(mediainfo_track[2])
 
 				# Indicate if the audio track needs a recode. By default, it does.
@@ -298,7 +298,29 @@ class MKVFile():
 		else:
 			raise Exception("Audio track with ID %i was not found in file" % track_id)
 
-	def set_default_av_tracks(self):
+	def set_default_av_tracks(self, preferred_language=None):
+		"""
+		Set default audio and video tracks somewhat intelligently. Here is the flow:
+		 * Always take user preference set as video/audio_track_id property
+		 * Check if the user has a language preference; pick first track with that language
+		 * Select MKV tracks flagged as 'default' (may not be user preference)
+		 * If none are default, take first available track (also fallback for 1A/1V track)
+		"""
+		# TODO: Accept language preference for audio tracks
+		# (eg: always take 'en' track if possible)
+		
+		if preferred_language:
+			# Completely ignore 'default' track setting
+			for track_id in self.tracks:
+				track = self.tracks[track_id]
+				if track.track_type == "video" and not self.video_track_id and track.language == preferred_language:
+					self.video_track_id = track.number
+				elif track.track_type == "audio" and not self.audio_track_id and track.language == preferred_language:
+					self.audio_track_id = track.number
+					
+		# If a track was selected, all subsequent tests will skip that type of track (video/audio_track_id)
+			
+		# Select first track flagged as 'default' in MKV file
 		for track_id in self.tracks:
 			track = self.tracks[track_id]
 			if track.track_type == "video" and track.default and not self.video_track_id:
@@ -335,6 +357,28 @@ class MKVFile():
 
 	def get_video_track(self):
 		return self.tracks[self.video_track_id]
+		
+	def audio_track_list(self):
+		track_list = {}
+		for track in self.tracks:
+			track = self.tracks[track]
+			if track.track_type != "audio":
+				continue
+				
+			track_list[track.number] = "%i - %s [%i channels]" % (track.number, track.language, track.channels)
+			
+		return track_list
+		
+	def video_track_list(self):
+		track_list = {}
+		for track in self.tracks:
+			track = self.tracks[track]
+			if track.track_type != "video":
+				continue
+				
+			track_list[track.number] = "%i - %s [%ix%i]" % (track.number, track.language, track.width, track.height)
+			
+		return track_list
 
 	def extract_mkv(self):
 		self.log.debug("Executing mkvextract on %s'" % self.get_path())

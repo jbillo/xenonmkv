@@ -27,21 +27,69 @@ from mp4box import MP4Box
 from process_handler import ProcessHandler
 from mkvfile import MKVFile
 
-def cleanup_temp_files(args, log):
+log = args = None
+
+def cleanup_temp_files():
+	global args, log
 	if not args.preserve_temp_files:
 		t = MKVTrack(log)
 		f_utils = FileUtils(log, args)		
 		f_utils.delete_temp_files(args.scratch_dir, t.get_possible_extensions())
 
 # Log an exception with the stack trace in debug mode, and exit if it's a critical log type
-def log_exception(log, source, e, log_type="critical"):
+def log_exception(source, e, log_type="critical"):
+	global log
 	getattr(log, log_type)(source + ": " + e.message)
 	log.debug(traceback.format_exc())
 	if log_type == "critical":
 		sys.exit(1)
+	
+def try_set_video_track(to_convert):
+	global args, log
+	try: 
+		if args.video_track:
+			to_convert.set_video_track(args.video_track)
+	except Exception as e:
+		log_exception("set_video_track", e, "warning")
+		
+def try_set_audio_track(to_convert):
+	global args, log
+	try:
+		if args.audio_track:
+			to_convert.set_audio_track(args.audio_track)	
+	except Exception as e:
+		log_exception("set_audio_track", e, "warning")
+		
+def select_track(track_type, tracks):
+	track_values = []
+
+	for track in tracks:
+		track_values.append(str(track))
+
+	track_type = track_type.lower()
+	title = track_type[0:1].upper() + track_type[1:]
+	
+	try: 
+		try_track = None
+		# Output type of track list and prompt to pick one
+		print "== %s Tracks ==" % title
+		for track in tracks:
+			print tracks[track]
+		while not try_track:
+			try_track = raw_input("Select a %s track or Ctrl+C to exit: " % track_type)
+			if try_track in track_values:
+				return int(try_track)
+				
+			log.error("Track '%s' not in %s track list, please pick a valid track." % (try_track, track_type))
+			try_track = None
+			
+	except KeyboardInterrupt:
+		log.critical("Track selection cancelled; exiting")
+		sys.exit(1)
 
 def main():
 	# Main program begins
+	global args, log
 	log = logging.getLogger("xenonmkv")
 	console_handler = logging.StreamHandler()
 	formatter = logging.Formatter('%(asctime)s - %(name)s [%(levelname)s] %(message)s')
@@ -70,11 +118,14 @@ def main():
 	audio_group = parser.add_argument_group("Audio options", "Select custom audio decoding and encoding options.")
 	audio_group.add_argument('-c', '--channels', help='Specify the maximum number of channels that are acceptable in the output file. Certain devices (Xbox) will not play audio with more than two channels. If the audio needs to be re-encoded at all, it will be downmixed to two channels only. Possible values for this option are 2 (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio). For more details, view the README file.', default=6)
 	audio_group.add_argument('-fq', '--faac-quality', help='Quality setting for FAAC when encoding WAV files to AAC. Defaults to 150 (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)', default=150)
+	
+	track_group = parser.add_argument_group("Track options", "These options determine how multiple tracks in MKV files are selected.")
+	track_group.add_argument('-st', '--select-tracks', help="If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used. This option requires interactive user input, so do not use it in batch processing or scripts.", action='store_true')
+	track_group.add_argument('-vt', '--video-track', help="Use the specified video track. If not present in the file, the default track will be used.", type=int)
+	track_group.add_argument('-at', '--audio-track', help="Use the specified audio track. If not present in the file, the default track will be used.", type=int)
+	track_group.add_argument('-lang', '--preferred-language', help="Provide a preferred language code in ISO 639-1 format ('en' for English, 'fr' for French, etc.) When picking tracks, this language will be preferred.")
 
 	proc_group = parser.add_argument_group("File and processing options", "These options determine how XenonMKV processes files and their contents.")
-	proc_group.add_argument('-st', '--select-tracks', help="(Not yet implemented) If there are multiple tracks in the MKV file, prompt to select which ones will be used. By default, the last video and tracks flagged as 'default' in the MKV file will be used.", action='store_true')
-	proc_group.add_argument('-vt', '--video-track', help="Use the specified video track. If not present in the file, the default track will be used.", type=int)
-	proc_group.add_argument('-at', '--audio-track', help="Use the specified audio track. If not present in the file, the default track will be used.", type=int)
 	proc_group.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 	proc_group.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
 	proc_group.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
@@ -105,7 +156,7 @@ def main():
 		args.channels = 6
 	elif args.channels == "7.1":
 		args.channels = 8
-	if args.channels not in ('2', '4', '6', '8'):
+	if args.channels not in ('2', '4', '6', '8', 2, 4, 6, 8):
 		log.warning("An invalid number of channels was specified. Falling back to 2-channel stereo audio.")
 		args.channels = 2
 	
@@ -122,6 +173,16 @@ def main():
 
 	# Enforce channels as integer for comparison purposes later on
 	args.channels = int(args.channels)
+	
+	# Ensure preferred language, if present, is lowercased and 2 characters
+	if args.preferred_language:
+		args.preferred_language = args.preferred_language.lower()
+		if len(args.preferred_language) < 2:
+			log.warning("Could not set preferred language code '%s'" % args.preferred_language)
+			args.preferred_language = None
+		elif len(args.preferred_language) > 2:
+			args.preferred_language = args.preferred_language[0:2]
+			log.warning("Preferred language code truncated to '%s'" % args.preferred_language)
 
 	log.debug("Starting XenonMKV")
 
@@ -149,7 +210,7 @@ def main():
 	try: 
 		f_utils.check_source_file(args.source_file)
 	except IOError as e:
-		log_exception(log, "check_source_file", e)
+		log_exception("check_source_file", e)
 		
 	source_basename = os.path.basename(args.source_file)
 	source_noext = source_basename[0:source_basename.rindex(".")]
@@ -162,7 +223,7 @@ def main():
 	try:
 		f_utils.check_dest_dir(args.destination)
 	except IOError as e:
-		log_exception(log, "check_dest_dir", e)
+		log_exception("check_dest_dir", e)
 
 	log.info("Loading source file %s " % args.source_file)
 
@@ -173,49 +234,46 @@ def main():
 		to_convert = MKVFile(args.source_file, log, args)
 		to_convert.get_mkvinfo()
 	except Exception as e:
-		cleanup_temp_files(args, log)
-		log_exception(log, "get_mkvinfo", e)
+		cleanup_temp_files()
+		log_exception("get_mkvinfo", e)
 
 	# If the user knows which A/V tracks they want, set them. MKVFile will not overwrite them.
-	try: 
-		if args.video_track:
-			to_convert.set_video_track(args.video_track)
-	except Exception as e:
-		log_exception(log, "set_video_track", e, "warning")
-	
-	try:
-		if args.audio_track:
-			to_convert.set_audio_track(args.audio_track)	
-	except Exception as e:
-		log_exception(log, "set_audio_track", e, "warning")
+	try_set_video_track(to_convert)
+	try_set_audio_track(to_convert)
 
 	try: 
 		# Check for multiple tracks
 		if to_convert.has_multiple_av_tracks():
 			log.debug("Source file %s has multiple audio and/or video tracks" % args.source_file)
+			# First, pick default tracks, which can be overridden in select_tracks
+			to_convert.set_default_av_tracks()			
+			
 			if args.select_tracks:
-				# TODO: Add selector for tracks
-				# Handle this scenario: prompt the user to select specific tracks,
-				# or read command line arguments, or something.
-				log.warning("Multiple track selection support is not yet implemented. Using default tracks")
-				to_convert.set_default_av_tracks()
+				video_tracks = to_convert.video_track_list()
+				audio_tracks = to_convert.audio_track_list()
+				if len(video_tracks) > 1:
+					args.video_track = select_track("video", video_tracks)
+					try_set_video_track(to_convert)
+				if len(audio_tracks) > 1:
+					args.audio_track = select_track("audio", audio_tracks)
+					try_set_audio_track(to_convert)
 			else:
-				log.debug("Selecting default audio and video tracks")
-				to_convert.set_default_av_tracks()
+				log.debug("Selected default audio and video tracks")
+
 		else:
 			# Pick default (or only) audio/video tracks
 			log.debug("Source file %s has 1 audio and 1 video track; using these" % args.source_file)
 			to_convert.set_default_av_tracks()
 	except Exception as e:
-		cleanup_temp_files(args, log)
-		log_exception(log, "set_default_av_tracks", e)		
+		cleanup_temp_files()
+		log_exception("set_default_av_tracks", e)		
 
 	# Next phase: Extract MKV files to scratch directory
 	try:
 		(video_file, audio_file) = to_convert.extract_mkv()
 	except Exception as e:
-		cleanup_temp_files(args, log)
-		log_exception(log, "extract_mkv", e)
+		cleanup_temp_files()
+		log_exception("extract_mkv", e)
 
 	# If needed, hex edit the video file to make it compliant with a lower h264 profile level
 	if video_file.endswith(".h264"):
@@ -241,8 +299,8 @@ def main():
 	try:
 		mp4box.package()
 	except Exception as e:
-		cleanup_temp_files(args, log)
-		log_exception(log, "package", e)
+		cleanup_temp_files()
+		log_exception("package", e)
 
 	# Move the file to the destination directory with the original name
 	dest_path = os.path.join(args.destination, source_noext + ".mp4")
@@ -251,7 +309,7 @@ def main():
 	log.info("Processing of %s complete; file saved as %s" % (args.source_file, dest_path))
 
 	# Delete temporary files if possible
-	cleanup_temp_files(args, log)
+	cleanup_temp_files()
 
 	log.debug("XenonMKV completed processing")
 	if args.print_file:

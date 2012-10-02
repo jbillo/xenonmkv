@@ -169,7 +169,7 @@ The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear to h
 *	Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
 *	~~Add support for custom tool locations (eg: use newer MP4Box build in a custom directory, rather than the version defined in PATH)~~
 *	~~Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults~~
-*	Add way for user to pick tracks at runtime (get `--select-tracks` functional; this will not be a default option)
-* 	Add default language preference or list for audio tracks that overrides track default in MKV file (eg: always choose English 'en' track if available)
+*	~~Add way for user to pick tracks at runtime (get `--select-tracks` functional; this will not be a default option)~~
+* 	~~Add default language preference or list for audio tracks that overrides track default in MKV file (eg: always choose English 'en' track if available)~~
 *	Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)
 
