@@ -34,10 +34,11 @@ class SupportTools():
 			self.ostype = "unknown"
 			
 	def find_tool(self, app):
-		return getattr(self, "find_" + app)()
-	
-		print "On %s running %s" % (self.ostype, app)
-		pass
+		try:
+			return getattr(self, "find_" + app)()
+		except AttributeError:
+			# Haven't written a check for this app yet
+			return None
 		
 	def offer_windows_install(self, app):
 		properties = self.tools[app]
@@ -77,5 +78,6 @@ class SupportTools():
 		if self.ostype == "windows":
 			# MKVToolnix on Windows adds itself to the path
 			return self.offer_windows_install("mkvinfo")
-		pass
+		
+		return None
 	
