@@ -75,6 +75,7 @@ class SupportTools():
 		
 	def find_mkvinfo(self):
 		if self.ostype == "windows":
+			# MKVToolnix on Windows adds itself to the path
 			return self.offer_windows_install("mkvinfo")
 		pass
 	

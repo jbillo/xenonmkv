@@ -17,9 +17,18 @@ class FileUtils:
 	def check_dependencies(self, dependency_list):
 		dependency_paths = {}
 		library_paths = []
-		
+
+		# Add Python default path and OS environment variable if available
 		ospath = os.defpath.split(os.pathsep)
+		
+		if "PATH" in os.environ:
+			ospath = ospath + os.environ["PATH"].split(os.pathsep)
+		else:
+			self.log.warning("No PATH environment variable defined. This could cause issues locating certain tools.")
+			
+		# Add own internal tool path
 		ospath.append(os.path.join(self.tools_path))
+		
 		for app in dependency_list:
 			app_present = False
 			# Check if the custom app parameter is set
@@ -42,13 +51,20 @@ class FileUtils:
 	
 			for path in ospath:
 				app_path = os.path.join(path, app)
+				if sys.platform.startswith("win32"):
+					app_path = app_path + ".exe"
+					
 				if os.path.isfile(app_path):
 					self.log.debug("Found dependent application %s in %s" % (app, path))
 					dependency_paths[app.lower()] = app_path
 					app_present = True
 					break
+				else:
+					pass
 					
-					
+			if app_present:
+				continue
+				
 			"""
 			At this point we haven't specified a custom app location, nor found it in PATH.
 			This problem is likely to come up with clean installations, or if someone tries to run on Windows.
