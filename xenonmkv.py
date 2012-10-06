@@ -84,6 +84,8 @@ def select_track(track_type, tracks):
 			try_track = None
 			
 	except KeyboardInterrupt:
+		# Output a new line before the critical message
+		print
 		log.critical("Track selection cancelled; exiting")
 		sys.exit(1)
 

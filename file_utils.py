@@ -1,9 +1,12 @@
 import os
 import sys
+from xenonmkv.support_tools import SupportTools
 
 class FileUtils:
 	log = args = None
 	FOUR_GIGS = (4*1024*1024*1024)
+	app_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+	tools_path = os.path.join(app_path, "tools")
 
 	def __init__(self, log, args):
 		self.log = log
@@ -16,6 +19,7 @@ class FileUtils:
 		library_paths = []
 		
 		ospath = os.defpath.split(os.pathsep)
+		ospath.append(os.path.join(self.tools_path))
 		for app in dependency_list:
 			app_present = False
 			# Check if the custom app parameter is set
@@ -44,8 +48,35 @@ class FileUtils:
 					app_present = True
 					break
 					
+					
+			"""
+			At this point we haven't specified a custom app location, nor found it in PATH.
+			This problem is likely to come up with clean installations, or if someone tries to run on Windows.
+			
+			What we can do is the following:
+			* Windows: Offer to download and decompress the specific applications to a 'tools' path.
+			* Linux: Hint for package manager names, perhaps tailored to RPM/DEB/source distributions.
+			* OS X: Unsure yet. Perhaps offer to download like on Windows.
+			"""
+			
+			support_tools = SupportTools(self.log)
+			tool_install_result = support_tools.find_tool(app)
+			
+			if tool_install_result == False:
+				# User opted not to install this support tool explicitly
+				# TODO: Exception should reflect this response
+				self.log.error("Dependent application '%s' was not found in PATH or the %s directory. Please install it." % (app, self.tools_path))
+				sys.exit(1)
+			elif not tool_install_result:
+				# Some issue occurred with obtaining the support tool
+				# TODO: We can throw an exception here if needed
+				pass
+				
+			# TODO: Once more, check if the app is actually in the path 
+			# (depending on installer, could have been installed system-wide or just to tools directory)
+					
 			if not app_present:
-				raise IOError("Dependent application '%s' was not found in PATH. Please make sure it is installed." % app)
+				raise IOError("Dependent application '%s' was not found in PATH or the %s directory. Please make sure it is installed." % (app, self.tools_path))
 		
 		return (dependency_paths, library_paths)
 		
