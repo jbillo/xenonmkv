@@ -1,6 +1,7 @@
 import sys
 import platform
 import os
+import webbrowser
 
 class SupportTools():
 	ostype = None
@@ -50,19 +51,19 @@ class SupportTools():
 
 [Y] Yes: Download and install %s automatically (default)
 [W] Website: Open the website for %s in the default browser. 
-	Once you have downloaded and installed %s, return 
-[N] No: Do not install
-		""" % (properties["friendly_name"], properties["friendly_name"], properties["friendly_name"])
+	Once you have downloaded and installed %s, run XenonMKV again to continue.
+[N] No: Do not install %s. XenonMKV will exit.
+		""" % (properties["friendly_name"], properties["friendly_name"], properties["friendly_name"], properties["friendly_name"])
 		
 		try:
-			response = raw_input("Install %s automatically (default=Yes) [Y/n]? " % properties["friendly_name"])
+			response = raw_input("Install %s automatically (default=Yes) [Y/w/n]? " % properties["friendly_name"])
 			response = response.strip().lower()
 			if response in ('', 'y', 'yes'):
 				# TODO: Download app and run installer/decompress
 				pass
 			elif response in ('w', 'website'):
-				# TODO: Open default browser with website
-				pass
+				webbrowser.open(properties["website"])
+				return False
 			else:
 				# Return false as the user didn't choose to install the support tool.
 				return False
