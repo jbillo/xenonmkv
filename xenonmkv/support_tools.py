@@ -18,6 +18,13 @@ class SupportTools():
 			"website" : "http://www.bunkus.org/videotools/mkvtoolnix/downloads.html#windows",
 			"windows_direct_download" : "http://www.bunkus.org/videotools/mkvtoolnix/win32/mkvtoolnix-unicode-5.8.0-setup.exe",
 			"mac_direct_download" : "http://www.bunkus.org/videotools/mkvtoolnix/macos/Mkvtoolnix-5.7.0_2012-07-11-cd22.dmg",
+		},
+		"mediainfo" : {
+		    "friendly_name" : "MediaInfo",
+		    "website" : "http://mediainfo.sourceforge.net/en/Download",
+		    "mac_direct_download" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Mac_i386%2Bx86_64.dmg",
+		    "windows_direct_download" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Windows_i386.zip",
+		    "windows_direct_download_64" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Windows_x64.zip"
 		}
 	}
 
@@ -38,7 +45,7 @@ class SupportTools():
 
 	def find_tool(self, app):
 		try:
-			return getattr(self, "find_" + app)()
+			return self.offer_install(app) # getattr(self, "find_" + app)()
 		except AttributeError:
 			# Haven't written a check for this app yet
 			return None
@@ -80,15 +87,22 @@ class SupportTools():
 	    # Check OS
 	    file_extension = os.path.splitext(path)[1].lower()
 	    if self.ostype == "mac":
+	        print "You may need to provide your account password to install this application."
 	        # Check file extension
 	        if file_extension == ".dmg":
 	            # Mount DMG with hdiutil
 	            subprocess.call(["hdiutil", "attach", path, "-mountpoint", "/Volumes/" + app])
 	            if app == "mkvinfo":
 	                # Copy Mkvtoolnix.app to /Applications
-	                print "You may need to provide your account password to install this application."
 	                subprocess.call(["sudo cp -R /Volumes/" + app + "/Mkvtoolnix.app /Applications/"], shell=True)
-	                return True
+	            elif app == "mediainfo":
+	                # Run package installer for MediaInfo CLI
+	                #subprocess.call
+	                pass
+
+	            # All done - unmount the volume
+	            subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
+	            return True
 
 	def offer_install(self, app):
 		properties = self.tools[app]
