@@ -11,7 +11,21 @@ class FileUtils:
 	def __init__(self, log, args):
 		self.log = log
 		self.args = args
-		
+
+	def scan_app_paths(self, ospath, app):
+		for path in ospath:
+			app_path = os.path.join(path, app)
+			if sys.platform.startswith("win32"):
+				app_path = app_path + ".exe"
+
+			if os.path.isfile(app_path):
+				self.log.debug("Found dependent application %s in %s" % (app, path))
+				return app_path
+			else:
+				pass
+
+		return False
+
 	# Check if all dependent applications are installed on the system and present in PATH
 	# TODO: Allow custom path to be specified for each of these if it is in a config file
 	def check_dependencies(self, dependency_list):
@@ -20,15 +34,19 @@ class FileUtils:
 
 		# Add Python default path and OS environment variable if available
 		ospath = os.defpath.split(os.pathsep)
-		
+
 		if "PATH" in os.environ:
 			ospath = ospath + os.environ["PATH"].split(os.pathsep)
 		else:
 			self.log.warning("No PATH environment variable defined. This could cause issues locating certain tools.")
-			
+
 		# Add own internal tool path
 		ospath.append(os.path.join(self.tools_path))
-		
+
+		# If on OS X, append various paths under /Applications/ to search for system wide tools.
+		if sys.platform.startswith("darwin"):
+			ospath.append("/Applications/Mkvtoolnix.app/Contents/MacOS")
+
 		for app in dependency_list:
 			app_present = False
 			# Check if the custom app parameter is set
@@ -40,7 +58,7 @@ class FileUtils:
 					# Because some applications have libraries in their own directory, add the base path of custom_path
 					# to a variable that can later be used to set LD_LIBRARY_PATH.
 					library_paths.append(os.path.dirname(custom_path))
-					
+
 					# Proceed to next application and do not let this one get overwritten with the default later on.
 					continue
 				elif not custom_path:
@@ -48,36 +66,26 @@ class FileUtils:
 					pass
 				else:
 					self.log.error("Dependent application %s does not exist as %s; looking for default version" % (app, custom_path))
-	
-			for path in ospath:
-				app_path = os.path.join(path, app)
-				if sys.platform.startswith("win32"):
-					app_path = app_path + ".exe"
-					
-				if os.path.isfile(app_path):
-					self.log.debug("Found dependent application %s in %s" % (app, path))
-					dependency_paths[app.lower()] = app_path
-					app_present = True
-					break
-				else:
-					pass
-					
+
+			app_present = self.scan_app_paths(ospath, app)
+
 			if app_present:
+				dependency_paths[app.lower()] = app_present
 				continue
-				
+
 			"""
 			At this point we haven't specified a custom app location, nor found it in PATH.
 			This problem is likely to come up with clean installations, or if someone tries to run on Windows.
-			
+
 			What we can do is the following:
 			* Windows: Offer to download and decompress the specific applications to a 'tools' path.
 			* Linux: Hint for package manager names, perhaps tailored to RPM/DEB/source distributions.
 			* OS X: Unsure yet. Perhaps offer to download like on Windows.
 			"""
-			
+
 			support_tools = SupportTools(self.log)
 			tool_install_result = support_tools.find_tool(app)
-			
+
 			if tool_install_result == False:
 				# User opted not to install this support tool explicitly
 				# TODO: Exception should reflect this response
@@ -87,23 +95,26 @@ class FileUtils:
 				# Some issue occurred with obtaining the support tool
 				# TODO: We can throw an exception here if needed
 				pass
-				
-			# TODO: Once more, check if the app is actually in the path 
+
+			# Once more, check if the app is actually in the path
 			# (depending on installer, could have been installed system-wide or just to tools directory)
-					
-			if not app_present:
+			app_present = self.scan_app_paths(ospath, app)
+
+			if app_present:
+				dependency_paths[app.lower()] = app_present
+			else:
 				raise IOError("Dependent application '%s' was not found in PATH or the %s directory. Please make sure it is installed." % (app, self.tools_path))
-		
+
 		return (dependency_paths, library_paths)
-		
+
 	def check_dest_dir(self, destination):
 		if not os.path.isdir(destination):
 			raise IOError("Destination directory %s does not exist" % destination)
-			
+
 	def check_source_file(self, source_file):
 		if not os.path.isfile(source_file):
 			raise IOError("Source file %s does not exist" % source_file)
-			
+
 		filesize = os.path.getsize(source_file)
 		if (filesize >= self.FOUR_GIGS):
 			self.log.warning("File size of %s is %i, which is over 4GiB. This file may not play on certain devices and cannot be copied to a FAT32-formatted storage medium." % (source_file, filesize))
@@ -114,7 +125,7 @@ class FileUtils:
 		with open(path, 'r+b') as f:
 			f.seek(7)
 			f.write("\x29")
-		# File is automatically closed when using 'with'		
+		# File is automatically closed when using 'with'
 
 	def delete_temp_files(self, scratch_dir, extensions):
 		for extension in extensions:

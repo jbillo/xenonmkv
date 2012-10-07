@@ -1,21 +1,22 @@
 class ReferenceFrameValidator:
 	@staticmethod
 	def validate(height, width, reference_frames):
-		max_frames_1280 = []
-		max_frames_1920 = []
+		max_frames_1280 = [
+		    [720, 9],
+		    [648, 10],
+		    [588, 11],
+		    [540, 12],
+		    [498, 13],
+		    [462, 14],
+		    [432, 15],
+		    [405, 16]
+		]
 
-		max_frames_1280.append([720, 9])
-		max_frames_1280.append([648, 10])
-		max_frames_1280.append([588, 11])
-		max_frames_1280.append([540, 12])
-		max_frames_1280.append([498, 13])
-		max_frames_1280.append([462, 14])
-		max_frames_1280.append([432, 15])
-		max_frames_1280.append([405, 16])
-
-		max_frames_1920.append([1088, 4])
-		max_frames_1920.append([864, 5])
-		max_frames_1920.append([720, 6])
+		max_frames_1920 = [
+		    [1088, 4],
+		    [864, 5],
+		    [720, 6]
+		]
 
 		if height == 0 or width == 0 or reference_frames == 0:
 			return False

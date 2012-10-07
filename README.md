@@ -93,7 +93,7 @@ For a quiet run (batch processing or in a cronjob):
 	xenonmkv.py /path/to/file.mkv -q
 
 # Suggestions/Caveats
-*	If your files to convert aren't too large, distributions that mount `/tmp` as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use `--scratch-dir /tmp`. Right now for future proofing, the scratch directory is set to `/var/tmp`.
+*	If your MKV files aren't too large, distributions that mount `/tmp` as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use `--scratch-dir /tmp`. Right now for future proofing, the scratch directory is set to `/var/tmp`.
 *	Use `-vv` to find display debug information and output exactly what's going on during the processing stages.
 *	Native multiple file support will be coming (eg: convert an entire directory of MKVs) but you can do something like this in the meantime to queue up a list:
 
@@ -105,7 +105,7 @@ For a quiet run (batch processing or in a cronjob):
 	You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.
 
 # Audio Downmixing/Re-Encoding
-By default, XenonMKV tries not to have to resample, downmix or re-encode any part of the content provided. However, chances are your source files will contain AC3, DTS or MP3 audio that needs to be re-encoded. In this case, the original source audio will always be downmixed to a two channel AAC file before it is repackaged.
+By default, XenonMKV tries not to resample, downmix or re-encode any part of the content provided. However, chances are your source files will contain AC3, DTS or MP3 audio that needs to be re-encoded. In this case, the original source audio will always be downmixed to a two channel AAC file before it is repackaged.
 
 If the audio track in your MKV file is already AAC, the next thing to consider is your playback device. The Xbox 360 will not play audio in an MP4 container unless it is 2-channel stereo, which is a highly stupid limitation. Other devices, like the PlayBook, will happily parse up to 5.1 channel audio. By using either the `--channels` or `--profile` settings, you can tell XenonMKV how many channels of audio are acceptable from an AAC source before it will aggressively re-encode and downmix to 2-channel stereo.
 
