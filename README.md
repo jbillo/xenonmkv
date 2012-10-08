@@ -70,14 +70,31 @@ Eventually I will package the application as an .exe file for convenience with W
 
 * Install Python 2.7 from <http://python.org/ftp/python/2.7.3/python-2.7.3.msi> for 32-bit or <http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi> for 64-bit operating systems. 
 * Install `setuptools` from <http://pypi.python.org/pypi/setuptools#downloads> for your appropriate OS. Downloading and running <http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
-* Add the Python27 and Python27\Scripts directories to your PATH environment variable:
+* Install MinGW from <http://sourceforge.net/projects/mingw/files/> for compiling Python packages, with the C and C++ compiler options
+* Add the Python27, Python27\Scripts and MinGW directories to your PATH environment variable:
 	* Hit *Win* + *Break* to bring up Computer Properties
 	* Click *Advanced System Settings*
 	* Click *Environment Variables*
-	* With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts` (replace C:\Python27 with your installation directory)
+	* With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts;C:\MinGW` (replace C:\Python27 with your installation directory)
 	* Click *OK* all the way out and restart any `cmd` instances
 	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable)
-	 
+* Create or edit the *distutils.cfg* file under `C:\Python27\Lib\distutils` and enter the following contents:
+		
+		[build]
+		compiler=mingw32
+		
+* As per <http://bugs.python.org/issue12641> and <http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o>, edit `C:\Python27\Lib\distutils\cygwinccompiler.py` and remove all `-mno-cygwin` references beginning on line 322. The definition should look like:
+
+```python
+        self.set_executables(compiler='gcc -O -Wall',
+                             compiler_so='gcc -mdll -O -Wall',
+                             compiler_cxx='g++ -O -Wall',
+                             linker_exe='gcc',
+                             linker_so='%s %s %s'
+                                        % (self.linker_dll, shared_option,
+                                           entry_point))
+```                                           
+
 * Use `easy_install` to get `pip` added to your system, which will let you pull the necessary dependencies:
 
 		easy_install pip
