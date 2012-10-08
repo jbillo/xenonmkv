@@ -4,10 +4,10 @@ XenonMKV is a video format conversion tool that takes MKV files and outputs them
 You'll find this tool useful for converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my <a href="http://blackberry.com/playbook">BlackBerry PlayBook</a>.
 
 # System Requirements
-XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular *nix distributions. You will need at least Python 2.7 for the argparse library, and ideally Python 2.7.3 or later in the 2.x series.
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular \*nix distributions. You will need at least Python 2.7 for the argparse library, and ideally Python 2.7.3 or later in the 2.x series.
 
-## Packages to Install
-You will need some supporting packages. Instructions below work on Ubuntu 12.04.
+## Ubuntu 12.04
+You will need some supporting packages:
 
 ### Install All Dependencies
 	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
@@ -57,10 +57,25 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 		sudo add-apt-repository ppa:fkrull/deadsnakes
 		sudo apt-get update
 		sudo apt-get install python2.7
-*	Install mediainfo by adding the PPA referenced above as it is not in the 10.04 package repository.
+		
+*	Install mediainfo by adding the `ppa:shiki/mediainfo` PPA as the *mediainfo* package is not in the 10.04 repository.
 *	Run the application directly referencing Python 2.7:
 
 		/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
+
+## Windows
+Eventually I will package the application as an .exe file for convenience with Windows installations. I have only personally tried this on Windows 7, 64-bit. To get things up and running for a development environment on Windows, you can perform the following steps:
+
+* Install Python 2.7 from <http://python.org/ftp/python/2.7.3/python-2.7.3.msi> for 32-bit or <http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi> for 64-bit operating systems. 
+* Install `setuptools` from <http://pypi.python.org/pypi/setuptools#downloads> for your appropriate OS. Downloading and running <http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
+* Add the Python27 and Python27\Scripts directories to your PATH environment variable:
+	* Hit *Win* + *Break* to bring up Computer Properties
+	* Click *Advanced System Settings*
+	* Click *Environment Variables*
+	* With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts` (replace C:\Python27 with your installation directory)
+	* Click *OK* all the way out and restart any `cmd` instances
+	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable) 
+
 
 # Suggested Applications
 *	vlc
