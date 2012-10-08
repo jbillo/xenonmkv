@@ -4,11 +4,12 @@ import os
 import webbrowser
 import urllib2
 import subprocess
+import zipfile
 
 class SupportTools():
 	ostype = None
 	distro = None
-	bits = None
+	win_64 = None
 	log = None
 	app_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 
@@ -25,6 +26,9 @@ class SupportTools():
 		    "mac_direct_download" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Mac_i386%2Bx86_64.dmg",
 		    "windows_direct_download" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Windows_i386.zip",
 		    "windows_direct_download_64" : "http://mediaarea.net/download/binary/mediainfo/0.7.60/MediaInfo_CLI_0.7.60_Windows_x64.zip"
+		},
+		"mplayer" : {
+			"friendly_name" : "mplayer",
 		}
 	}
 
@@ -37,6 +41,7 @@ class SupportTools():
 			self.distro = platform.linux_distribution()
 		elif sys.platform.startswith("win32"):
 			self.ostype = "windows"
+			self.win_64 = 'PROGRAMFILES(X86)' in os.environ
 		elif sys.platform.startswith("darwin"):
 			self.ostype = "mac"
 		else:
@@ -54,6 +59,7 @@ class SupportTools():
 	    if not destination_dir or not os.path.isdir(destination_dir):
 	        destination_dir = os.path.join(self.app_path, "tools")
 
+		self.log.debug("Opening URL %s" % url)
 		u = urllib2.urlopen(url)
 		file_name = url.split("/")[-1]
 		destination_path = os.path.join(destination_dir, file_name)
@@ -84,25 +90,34 @@ class SupportTools():
 		return destination_path
 
 	def install_file(self, app, path):
-	    # Check OS
-	    file_extension = os.path.splitext(path)[1].lower()
-	    if self.ostype == "mac":
-	        print "You may need to provide your account password to install this application."
-	        # Check file extension
-	        if file_extension == ".dmg":
+		file_extension = os.path.splitext(path)[1].lower()
+		if file_extension == ".zip":
+			# Decompress .zip to appropriate directory		
+			zip_file = zipfile.ZipFile(path, 'r')
+			output_dir = os.path.join(os.path.dirname(path), app)
+			if not os.path.isdir(output_dir):
+				os.mkdir(output_dir)
+			
+			self.log.debug("Extracting all contents from %s to %s" % (path, output_dir))
+			zip_file.extractall(output_dir)
+			return True
+		elif file_extension == ".dmg":
 	            # Mount DMG with hdiutil
 	            subprocess.call(["hdiutil", "attach", path, "-mountpoint", "/Volumes/" + app])
 	            if app == "mkvinfo":
 	                # Copy Mkvtoolnix.app to /Applications
 	                subprocess.call(["sudo cp -R /Volumes/" + app + "/Mkvtoolnix.app /Applications/"], shell=True)
 	            elif app == "mediainfo":
-	                # Run package installer for MediaInfo CLI
+	                # TODO: Run package installer for MediaInfo CLI
 	                #subprocess.call
 	                pass
-
+					
 	            # All done - unmount the volume
 	            subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
 	            return True
+		else:
+			# File extension unknown
+			return False
 
 	def offer_install(self, app):
 		properties = self.tools[app]
@@ -125,8 +140,12 @@ class SupportTools():
 			response = response.strip().lower()
 			if response in ('', 'y', 'yes'):
 				# TODO: Download app and run installer/decompress
-				url = properties[self.ostype + "_direct_download"]
-				print "Downloading installation package from %s" % url
+				download_property = self.ostype + "_direct_download"
+				if self.win_64 and download_property + "_64" in properties:
+					url = properties[download_property + "_64"]
+				else:
+					url = properties[download_property]
+				self.log.info("Downloading installation package from %s" % url)
 				file_path = self.download_file(url)
 
 				if not file_path:

@@ -13,14 +13,18 @@ class FileUtils:
 		self.args = args
 
 	def scan_app_paths(self, ospath, app):
+		if sys.platform.startswith("win32"):
+			filename_ext = ".exe"
+		else:
+			filename_ext = ""
+			
+		filename = app + filename_ext
 		for path in ospath:
-			app_path = os.path.join(path, app)
-			if sys.platform.startswith("win32"):
-				app_path = app_path + ".exe"
-
-			if os.path.isfile(app_path):
-				self.log.debug("Found dependent application %s in %s" % (app, path))
-				return app_path
+			# Detect if the file exists in the OS path, or one level deep with the app name.
+			if os.path.isfile(os.path.join(path, filename)):
+				return os.path.join(path, filename)
+			elif os.path.isfile(os.path.join(path, app, filename)):
+				return os.path.join(path, app, filename)
 			else:
 				pass
 
@@ -70,6 +74,7 @@ class FileUtils:
 			app_present = self.scan_app_paths(ospath, app)
 
 			if app_present:
+				self.log.debug("Found tool %s at %s by scanning common paths" % (app, app_present))
 				dependency_paths[app.lower()] = app_present
 				continue
 
@@ -88,7 +93,6 @@ class FileUtils:
 
 			if tool_install_result == False:
 				# User opted not to install this support tool explicitly
-				# TODO: Exception should reflect this response
 				self.log.error("Dependent application '%s' was not found in PATH or the %s directory. Please install it." % (app, self.tools_path))
 				sys.exit(1)
 			elif not tool_install_result:
