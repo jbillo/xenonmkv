@@ -17,19 +17,25 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
 
 	sys.exit(1)
 
+# Load eggs for dependencies
+"""
+app_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+lib_path = os.path.join(app_path, "xenonmkv", "lib")
+for egg_file in os.listdir(lib_path):
+	if os.path.splitext(os.path.join(lib_path, egg_file))[1] == ".egg":
+		sys.path.append(os.path.join(lib_path, egg_file))
+"""
+
 import argparse
-import subprocess
 import logging
 import traceback
 
-from mkv_info_parser import MKVInfoParser
 from file_utils import FileUtils
-from track import *
 from decoder import AudioDecoder
 from encoder import FAACEncoder
 from mp4box import MP4Box
-from process_handler import ProcessHandler
 from mkvfile import MKVFile
+from track import MKVTrack
 
 log = args = None
 
@@ -95,7 +101,7 @@ def select_track(track_type, tracks):
 
 def main():
 	# Main program begins
-	global args, log
+	global args, log, app_path
 	log = logging.getLogger("xenonmkv")
 	console_handler = logging.StreamHandler()
 	formatter = logging.Formatter('%(asctime)s - %(name)s [%(levelname)s] %(message)s')
@@ -320,7 +326,6 @@ def main():
 	log.debug("XenonMKV completed processing")
 	if args.print_file:
 		print "Completed: %s" % dest_path
-
 
 
 if __name__ == "__main__":

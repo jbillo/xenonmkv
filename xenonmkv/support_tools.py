@@ -29,6 +29,8 @@ class SupportTools():
 		},
 		"mplayer" : {
 			"friendly_name" : "mplayer",
+			"website": "http://oss.netfarm.it/mplayer-win32.php",
+			"windows_direct_download": "http://downloads.sourceforge.net/project/mplayer-win32/MPlayer%20and%20MEncoder/revision%2034401/MPlayer-p4-svn-34401.7z"
 		}
 	}
 
@@ -126,6 +128,17 @@ class SupportTools():
 			# All done - unmount the volume
 			subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
 			return True
+		elif file_extension == ".7z":
+			try:
+				import pylzma
+				
+			except ImportError:
+				# TODO: Check if we have a 7zip executable around to use
+				# Could not find pylzma; error out and let user know it needs to be installed
+				self.log.error("Could not import pylzma to extract .7z file.")
+				return False
+			
+			return False
 		else:
 			# File extension unknown
 			return False
@@ -164,7 +177,11 @@ class SupportTools():
 					return None
 
 				# Install application according to OS mechanism
-				return self.install_file(app, file_path)
+				install_result = self.install_file(app, file_path)
+				if not install_result:
+					self.log.error("Could not install %s package automatically" % properties["friendly_name"])
+					
+				return install_result
 			elif response in ('w', 'website'):
 				webbrowser.open(properties["website"])
 				return False
@@ -177,11 +194,3 @@ class SupportTools():
 			self.log.critical("Installation prompt cancelled; exiting")
 			sys.exit(1)
 
-	def find_mkvinfo(self):
-		if self.ostype == "windows":
-			# MKVToolnix on Windows adds itself to the path
-			return self.offer_install("mkvinfo")
-		elif self.ostype == "mac":
-			return self.offer_install("mkvinfo")
-
-		return None

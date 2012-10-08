@@ -37,19 +37,20 @@ class FileUtils:
 		library_paths = []
 
 		# Add Python default path and OS environment variable if available
-		ospath = os.defpath.split(os.pathsep)
+		ospath = set(os.defpath.split(os.pathsep))
 
 		if "PATH" in os.environ:
-			ospath = ospath + os.environ["PATH"].split(os.pathsep)
+			for path in os.environ["PATH"].split(os.pathsep):
+				ospath.add(path)
 		else:
 			self.log.warning("No PATH environment variable defined. This could cause issues locating certain tools.")
 
 		# Add own internal tool path
-		ospath.append(os.path.join(self.tools_path))
+		ospath.add(os.path.join(self.tools_path))
 
 		# If on OS X, append various paths under /Applications/ to search for system wide tools.
 		if sys.platform.startswith("darwin"):
-			ospath.append("/Applications/Mkvtoolnix.app/Contents/MacOS")
+			ospath.add("/Applications/Mkvtoolnix.app/Contents/MacOS")
 
 		for app in dependency_list:
 			app_present = False
@@ -83,9 +84,8 @@ class FileUtils:
 			This problem is likely to come up with clean installations, or if someone tries to run on Windows.
 
 			What we can do is the following:
-			* Windows: Offer to download and decompress the specific applications to a 'tools' path.
+			* Windows/OSX: Offer to download and extract the specific applications - either locally or system wide.
 			* Linux: Hint for package manager names, perhaps tailored to RPM/DEB/source distributions.
-			* OS X: Unsure yet. Perhaps offer to download like on Windows.
 			"""
 
 			support_tools = SupportTools(self.log)
@@ -100,12 +100,19 @@ class FileUtils:
 				# TODO: We can throw an exception here if needed
 				pass
 
+			# Rebuild ospath with any new entries that may have been added as a result of the app install
+			if "PATH" in os.environ:
+				for path in os.environ["PATH"].split(os.pathsep):
+					ospath.add(path)
+				
 			# Once more, check if the app is actually in the path
-			# (depending on installer, could have been installed system-wide or just to tools directory)
+			# (depending on installer, could have been installed system-wide or just to tools directory)				
 			app_present = self.scan_app_paths(ospath, app)
 
 			if app_present:
+				self.log.debug("Found tool %s at %s by rescanning common paths" % (app, app_present))			
 				dependency_paths[app.lower()] = app_present
+				continue
 			else:
 				raise IOError("Dependent application '%s' was not found in PATH or the %s directory. Please make sure it is installed." % (app, self.tools_path))
 
