@@ -10,10 +10,14 @@ XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_6
 You will need some supporting packages:
 
 ### Install All Dependencies (at once)
-	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac python-setuptools && sudo easy_install -U pip
+	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac  
+	
+At the current state of development, on Ubuntu you do not need to install anything from requirements.txt as the package manager takes care of all the dependent tools. If this changes in the future, requirements can be installed by running:
+	
+	sudo apt-get install python-setuptools && sudo easy_install -U pip
 	pip install -r requirements.txt
 
-### Individual Package Requirements
+### Individual Package Details
 *	mediainfo (<http://mediainfo.sourceforge.net/en/Download/Ubuntu>)
 
 		sudo apt-get install mediainfo
@@ -48,7 +52,7 @@ You will need some supporting packages:
 
 	Then to run:
 
-		LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/0.5.0" /opt/gpac/0.5.0/MP4Box
+		LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/0.5.0" /opt/gpac/0.5.0/MP4Box		
 
 ## Ubuntu 10.04
 As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
@@ -66,12 +70,28 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 		/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 
 ## Windows
-Eventually I will package the application as an .exe file for convenience with Windows installations. I have only personally tried this on Windows 7, 64-bit. To get things up and running for a development environment on Windows, you can perform the following steps:
+Eventually I will package the application as an .exe file for convenience with Windows installations. I have only personally tried this on Windows 7, 64-bit. 
 
+As long as you have all the dependent tools installed, you should only need to have Python installed and add the Python directory to your PATH environment variable. If you are taking advantage of the automatic installer, you will need the pylzma package. 
+
+### Basic Use
 * Install Python 2.7 from <http://python.org/ftp/python/2.7.3/python-2.7.3.msi> for 32-bit or <http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi> for 64-bit operating systems. 
+* Add the Python27 directory to your PATH environment variable:
+	* Hit *Win* + *Break* to bring up Computer Properties
+	* Click *Advanced System Settings*
+	* Click *Environment Variables*
+	* With PATH selected, click *Edit* and add `;C:\Python27` (replace C:\Python27 with your installation directory)
+	* Click *OK* all the way out and restart any `cmd` instances
+	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable)
+* Run XenonMKV from the command line:
+		python xenonmkv.py [arguments]
+
+### Development Use
+To get things up and running for a development environment on Windows, you can perform the following steps:
+
 * Install `setuptools` from <http://pypi.python.org/pypi/setuptools#downloads> for your appropriate OS. Downloading and running <http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
 * Install MinGW from <http://sourceforge.net/projects/mingw/files/> for compiling Python packages, with the C and C++ compiler options
-* Add the Python27, Python27\Scripts and MinGW directories to your PATH environment variable:
+* Add the Python27\Scripts and MinGW directories to your PATH environment variable:
 	* Hit *Win* + *Break* to bring up Computer Properties
 	* Click *Advanced System Settings*
 	* Click *Environment Variables*
