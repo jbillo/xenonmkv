@@ -56,8 +56,8 @@ class SupportTools():
 			return None
 
 	def download_file(self, url, destination_dir=None):
-	    if not destination_dir or not os.path.isdir(destination_dir):
-	        destination_dir = os.path.join(self.app_path, "tools")
+		if not destination_dir or not os.path.isdir(destination_dir):
+			destination_dir = os.path.join(self.app_path, "tools")
 
 		self.log.debug("Opening URL %s" % url)
 		u = urllib2.urlopen(url)
@@ -67,7 +67,7 @@ class SupportTools():
 		# Debugging: if the file exists already, return true and don't download again
 		# This should be removed for non-debug copies
 		if os.path.isfile(destination_path):
-		    return destination_path
+			return destination_path
 
 		f = open(destination_path, 'wb')
 		meta = u.info()
@@ -76,12 +76,12 @@ class SupportTools():
 		file_size_dl = 0
 		block_sz = 8192
 		while True:
-			buffer = u.read(block_sz)
-			if not buffer:
+			dl_buffer = u.read(block_sz)
+			if not dl_buffer:
 				break
 
-			file_size_dl += len(buffer)
-			f.write(buffer)
+			file_size_dl += len(dl_buffer)
+			f.write(dl_buffer)
 			status = r"%10d	 [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
 			status = status + chr(8)*(len(status)+1)
 			print status,
@@ -92,7 +92,7 @@ class SupportTools():
 	def install_file(self, app, path):
 		file_extension = os.path.splitext(path)[1].lower()
 		if file_extension == ".zip":
-			# Decompress .zip to appropriate directory		
+			# Extract .zip to appropriate directory		
 			zip_file = zipfile.ZipFile(path, 'r')
 			output_dir = os.path.join(os.path.dirname(path), app)
 			if not os.path.isdir(output_dir):
@@ -102,19 +102,19 @@ class SupportTools():
 			zip_file.extractall(output_dir)
 			return True
 		elif file_extension == ".dmg":
-	            # Mount DMG with hdiutil
-	            subprocess.call(["hdiutil", "attach", path, "-mountpoint", "/Volumes/" + app])
-	            if app == "mkvinfo":
-	                # Copy Mkvtoolnix.app to /Applications
-	                subprocess.call(["sudo cp -R /Volumes/" + app + "/Mkvtoolnix.app /Applications/"], shell=True)
-	            elif app == "mediainfo":
-	                # TODO: Run package installer for MediaInfo CLI
-	                #subprocess.call
-	                pass
+			# Mount DMG with hdiutil
+			subprocess.call(["hdiutil", "attach", path, "-mountpoint", "/Volumes/" + app])
+			if app == "mkvinfo":
+				# Copy Mkvtoolnix.app to /Applications
+				subprocess.call(["sudo cp -R /Volumes/" + app + "/Mkvtoolnix.app /Applications/"], shell=True)
+			elif app == "mediainfo":
+				# TODO: Run package installer for MediaInfo CLI
+				#subprocess.call
+				pass
 					
-	            # All done - unmount the volume
-	            subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
-	            return True
+			# All done - unmount the volume
+			subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
+			return True
 		else:
 			# File extension unknown
 			return False
@@ -149,8 +149,8 @@ class SupportTools():
 				file_path = self.download_file(url)
 
 				if not file_path:
-				    self.log.error("Could not download %s package automatically" % properties["friendly_name"])
-				    return None
+					self.log.error("Could not download %s package automatically" % properties["friendly_name"])
+					return None
 
 				# Install application according to OS mechanism
 				return self.install_file(app, file_path)
