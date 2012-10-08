@@ -9,8 +9,9 @@ XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_6
 ## Ubuntu 12.04
 You will need some supporting packages:
 
-### Install All Dependencies
-	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
+### Install All Dependencies (at once)
+	sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac python-setuptools && sudo easy_install -U pip
+	pip install -r requirements.txt
 
 ### Individual Package Requirements
 *	mediainfo (<http://mediainfo.sourceforge.net/en/Download/Ubuntu>)
@@ -59,6 +60,7 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 		sudo apt-get install python2.7
 		
 *	Install mediainfo by adding the `ppa:shiki/mediainfo` PPA as the *mediainfo* package is not in the 10.04 repository.
+* Perform *install dependencies* step from the 12.04 instructions
 *	Run the application directly referencing Python 2.7:
 
 		/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
@@ -74,8 +76,15 @@ Eventually I will package the application as an .exe file for convenience with W
 	* Click *Environment Variables*
 	* With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts` (replace C:\Python27 with your installation directory)
 	* Click *OK* all the way out and restart any `cmd` instances
-	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable) 
+	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable)
+	 
+* Use `easy_install` to get `pip` added to your system, which will let you pull the necessary dependencies:
 
+		easy_install pip
+		
+* Install all necessary dependencies:
+		
+		pip install -r requirements.txt
 
 # Suggested Applications
 *	vlc
