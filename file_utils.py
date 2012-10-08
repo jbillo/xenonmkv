@@ -87,10 +87,16 @@ class FileUtils:
 			* Windows/OSX: Offer to download and extract the specific applications - either locally or system wide.
 			* Linux: Hint for package manager names, perhaps tailored to RPM/DEB/source distributions.
 			"""
+			
+			# If we're at this point and the --quiet option is set, raise an exception
+			if self.args.quiet:
+				self.log.warning("Cannot prompt to install dependent tool %s" % app)
+				raise IOError("Dependent application '%s' was not found in PATH or the %s directory, and quiet mode does not allow user input. Please make sure %s is installed." % (app, self.tools_path, app))
 
 			support_tools = SupportTools(self.log)
 			tool_install_result = support_tools.find_tool(app)
 
+			# tool_install_result can be distinctly "None" or "False"
 			if tool_install_result == False:
 				# User opted not to install this support tool explicitly
 				self.log.error("Dependent application '%s' was not found in PATH or the %s directory. Please install it." % (app, self.tools_path))

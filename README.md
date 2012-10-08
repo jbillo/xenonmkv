@@ -97,7 +97,7 @@ To get things up and running for a development environment on Windows, you can p
 	* Click *Environment Variables*
 	* With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts;C:\MinGW` (replace C:\Python27 with your installation directory)
 	* Click *OK* all the way out and restart any `cmd` instances
-	* Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable)
+	* Confirm the setting was applied by entering `echo %PATH% | find "Python" | find "MinGW"` (you should see your PATH variable)
 * Create or edit the *distutils.cfg* file under `C:\Python27\Lib\distutils` and enter the following contents:
 		
 		[build]
@@ -123,16 +123,19 @@ To get things up and running for a development environment on Windows, you can p
 		
 		pip install -r requirements.txt
 
+## OS X
+Instructions coming soon.
+
 # Suggested Applications
 *	vlc
 
-	VLC is highly useful for investigating video files in a GUI. You can see the expected number of audio and video tracks and generally confirm that your video output works as expected.
+	VLC is highly useful for investigating video files in a GUI. You can see the number of audio and video tracks in an MKV, and confirm that your MP4 output works as expected.
 
 		sudo apt-get install vlc
 
 *	mkvtoolnix-gui
 
-	The GUI version of mkvtoolnix allows editing of MKV files. It is useful for constructing MKV files for test cases, or extracting specific content.
+	The GUI version of mkvtoolnix is useful for constructing smaller MKV files for test cases, extracting specific content or modifying tracks.
 
 		sudo apt-get install mkvtoolnix-gui
 
@@ -149,9 +152,11 @@ To see all command line arguments:
 
 	xenonmkv.py --help
 
-For a quiet run (batch processing or in a cronjob):
+For a quiet run (batch processing or in a cronjob): 
 
 	xenonmkv.py /path/to/file.mkv -q
+	
+The -q option ensures you will never be prompted for input and would be useful for integration with software like SABnzbd+.
 
 # Suggestions/Caveats
 *	If your MKV files aren't too large, distributions that mount `/tmp` as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use `--scratch-dir /tmp`. Right now for future proofing, the scratch directory is set to `/var/tmp`.

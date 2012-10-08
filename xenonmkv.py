@@ -118,7 +118,7 @@ def main():
 	parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
 
 	output_group = parser.add_argument_group("Output options")
-	output_group.add_argument('-q', '--quiet', help='Do not display output or progress from dependent tools', action='store_true')
+	output_group.add_argument('-q', '--quiet', help='Do not display output or progress from tools, or prompt for input', action='store_true')
 	output_group.add_argument('-v', '--verbose', help='Verbose output', action='store_true')
 	output_group.add_argument('-vv', '--debug', help='Highly verbose debug output', action='store_true')
 	output_group.add_argument('-pf', '--print-file', help='Output filenames before and after converting', action='store_true')
@@ -195,6 +195,11 @@ def main():
 		elif len(args.preferred_language) > 2:
 			args.preferred_language = args.preferred_language[0:2]
 			log.warning("Preferred language code truncated to '%s'" % args.preferred_language)
+			
+	# Make sure user is not prompted for input if quiet option is used
+	if args.quiet and args.select_tracks:
+		log.warning("Cannot use interactive track selection in quiet mode. Tracks will be automatically selected.")
+		args.select_tracks = False
 
 	log.debug("Starting XenonMKV")
 

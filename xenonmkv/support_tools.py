@@ -61,15 +61,21 @@ class SupportTools():
 		if not destination_dir or not os.path.isdir(destination_dir):
 			destination_dir = os.path.join(self.app_path, "tools")
 
-		self.log.debug("Opening URL %s" % url)
-		u = urllib2.urlopen(url)
 		file_name = url.split("/")[-1]
 		destination_path = os.path.join(destination_dir, file_name)
 
 		# Debugging: if the file exists already, return true and don't download again
 		# This should be removed for non-debug copies
 		if os.path.isfile(destination_path):
+			self.log.debug("File %s already exists; skipping download step" % destination_path)
 			return destination_path
+		
+		self.log.debug("Opening URL %s" % url)
+		try:
+			u = urllib2.urlopen(url)
+		except urllib2.URLError as ue:
+			self.log.error("Could not open URL %s (%s)" % (url, ue))
+			return False		
 
 		f = open(destination_path, 'wb')
 		meta = u.info()
@@ -84,16 +90,19 @@ class SupportTools():
 
 			file_size_dl += len(dl_buffer)
 			f.write(dl_buffer)
-			status = r"%10d	 [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+			status = r"%10d	bytes [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
 			status = status + chr(8)*(len(status)+1)
 			print status,
 
 		f.close()
+		# Output a new line to avoid interfering with subsequent output
+		print
 		return destination_path
 
 	def install_file(self, app, path):
 		file_extension = os.path.splitext(path)[1].lower()
 		if file_extension == ".zip":
+			self.log.debug("Attempting to extract ZIP %s" % path)
 			# Extract .zip to appropriate directory		
 			zip_file = zipfile.ZipFile(path, 'r')
 			output_dir = os.path.join(os.path.dirname(path), app)
@@ -129,14 +138,18 @@ class SupportTools():
 			subprocess.call(["diskutil", "unmount", "force", "/Volumes/" + app])
 			return True
 		elif file_extension == ".7z":
+			self.log.debug("Attempting to extract LZMA/.7z file %s" % path)
 			try:
-				import pylzma
-				
+				import py7zlib
 			except ImportError:
 				# TODO: Check if we have a 7zip executable around to use
-				# Could not find pylzma; error out and let user know it needs to be installed
-				self.log.error("Could not import pylzma to extract .7z file.")
+				# Could not find py7zlib; error out and let user know it needs to be installed
+				self.log.error("Could not import py7zlib to extract .7z file. %s will need to be installed manually." % app)
 				return False
+			
+			# We have py7zlib imported
+			self.log.debug("py7zlib library imported; proceeding to extract %s" % path)
+			# TODO: actually extract 
 			
 			return False
 		else:
@@ -169,17 +182,21 @@ class SupportTools():
 					url = properties[download_property + "_64"]
 				else:
 					url = properties[download_property]
-				self.log.info("Downloading installation package from %s" % url)
+				self.log.info("Attempting to download installation package from %s" % url)
 				file_path = self.download_file(url)
 
 				if not file_path:
 					self.log.error("Could not download %s package automatically" % properties["friendly_name"])
 					return None
+				else:
+					self.log.debug("Package %s downloaded successfully" % properties["friendly_name"])
 
 				# Install application according to OS mechanism
 				install_result = self.install_file(app, file_path)
 				if not install_result:
 					self.log.error("Could not install %s package automatically" % properties["friendly_name"])
+				else:
+					self.log.info("Package %s installed successfully" % properties["friendly_name"])
 					
 				return install_result
 			elif response in ('w', 'website'):
