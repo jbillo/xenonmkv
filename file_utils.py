@@ -51,7 +51,14 @@ class FileUtils:
 		# If on OS X, append various paths under /Applications/ to search for system wide tools.
 		if sys.platform.startswith("darwin"):
 			ospath.add("/Applications/Mkvtoolnix.app/Contents/MacOS")
-
+			
+		# If on Windows, try adding various paths under ProgramFiles.
+		if sys.platform.startswith("win32"):
+			# GPAC/MP4box
+			ospath.add(os.path.join(os.environ['PROGRAMFILES'], "GPAC"))			
+			if "PROGRAMFILES(X86)" in os.environ:
+				ospath.add(os.path.join(os.environ['PROGRAMFILES(X86)'], "GPAC"))
+		
 		for app in dependency_list:
 			app_present = False
 			# Check if the custom app parameter is set

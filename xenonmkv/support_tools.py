@@ -30,7 +30,17 @@ class SupportTools():
 		"mplayer" : {
 			"friendly_name" : "mplayer",
 			"website": "http://oss.netfarm.it/mplayer-win32.php",
-			"windows_direct_download": "http://downloads.sourceforge.net/project/mplayer-win32/MPlayer%20and%20MEncoder/revision%2034401/MPlayer-p4-svn-34401.7z"
+			"windows_direct_download": "https://github.com/downloads/jbillo/xenonmkv/MPlayer-p4-svn-34401.zip"
+		},
+		"faac": {
+			"friendly_name": "FAAC",
+			"website": "http://www.rarewares.org/aac-encoders.php",
+			"windows_direct_download": "http://www.rarewares.org/files/aac/faac-1.28-mod.zip",
+		},
+		"MP4Box": {
+			"friendly_name": "MP4Box (GPAC)",
+			"website": "http://gpac.wp.mines-telecom.fr/downloads/",
+			"windows_direct_download": "http://download.tsi.telecom-paristech.fr/gpac/release/0.5.0/GPAC.Framework.Setup-0.5.0.exe"
 		}
 	}
 
@@ -49,7 +59,21 @@ class SupportTools():
 		else:
 			# Won't be able to support a lot here
 			self.ostype = "unknown"
-
+			
+	def write_uac_regkey(self, path):
+		# Write a UAC registry key to force certain installers
+		# to request elevated permissions.
+		try: 
+			import _winreg
+			regkey = _winreg.CreateKey(_winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers")
+			_winreg.SetValueEx(regkey, path, 0, _winreg.REG_SZ, "RUNASADMIN")
+			_winreg.CloseKey(regkey)
+		except:
+			self.log.warning("Could not write UAC/elevation registry key for %s" % path)
+			return False
+		
+		return True
+		
 	def find_tool(self, app):
 		try:
 			return self.offer_install(app) # getattr(self, "find_" + app)()
@@ -101,11 +125,12 @@ class SupportTools():
 
 	def install_file(self, app, path):
 		file_extension = os.path.splitext(path)[1].lower()
+		output_dir = os.path.join(os.path.dirname(path), app)
+		
 		if file_extension == ".zip":
 			self.log.debug("Attempting to extract ZIP %s" % path)
 			# Extract .zip to appropriate directory		
 			zip_file = zipfile.ZipFile(path, 'r')
-			output_dir = os.path.join(os.path.dirname(path), app)
 			if not os.path.isdir(output_dir):
 				os.mkdir(output_dir)
 			
@@ -114,6 +139,7 @@ class SupportTools():
 			return True
 		elif file_extension == ".exe":
 			# Assume it is a Windows install; just run the application
+			self.write_uac_regkey(path)
 			self.log.debug("Running executable %s" % path)
 			try:
 				subprocess.check_call(path, shell=True)
@@ -140,18 +166,20 @@ class SupportTools():
 		elif file_extension == ".7z":
 			self.log.debug("Attempting to extract LZMA/.7z file %s" % path)
 			try:
-				import py7zlib
+				from xenonmkv.util import sevenzfile
 			except ImportError:
 				# TODO: Check if we have a 7zip executable around to use
 				# Could not find py7zlib; error out and let user know it needs to be installed
-				self.log.error("Could not import py7zlib to extract .7z file. %s will need to be installed manually." % app)
+				self.log.error("Could not import py7zlib/pylzma to extract .7z file. %s will need to be installed manually." % app)
 				return False
 			
 			# We have py7zlib imported
-			self.log.debug("py7zlib library imported; proceeding to extract %s" % path)
-			# TODO: actually extract 
+			self.log.debug("sevenzfile library imported; proceeding to extract %s" % path)
 			
-			return False
+			sz_file = sevenzfile.SevenZFile(path)
+			sz_file.extractall(output_dir)
+			
+			return True
 		else:
 			# File extension unknown
 			return False
@@ -206,7 +234,7 @@ class SupportTools():
 				# Return false as the user didn't choose to install the support tool.
 				return False
 		except KeyboardInterrupt:
-			# Print \n before critical log line
+			# Print newline before critical log line
 			print
 			self.log.critical("Installation prompt cancelled; exiting")
 			sys.exit(1)

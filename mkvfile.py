@@ -56,14 +56,14 @@ class MKVFile():
 
 	def parse_mediainfo(self, result):
 		output = []
-		result = result.replace("\n", "")
+		result = result.replace(os.linesep, "")
 		
 		# Obtain multiple tracks if they are present
 		lines = result.split("~")
 		lines = lines[0:-1] # remove last tilde separator character
 		
 		for line in lines:
-			# remove last \n element from array that will always be present
+			# remove last element from array that will always be present
 			values = line.split(",")
 			# print values
 			output.append(values)

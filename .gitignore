@@ -15,3 +15,5 @@ tools/*.tar.gz
 tools/*.tgz
 tools/*.gz
 tools/mediainfo
+tools/mplayer
+tools/faac

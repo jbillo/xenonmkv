@@ -1,3 +1,5 @@
+import os
+
 class MKVInfoParser:
 	log = None
 
@@ -7,8 +9,8 @@ class MKVInfoParser:
 	def _parse_to_newline(self, output, detect, what="value"):
 		if detect in output:
 			output = output[output.index(detect) + len(detect):]
-			if "\n" in output:
-				output = output[0:output.index("\n")]
+			if os.linesep in output:
+				output = output[0:output.index(os.linesep)]
 			self.log.debug("Detected %s '%s' from mkvinfo output" % (what, output))
 			return output
 		else:
