@@ -101,6 +101,17 @@ class SupportTools():
 			self.log.debug("Extracting all contents from %s to %s" % (path, output_dir))
 			zip_file.extractall(output_dir)
 			return True
+		elif file_extension == ".exe":
+			# Assume it is a Windows install; just run the application
+			self.log.debug("Running executable %s" % path)
+			try:
+				subprocess.check_call(path, shell=True)
+			except subprocess.CalledProcessError:
+				# installation failed, return false
+				self.log.error("Installation of %s failed or was cancelled" % self.tools[app]["friendly_name"])
+				return False
+			
+			return True
 		elif file_extension == ".dmg":
 			# Mount DMG with hdiutil
 			subprocess.call(["hdiutil", "attach", path, "-mountpoint", "/Volumes/" + app])
