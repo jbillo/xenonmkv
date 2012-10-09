@@ -30,7 +30,7 @@ class MKVTrack():
 			return self.codec_table[self.codec_id]
 			
 		# Catch particular conditions where people will try and convert odd files
-		if self.codec_id in ('DIV3', 'WVC1'):
+		if self.codec_id in ('DIV3', 'WVC1', 'V_MS/VFW/FOURCC / WVC1'):
 			# MP4Box will not touch this content
 			raise UnsupportedCodecError(self.codec_id + " codec in selected video track is not supported in an MP4 container")
 					

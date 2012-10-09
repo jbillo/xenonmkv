@@ -198,7 +198,6 @@ class MKVFile():
 				mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
-				print mediainfo_track
 				has_video = True
 				track = VideoTrack(self.log)
 				track.number = track_number

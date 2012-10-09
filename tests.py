@@ -30,7 +30,7 @@ def main():
 	
 def call(args):
 	try:
-		cmd = [os.path.join(os.getcwd(), "xenonmkv.py")]
+		cmd = ["python", os.path.join(os.getcwd(), "xenonmkv.py")]
 		cmd.extend(args)
 		output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
 	except subprocess.CalledProcessError as e:
@@ -39,13 +39,13 @@ def call(args):
 	return output
 	
 def test_file_not_exists():
-	# Test: Pass a file path that does not exist to XenonMKV.
+	# Pass a file path that does not exist to XenonMKV.
 	# Expected result: output string contains 'CRITICAL' and 'does not exist'
 	output = call(["/tmp/file_does_not_exist.mkv"])
 	return "[CRITICAL]" in output and "does not exist" in output
 	
 def test_destdir_not_exists():
-	# Test: Pass a directory that does not exist as the output directory.
+	# Pass an output directory that does not exist.
 	# Expected result: output string contains 'CRITICAL', 'directory' and 'does not exist'
 	# This is a different result from the original source file not existing
 	output = call(["tests/invalid.mkv", "-d", "/tmp/dir/does/not/exist"])
@@ -89,6 +89,8 @@ def in_output(strings, output):
 
 	for item in strings:
 		if item not in output:
+			print "One or more required items were not found in the output. Details:"
+			print output
 			return False
 			
 	return True
