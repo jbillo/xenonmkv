@@ -11,13 +11,34 @@ class MKVInfoParser:
 			output = output[output.index(detect) + len(detect):]
 			if os.linesep in output:
 				output = output[0:output.index(os.linesep)]
+				
+			# Remove trailing characters from output 
+			# (seems to be an issue on Windows, likely with CR characters)
+			output = output.strip()
 			self.log.debug("Detected %s '%s' from mkvinfo output" % (what, output))
 			return output
 		else:
 			raise Exception("Could not parse %s from mkvinfo" % what)
 		
 	def parse_track_number(self, output):
-		return int(self._parse_to_newline(output, "|  + Track number: ", "track number"))
+		result = self._parse_to_newline(output, "|  + Track number: ", "track number")
+		# mkvinfo 5.8.0 on Windows apparently adds more content to the string
+		# use ID number for mkvmerge/mkvextract
+		
+		# We need to return a tuple: track_id, mkvtoolnix_track_id
+		if "(" in result:
+			track_id = int(result[0:result.index(" (")].strip())
+		else:
+			# Older versions of mkvinfo don't need a specific ID
+			return int(result), int(result)
+		
+		detect_mkvextract = "mkvextract: "
+		if detect_mkvextract in result:
+			result = result[result.index(detect_mkvextract) + len(detect_mkvextract):]
+		if ")" in result:
+			result = result[0:result.index(")")]
+			
+		return track_id, int(result)
 
 	def parse_track_type(self, output):
 		return self._parse_to_newline(output, "|  + Track type: ", "track type")

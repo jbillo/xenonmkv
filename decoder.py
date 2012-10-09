@@ -50,6 +50,7 @@ class AudioDecoder():
 			os.unlink(os.path.join(os.getcwd(), "audiodump.wav"))
 
 		cmd = [self.args.tool_paths["mplayer"], self.file_path, "-benchmark", "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub", "-ao", "pcm:fast"]
+		self.log.debug("Executing '%s'" % ' '.join(cmd))
 		ph = ProcessHandler(self.args)
 		process = ph.start_process(cmd)
 

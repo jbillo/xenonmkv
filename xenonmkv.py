@@ -49,7 +49,7 @@ def cleanup_temp_files():
 # Log an exception with the stack trace in debug mode, and exit if it's a critical log type
 def log_exception(source, e, log_type="critical"):
 	global log
-	getattr(log, log_type)(source + ": " + e.message)
+	getattr(log, log_type)(str(source) + ": " + str(e.message))
 	log.debug(traceback.format_exc())
 	if log_type == "critical":
 		sys.exit(1)
@@ -113,7 +113,7 @@ def main():
 	parser = argparse.ArgumentParser(description='Parse command line arguments for XenonMKV.')
 	parser.add_argument('source_file', help='Path to the source MKV file')
 	parser.add_argument('-d', '--destination', help='Directory to output the destination .mp4 file (default: current directory)', default='.')
-	parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored (default: /var/tmp/)', default='/var/tmp/')
+	parser.add_argument('-sd', '--scratch-dir', help='Specify a scratch directory where temporary files should be stored', default=None)
 	parser.add_argument('-cfg', '--config-file', help='(Not yet implemented) Provide a configuration file that contains default arguments or settings for the application', default='')
 	parser.add_argument("-p", '--profile', help="Select a standardized device profile for encoding. Current profile options are: xbox360, playbook", default="")
 
@@ -140,7 +140,7 @@ def main():
 	proc_group = parser.add_argument_group("File and processing options", "These options determine how XenonMKV processes files and their contents.")
 	proc_group.add_argument('-rp', '--resume-previous', help='Resume a previous run (do not recreate files if they already exist). Useful for debugging quickly if a conversion has already partially succeeded.', action='store_true')
 	proc_group.add_argument('-n', '--name', help='Specify a name for the final MP4 container. Defaults to the original file name.', default="")
-	proc_group.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true')
+	proc_group.add_argument('-preserve', '--preserve-temp-files', help="Preserve temporary files on the filesystem rather than deleting them at the end of each run.", action='store_true', default=False)
 	proc_group.add_argument("-eS", "--error-filesize", help="Stop processing this file if it is over 4GiB. Files of this size will not be processed correctly by some devices such as the Xbox 360, and they will not save correctly to FAT32-formatted storage. By default, you will only see a warning message, and processing will continue.", action="store_true")
 	proc_group.add_argument('--mp4box-retries', help="Set the number of retry attempts for MP4Box to attempt to create a file (default: 3)", default=3, type=int)
 
@@ -162,6 +162,15 @@ def main():
 		log.debug("Using debug/highly verbose mode output")
 	elif args.verbose:
 		log.setLevel(logging.INFO)
+	
+	# Pick temporary/scratch directory
+	if not args.scratch_dir:
+		if "TEMP" in os.environ:
+			args.scratch_dir = os.environ["TEMP"]
+		elif os.path.isdir("/var/tmp"):
+			args.scratch_dir = "/var/tmp"
+		else:
+			args.scratch_dir = os.curdir
 
 	# Check for 5.1/7.1 audio with the channels setting
 	if args.channels == "5.1":
@@ -172,6 +181,7 @@ def main():
 		log.warning("An invalid number of channels was specified. Falling back to 2-channel stereo audio.")
 		args.channels = 2
 
+	# Apply selected profile
 	if args.profile:
 		if args.profile == "xbox360":
 			args.channels = 2

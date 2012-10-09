@@ -3,6 +3,7 @@ class UnsupportedCodecError(Exception):
 
 class MKVTrack():
 	number = 0
+	mkvtoolnix_id = 0
 	uid = track_type = language = codec_id = ""
 	default = True
 	log = None

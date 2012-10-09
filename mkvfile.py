@@ -27,7 +27,6 @@ class MKVFile():
 
 	# Open the mkvinfo process and parse its output.
 	def get_mkvinfo(self):
-		track_count = 0
 		self.log.debug("Executing 'mkvinfo %s'" % self.get_path())
 		try: 
 			result = subprocess.check_output([self.args.tool_paths["mkvinfo"], self.get_path()])
@@ -45,14 +44,16 @@ class MKVFile():
 	# Open the mediainfo process to obtain detailed info on the file.		
 	def get_mediainfo(self, track_type):
 		if track_type == "video":
-			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,~"
+			parameters = "Video;%ID%,%Height%,%Width%,%Format_Settings_RefFrames%,%Language%,%FrameRate%,%CodecID%,%DisplayAspectRatio%,%FrameRate_Original%,~"
 		else:
 			parameters = "Audio;%ID%,%CodecID%,%Language%,%Channels%,~"
-			
-		self.log.debug("Executing 'mediainfo %s %s'" % (parameters, self.get_path()))
-		result = subprocess.check_output([self.args.tool_paths["mediainfo"], "--Inform=" + parameters, self.get_path()])
+	
+	
+		subprocess_args = [self.args.tool_paths["mediainfo"], "--Inform=" + parameters, self.get_path()]
+		self.log.debug("Executing '%s'" % ' '.join(subprocess_args))
+		result = subprocess.check_output(subprocess_args)
 		self.log.debug("mediainfo finished; attempting to parse output for %s settings" % track_type)
-		return self.parse_mediainfo(result)		
+		return self.parse_mediainfo(result)
 
 	def parse_mediainfo(self, result):
 		output = []
@@ -88,7 +89,7 @@ class MKVFile():
 				raise Exception("Could not parse display aspect ratio of %s" % dar_string)
 		else:
 			return float(dar_string.strip())
-			 
+
 	# Calculate the pixel aspect ratio of the track based on the height, width, and display A/R
 	def calc_pixel_aspect_ratio(self, track):
 		t_height = track.height * track.display_ar
@@ -189,13 +190,15 @@ class MKVFile():
 
 			# Get track type and number out of this block
 			track_type = info_parser.parse_track_type(track_info)
-			track_number = info_parser.parse_track_number(track_info)
+			track_number, track_mkvtoolnix_id = info_parser.parse_track_number(track_info)
+			self.log.debug("Track %i will use ID %i when taking actions with the mkvtoolnix suite" % (track_number, track_mkvtoolnix_id))
 
 			# Set individual track properties for the object by track ID
 			if track_type in ("video", "audio"):
 				mediainfo_track = mediainfo[track_number]
 
 			if track_type == "video":
+				print mediainfo_track
 				has_video = True
 				track = VideoTrack(self.log)
 				track.number = track_number
@@ -213,7 +216,14 @@ class MKVFile():
 					self.log.debug("Reference frame value '%s' in track %i could not be parsed; assuming 0 reference frames" % (mediainfo_track[2], track.number))
 					
 				track.language = mediainfo_track[3].lower()
-				track.frame_rate = float(mediainfo_track[4])
+				if mediainfo_track[4]:
+					track.frame_rate = float(mediainfo_track[4])
+				elif mediainfo_track[7]:
+					self.log.debug("Using original track frame rate as container frame rate was not set")
+					track.frame_rate = float(mediainfo_track[7])
+				else:
+					raise ValueError("Could not read FPS information from mediainfo output")
+
 				track.codec_id = mediainfo_track[5]
 				track.display_ar = self.parse_display_aspect_ratio(mediainfo_track[6])
 				track.pixel_ar = self.calc_pixel_aspect_ratio(track)
@@ -258,6 +268,9 @@ class MKVFile():
 				# Do not proceed to add this to the global tracks list.
 				self.log.debug("Unrecognized track type '%s' in %i; skipping" % (track_type, track_number)) 
 				continue
+			
+			# Add general properties to track
+			track.mkvtoolnix_id = track_mkvtoolnix_id
 
 			self.log.debug("All properties set for %s track %i" % (track_type, track.number))
 			track.track_type = track_type
@@ -381,15 +394,18 @@ class MKVFile():
 		return track_list
 
 	def extract_mkv(self):
-		self.log.debug("Executing mkvextract on %s'" % self.get_path())
+		self.log.debug("Executing mkvextract on '%s'" % self.get_path())
 		prev_dir = os.getcwd()
 
 		if self.args.scratch_dir != ".":
 			self.log.debug("Using %s as scratch directory for MKV extraction" % self.args.scratch_dir)
 			os.chdir(self.args.scratch_dir)
 			
-		self.log.debug("Using video track from MKV file with ID %i" % self.video_track_id)
-		self.log.debug("Using audio track from MKV file with ID %i" % self.audio_track_id)
+		mkvtoolnix_video_id = self.tracks[self.video_track_id].mkvtoolnix_id
+		mkvtoolnix_audio_id = self.tracks[self.audio_track_id].mkvtoolnix_id			
+			
+		self.log.debug("Using video track from MKV file with ID %i (mkvtoolnix ID %i)" % (self.video_track_id, mkvtoolnix_video_id))
+		self.log.debug("Using audio track from MKV file with ID %i (mkvtoolnix ID %i)" % (self.audio_track_id, mkvtoolnix_audio_id))
 
 		try:
 			temp_video_file = "temp_video" + self.tracks[self.video_track_id].get_filename_extension()
@@ -409,13 +425,12 @@ class MKVFile():
 		if os.path.isfile(temp_video_file):
 			self.log.debug("Deleting temporary video file %s" % os.path.join(os.getcwd(), temp_video_file))
 			os.unlink(temp_video_file)
-
 		if os.path.isfile(temp_audio_file):
 			self.log.debug("Deleting temporary audio file %s" % os.path.join(os.getcwd(), temp_audio_file))
 			os.unlink(temp_audio_file)
 
-		video_output = str(self.video_track_id) + ":" + temp_video_file
-		audio_output = str(self.audio_track_id) + ":" + temp_audio_file
+		video_output = str(mkvtoolnix_video_id) + ":" + temp_video_file
+		audio_output = str(mkvtoolnix_audio_id) + ":" + temp_audio_file
 
 		cmd = [self.args.tool_paths["mkvextract"], "tracks", self.get_path(), video_output, audio_output]
 		ph = ProcessHandler(self.args)
