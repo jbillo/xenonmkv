@@ -117,32 +117,45 @@ depending on your architecture.
     * Hit *Win* + *Break* to bring up Computer Properties
     * Click *Advanced System Settings*
     * Click *Environment Variables*
-    * With PATH selected, click *Edit* and add `;C:\Python27` (replace C:\Python27 with your installation directory)
+    * With PATH selected, click *Edit* and add `;C:\Python27`
+      (replace C:\Python27 with your installation directory)
     * Click *OK* all the way out and restart any `cmd` instances
-    * Confirm the setting was applied by entering `echo %PATH% | find "Python"` (you should see your PATH variable)
+    * Confirm the setting was applied by entering `echo %PATH% | find "Python"`
+      (you should see your PATH variable)
 * Run XenonMKV from the command line:
         python xenonmkv.py [arguments]
 
 ### Development Use
-To get things up and running for a development environment on Windows, you can perform the following steps:
+To get things up and running for a development environment on Windows,
+you can perform the following steps:
 
 * Install [`setuptools`](http://pypi.python.org/pypi/setuptools#downloads)
 for your appropriate OS. Downloading and running
 <http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
-* Install MinGW from <http://sourceforge.net/projects/mingw/files/> for compiling Python packages, with the C and C++ compiler options
-* Add the Python27\Scripts and MinGW directories to your PATH environment variable:
+* Install [MinGW](http://sourceforge.net/projects/mingw/files/) for
+compiling Python packages, with the C and C++ compiler options
+* Add the Python27\Scripts and MinGW directories to your PATH environment
+  variable:
     * Hit *Win* + *Break* to bring up Computer Properties
     * Click *Advanced System Settings*
     * Click *Environment Variables*
-    * With PATH selected, click *Edit* and add `;C:\Python27;C:\Python27\Scripts;C:\MinGW` (replace C:\Python27 with your installation directory)
+    * With PATH selected, click *Edit* and add
+    `;C:\Python27;C:\Python27\Scripts;C:\MinGW`
+    (replace C:\Python27 with your installation directory)
     * Click *OK* all the way out and restart any `cmd` instances
-    * Confirm the setting was applied by entering `echo %PATH% | find "Python" | find "MinGW"` (you should see your PATH variable)
+    * Confirm the setting was applied by entering
+      `echo %PATH% | find "Python" | find "MinGW"`
+      (you should see your PATH variable)
 * Create or edit the *distutils.cfg* file under `C:\Python27\Lib\distutils` and enter the following contents:
 
         [build]
         compiler=mingw32
 
-* As per <http://bugs.python.org/issue12641> and <http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o>, edit `C:\Python27\Lib\distutils\cygwinccompiler.py` and remove all `-mno-cygwin` references beginning on line 322. The definition should look like:
+* As per <http://bugs.python.org/issue12641> and
+<http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o>,
+edit `C:\Python27\Lib\distutils\cygwinccompiler.py` and remove all
+`-mno-cygwin` references beginning on line 322.
+The definition should look like:
 
 ```python
         self.set_executables(compiler='gcc -O -Wall',
@@ -154,7 +167,8 @@ for your appropriate OS. Downloading and running
                                            entry_point))
 ```
 
-* Use `easy_install` to get `pip` added to your system, which will let you pull the necessary dependencies:
+* Use `easy_install` to get `pip` added to your system,
+which will let you pull the necessary dependencies:
 
         easy_install pip
 
@@ -168,13 +182,16 @@ Instructions coming soon.
 # Suggested Applications
 *    vlc
 
-    VLC is highly useful for investigating video files in a GUI. You can see the number of audio and video tracks in an MKV, and confirm that your MP4 output works as expected.
+    VLC is highly useful for investigating video files in a GUI. You can see
+    the number of audio and video tracks in an MKV, and confirm that your MP4
+    output works as expected.
 
         sudo apt-get install vlc
 
 *    mkvtoolnix-gui
 
-    The GUI version of mkvtoolnix is useful for constructing smaller MKV files for test cases, extracting specific content or modifying tracks.
+    The GUI version of mkvtoolnix is useful for constructing smaller MKV files
+    for test cases, extracting specific content or modifying tracks.
 
         sudo apt-get install mkvtoolnix-gui
 
@@ -183,7 +200,8 @@ Basic usage with default settings:
 
     xenonmkv.py /path/to/file.mkv
 
-To ensure your Xbox 360 will play the resulting file, at a possible expense of audio quality:
+To ensure your Xbox 360 will play the resulting file, at a possible expense
+of audio quality:
 
     xenonmkv.py /path/to/file.mkv --profile xbox360
 
@@ -195,37 +213,67 @@ For a quiet run (batch processing or in a cronjob):
 
     xenonmkv.py /path/to/file.mkv -q
 
-The -q option ensures you will never be prompted for input and would be useful for integration with software like SABnzbd+.
+The -q option ensures you will never be prompted for input and would be useful
+for integration with software like SABnzbd+.
 
 # Suggestions/Caveats
-*    If your MKV files aren't too large, distributions that mount `/tmp` as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use `--scratch-dir /tmp`. Right now for future proofing, the scratch directory is set to `/var/tmp`.
-*    Use `-vv` to find display debug information and output exactly what's going on during the processing stages.
-*    Native multiple file support will be coming (eg: convert an entire directory of MKVs) but you can do something like this in the meantime to queue up a list:
+* If your MKV files aren't too large, distributions that mount `/tmp`
+  as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a
+  significant speedup if you use `--scratch-dir /tmp`. Right now for future
+  proofing, the scratch directory is set to `/var/tmp`.
+* Use `-vv` to find display debug information and output exactly what's going
+  on during the processing stages.
+* Native multiple file support (eg: convert an entire
+  directory of MKVs) is not inherently in this version, but you can do
+  something like this in the meantime to queue up a list:
 
         cd ~/mymkvdir
         for i in `ls *.mkv`; do /path/to/xenonmkv.py $i --destination ~/mymp4dir; done
 
-*    Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western Digital Black SATA hard drive:
-    A 442MB source MKV file with h.264 video and 6-channel AC3 audio is converted into a PlayBook-compatible MP4 (same video, 2-channel AAC audio, quality q=150) in 40.6 seconds. This does not have any enhancements such as a tmpfs mount.
-    You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.
+* Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western
+  Digital Black SATA hard drive: A 442MB source MKV file with h.264 video and
+  6-channel AC3 audio is converted into a PlayBook-compatible MP4
+  (same video, 2-channel AAC audio, quality q=150) in 40.6 seconds.
+  This does not have any enhancements such as a tmpfs mount.
+  You could probably get much better performance with a solid state drive,
+  and obviously processor speed will have an impact here.
 
 # Audio Downmixing/Re-Encoding
-By default, XenonMKV tries not to resample, downmix or re-encode any part of the content provided. However, chances are your source files will contain AC3, DTS or MP3 audio that needs to be re-encoded. In this case, the original source audio will always be downmixed to a two channel AAC file before it is repackaged.
+By default, XenonMKV tries not to resample, downmix or re-encode any part of
+the content provided. However, chances are your source files will contain AC3,
+DTS or MP3 audio that needs to be re-encoded. In this case, the original
+source audio will always be downmixed to a two channel AAC file before
+it is repackaged.
 
-If the audio track in your MKV file is already AAC, the next thing to consider is your playback device. The Xbox 360 will not play audio in an MP4 container unless it is 2-channel stereo, which is a highly stupid limitation. Other devices, like the PlayBook, will happily parse up to 5.1 channel audio. By using either the `--channels` or `--profile` settings, you can tell XenonMKV how many channels of audio are acceptable from an AAC source before it will aggressively re-encode and downmix to 2-channel stereo.
+If the audio track in your MKV file is already AAC, the next thing to
+consider is your playback device. The Xbox 360 will not play audio in an MP4
+container unless it is 2-channel stereo, which is a highly stupid limitation.
+Other devices, like the PlayBook, will happily parse up to 5.1 channel audio.
+By using either the `--channels` or `--profile` settings, you can tell
+XenonMKV how many channels of audio are acceptable from an AAC source before
+it will aggressively re-encode and downmix to 2-channel stereo.
 
-In short, if you plan to play MP4s on your Xbox 360, definitely use the `--profile xbox360` setting to make sure that no more than two channels make it into the output file. If your device is more reasonable, the default settings should be fine. More profiles will be added as users confirm their own device capabilities.
+In short, if you plan to play MP4s on your Xbox 360, definitely use the
+`--profile xbox360` setting to make sure that no more than two channels make
+it into the output file. If your device is more reasonable, the default
+settings should be fine. More profiles will be added as users confirm their
+own device capabilities.
 
 # Known Issues
 ## MP4Box crash with backtrace
-Certain video files, when MP4Box loads them to rejoin into an MP4 container, will throw a glibc error beginning with:
+Certain video files, when MP4Box loads them to rejoin into an MP4 container,
+will throw a glibc error beginning with:
 
     *** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
     ======= Backtrace: =========
     /lib/x86_64-linux-gnu/libc.so.6(+0x7e626)[0x7f0b09a77626]
     /usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 
-This occurs with both nVidia proprietary and Nouveau open source drivers. The message above is displayed when using the "current" or "current-updates" versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or Nouveau open-source driver, the free() error is the same, but the backtrace is different:
+This occurs with both nVidia proprietary and Nouveau open source drivers.
+The message above is displayed when using the "current" or "current-updates"
+versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or
+Nouveau open-source driver, the free() error is the same, but the backtrace
+is different:
 
     *** glibc detected *** MP4Box: free(): invalid next size (fast): 0x00000000022d2420 ***
     ======= Backtrace: =========
@@ -242,9 +290,11 @@ This occurs with both nVidia proprietary and Nouveau open source drivers. The me
     /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xed)[0x7f5e981ad76d]
     MP4Box[0x4085c1]
 
-Sometimes this is an intermittent error, so MP4Box has a 3-retry mechanism that starts with the temporary files.
-At this time I'm not sure whether it's system memory or an issue with MP4Box/gpac.
-There were similar crashing issues in the original Windows version, which is why multiple versions of MP4Box were bundled and used for fallback.
+Sometimes this is an intermittent error, so MP4Box has a 3-retry mechanism
+that starts with the temporary files. At this time I'm not sure whether it's
+system memory or an issue with MP4Box/gpac. There were similar crashing issues
+in the original Windows version, which is why multiple versions of MP4Box were
+bundled and used for fallback.
 
 If you do see this issue in your own testing, please report it and include a
 link to the file that causes the problem if possible. You may also be able to
@@ -257,7 +307,8 @@ Relevant system information:
     Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23
     UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
 
-My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package, which is `0.4.5+svn3462~dfsg0-1`:
+My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package,
+which is `0.4.5+svn3462~dfsg0-1`:
 
     $ MP4Box -version
     MP4Box - GPAC version 0.4.6-DEV-rev
@@ -266,7 +317,8 @@ My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package, which is 
     GPAC Configuration: --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix}/include --mandir=${prefix}/share/man --infodir=${prefix}/share/info --sysconfdir=/etc --localstatedir=/var --libdir=${prefix}/lib/x86_64-linux-gnu --libexecdir=${prefix}/lib/x86_64-linux-gnu --disable-maintainer-mode --disable-dependency-tracking --prefix=/usr --mandir=${prefix}/share/man --libdir=lib/x86_64-linux-gnu --extra-cflags='-Wall -fPIC -DPIC -I/usr/include/mozjs -DXP_UNIX' --enable-joystick --enable-debug --disable-ssl
     Features: GPAC_HAS_JPEG GPAC_HAS_PNG
 
-A fresh compile of the 0.5.0 version available at <https://sourceforge.net/projects/gpac/> also appears to trigger this bug:
+A fresh compile of the 0.5.0 version available at
+<https://sourceforge.net/projects/gpac/> also appears to trigger this bug:
 
     MP4Box - GPAC version 0.5.0-rev4065
     GPAC Copyright: (c) Jean Le Feuvre 2000-2005
@@ -274,7 +326,8 @@ A fresh compile of the 0.5.0 version available at <https://sourceforge.net/proje
     GPAC Configuration:  --enable-debug
     Features: GPAC_DISABLE_3D
 
-The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear to have issues.
+The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear
+to have issues.
 
 # TODO
 *    Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
