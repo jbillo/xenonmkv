@@ -26,40 +26,44 @@ At the current state of development, on Ubuntu you do not need to install anythi
         sudo add-apt-repository ppa:shiki/mediainfo
         sudo apt-get update
         sudo apt-get install mediainfo
-*    mkvtoolnix (<http://www.bunkus.org/videotools/mkvtoolnix/downloads.html>)
+*    [mkvtoolnix](http://www.bunkus.org/videotools/mkvtoolnix/downloads.html)
 
         sudo apt-get install mkvtoolnix
-*    mplayer (<http://www.mplayerhq.hu/design7/news.html>)
+*    [mplayer](http://www.mplayerhq.hu/design7/news.html)
 
         sudo apt-get install mplayer
-*    faac (<http://www.audiocoding.com/downloads.html>)
+*    [faac](http://www.audiocoding.com/downloads.html)
 
         sudo apt-get install faac
-*     MP4Box (<https://sourceforge.net/projects/gpac/>)
+*    [MP4Box](https://sourceforge.net/projects/gpac/)
 
         sudo apt-get install gpac
 
-    To compile your own gpac version, follow these instructions: <http://gpac.wp.mines-telecom.fr/2011/04/20/compiling-gpac-on-ubuntu/>
-    Then, run the following commands for great success (the SpiderMonkey JS library appears to be broken currently, and isn't needed):
+    To compile your own gpac version, follow [these instructions](http://gpac.wp.mines-telecom.fr/2011/04/20/compiling-gpac-on-ubuntu/).
+    Then, run the following commands for success (the SpiderMonkey JS library isn't needed):
 
         ./configure --enable-debug --use-js=no
         make
 
     By default MP4Box will be installed in /usr/local/{bin,lib} as necessary.
-    To put MP4Box into a designated path, use the `--prefix` option with
-    `./configure` -
+    On Ubuntu this will cause your custom compiled version to be executed
+    instead of the package manager version.
+
+    To put MP4Box into a specific path on compile, use the `--prefix`
+    option with `./configure` -
     [thanks Romain](https://github.com/jbillo/xenonmkv/issues/2#issuecomment-10257505):
 
-                ./configure --enable-debug --use-js=no --prefix=/opt/gpac
+        ./configure --enable-debug --use-js=no --prefix=/opt/gpac
 
-    You probably still won't be able to run it, though, unless you run `sudo make install`. I prefer not to overwrite system libraries, so I copy the application directly into /opt/gpac/0.5.0:
+    Run `sudo make install` to finalize.
+    Then to run, specify LD_LIBRARY_PATH if it is not already in your LD
+    configuration. On Ubuntu /usr/local/lib is already there, so just run:
 
-        sudo mkdir -p /opt/gpac/0.5.0
-        sudo cp -R bin/gcc/* /opt/gpac/0.5.0
+        /usr/local/bin/MP4Box
 
-    Then to run:
+    For a custom prefix:
 
-        LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/0.5.0" /opt/gpac/0.5.0/MP4Box
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/lib" /opt/gpac/bin/MP4Box
 
 ## Ubuntu 10.04
 As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
@@ -96,7 +100,9 @@ As long as you have all the dependent tools installed, you should only need to h
 ### Development Use
 To get things up and running for a development environment on Windows, you can perform the following steps:
 
-* Install `setuptools` from <http://pypi.python.org/pypi/setuptools#downloads> for your appropriate OS. Downloading and running <http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
+* Install [`setuptools`](http://pypi.python.org/pypi/setuptools#downloads)
+for your appropriate OS. Downloading and running
+<http://peak.telecommunity.com/dist/ez_setup.py> may be the best option.
 * Install MinGW from <http://sourceforge.net/projects/mingw/files/> for compiling Python packages, with the C and C++ compiler options
 * Add the Python27\Scripts and MinGW directories to your PATH environment variable:
     * Hit *Win* + *Break* to bring up Computer Properties
