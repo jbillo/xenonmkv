@@ -275,8 +275,8 @@ def main():
     elif args.channels == "7.1":
         args.channels = 8
     if args.channels not in ('2', '4', '6', '8', 2, 4, 6, 8):
-        log.warning("""An invalid number of channels was specified.
-            Falling back to 2-channel stereo audio.""")
+        log.warning("An invalid number of channels was specified. "
+            "Falling back to 2-channel stereo audio.")
         args.channels = 2
 
     # Apply selected profile
@@ -308,8 +308,8 @@ def main():
 
     # Make sure user is not prompted for input if quiet option is used
     if args.quiet and args.select_tracks:
-        log.warning("""Cannot use interactive track selection in quiet mode.
-            Tracks will be automatically selected.""")
+        log.warning("Cannot use interactive track selection in quiet mode. "
+            "Tracks will be automatically selected.")
         args.select_tracks = False
 
     log.debug("Starting XenonMKV")
@@ -380,8 +380,8 @@ def main():
     try:
         # Check for multiple tracks
         if to_convert.has_multiple_av_tracks():
-            log.debug("""Source file %s has multiple audio and/or
-                video tracks""" % args.source_file)
+            log.debug("Source file %s has multiple audio and/or "
+                "video tracks" % args.source_file)
 
             # First, pick default tracks,
             # which can be overridden in select_tracks
@@ -401,8 +401,8 @@ def main():
 
         else:
             # Pick default (or only) audio/video tracks
-            log.debug("""Source file %s has 1 audio and 1 video track;
-                using these""" % args.source_file)
+            log.debug("Source file %s has 1 audio and 1 video track; "
+                "using these" % args.source_file)
             to_convert.set_default_av_tracks()
     except Exception as e:
         if not args.preserve_temp_files:
