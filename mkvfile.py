@@ -530,7 +530,7 @@ class MKVFile():
 
         cmd = [self.args.tool_paths["mkvextract"], "tracks",
             self.get_path(), video_output, audio_output]
-        ph = ProcessHandler(self.args)
+        ph = ProcessHandler(self.args, self.log)
         process = ph.start_process(cmd)
 
         while True:

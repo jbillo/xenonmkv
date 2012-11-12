@@ -27,8 +27,7 @@ class FAACEncoder():
 
         cmd = [self.args.tool_paths["faac"], "-q",
             str(self.args.faac_quality), self.file_path]
-        self.log.debug("Executing '%s'" % ' '.join(cmd))
-        ph = ProcessHandler(self.args)
+        ph = ProcessHandler(self.args, self.log)
         process = ph.start_process(cmd)
 
         """FIXME: On Windows, this causes issues. Technically if Linux/OSX

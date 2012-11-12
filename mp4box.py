@@ -39,7 +39,7 @@ class MP4Box():
                     "-add", self.audio_path, "-tmp", self.args.scratch_dir,
                     "-itags", "name=" + self.args.name]
 
-            ph = ProcessHandler(self.args)
+            ph = ProcessHandler(self.args, self.log)
             process = ph.start_process(cmd)
 
             while True:

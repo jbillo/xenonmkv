@@ -3,10 +3,11 @@ import subprocess
 
 
 class ProcessHandler:
-    args = None
+    args = log = None
 
-    def __init__(self, args):
+    def __init__(self, args, log):
         self.args = args
+        self.log = log
 
     def start_process(self, cmd):
         env = dict(os.environ)
@@ -14,5 +15,7 @@ class ProcessHandler:
             env["LD_LIBRARY_PATH"] = ""
         env["LD_LIBRARY_PATH"] += os.pathsep + os.pathsep.join(
             self.args.library_paths)
+        self.log.debug("Starting process with arguments: %s " %
+            ' '.join(cmd))
         return subprocess.Popen(cmd, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, env=env)

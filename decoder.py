@@ -55,7 +55,7 @@ class AudioDecoder():
             "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub",
             "-ao", "pcm:fast"]
         self.log.debug("Executing '%s'" % ' '.join(cmd))
-        ph = ProcessHandler(self.args)
+        ph = ProcessHandler(self.args, self.log)
         process = ph.start_process(cmd)
 
         while True:
