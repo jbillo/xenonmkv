@@ -1,10 +1,24 @@
 # About XenonMKV
-XenonMKV is a video format conversion tool that takes MKV files and outputs them as MP4 files. It does not re-encode video, and only decodes and encodes audio as necessary.
+XenonMKV is a video format conversion tool that takes MKV files and outputs
+them as MP4 files. It does not re-encode video, and only decodes and encodes
+audio as necessary.
 
-You'll find this tool useful for converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my <a href="http://blackberry.com/playbook">BlackBerry PlayBook</a>.
+You'll find this tool useful for converting videos for devices that support
+H.264 video and AAC audio, but do not understand the MKV container.
+Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now
+that this tool is much more useful for my
+[BlackBerry PlayBook](http://blackberry.com/playbook).
+
+## Disclosure ##
+Note: I work for RIM. The opinions expressed here are my own
+and don’t necessarily represent those of my employer. All code is developed
+on my own time without use of company resources.
 
 # System Requirements
-XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular \*nix distributions. You will need at least Python 2.7 for the argparse library, and ideally Python 2.7.3 or later in the 2.x series.
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation
+(x86_64), but most of the utilities and requirements here are available for
+most popular \*nix distributions. You will need at least Python 2.7 for the
+argparse library, and ideally Python 2.7.3 or later in the 2.x series.
 
 ## Ubuntu 12.04
 You will need some supporting packages:
@@ -12,16 +26,20 @@ You will need some supporting packages:
 ### Install All Dependencies (at once)
     sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
 
-At the current state of development, on Ubuntu you do not need to install anything from requirements.txt as the package manager takes care of all the dependent tools. If this changes in the future, requirements can be installed by running:
+At the current state of development, on Ubuntu you do not need to install
+anything from requirements.txt as the package manager takes care of all the
+dependent tools. If this changes in the future, requirements can be installed
+by running:
 
     sudo apt-get install python-setuptools && sudo easy_install -U pip
     pip install -r requirements.txt
 
 ### Individual Package Details
-*    mediainfo (<http://mediainfo.sourceforge.net/en/Download/Ubuntu>)
+*    [mediainfo](http://mediainfo.sourceforge.net/en/Download/Ubuntu)
 
         sudo apt-get install mediainfo
-    Alternatively, add the official mediainfo PPA and install the package, which the developer suggests might be a good idea:
+    Alternatively, add the official mediainfo PPA and install the package,
+    which the developer suggests might be a good idea:
 
         sudo add-apt-repository ppa:shiki/mediainfo
         sudo apt-get update
@@ -45,7 +63,7 @@ At the current state of development, on Ubuntu you do not need to install anythi
         ./configure --enable-debug --use-js=no
         make
 
-    By default MP4Box will be installed in /usr/local/{bin,lib} as necessary.
+    By default MP4Box will be installed in `/usr/local/{bin,lib,man,share}` as necessary.
     On Ubuntu this will cause your custom compiled version to be executed
     instead of the package manager version.
 
@@ -68,25 +86,33 @@ At the current state of development, on Ubuntu you do not need to install anythi
 ## Ubuntu 10.04
 As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
 
-*    Install Python 2.7, either from source or add the appropriate PPA:
+* Install Python 2.7, either from source or add the appropriate PPA:
 
         sudo add-apt-repository ppa:fkrull/deadsnakes
         sudo apt-get update
         sudo apt-get install python2.7
 
-*    Install mediainfo by adding the `ppa:shiki/mediainfo` PPA as the *mediainfo* package is not in the 10.04 repository.
+* Install mediainfo by adding the `ppa:shiki/mediainfo` PPA as the *mediainfo* package is not in the 10.04 repository.
 * Perform *install dependencies* step from the 12.04 instructions
-*    Run the application directly referencing Python 2.7:
+* Run the application directly referencing Python 2.7:
 
         /usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 
 ## Windows
-Eventually I will package the application as an .exe file for convenience with Windows installations. I have only personally tried this on Windows 7, 64-bit.
+Eventually I will package the application as an .exe file for convenience with
+Windows installations. I have only personally tried this on Windows 7, 64-bit.
 
-As long as you have all the dependent tools installed, you should only need to have Python installed and add the Python directory to your PATH environment variable. If you are taking advantage of the automatic installer, you will need the pylzma package.
+As long as you have all the dependent tools installed, you should only need to
+have Python installed and add the Python directory to your PATH environment
+variable. If you are taking advantage of the automatic installer, you will
+need the pylzma package. Nothing right now requires pylzma as I have repacked
+MPlayer for Windows into a ZIP file.
 
 ### Basic Use
-* Install Python 2.7 from <http://python.org/ftp/python/2.7.3/python-2.7.3.msi> for 32-bit or <http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi> for 64-bit operating systems.
+* Install Python 2.7
+([32-bit](http://python.org/ftp/python/2.7.3/python-2.7.3.msi),
+[64-bit](http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi))
+depending on your architecture.
 * Add the Python27 directory to your PATH environment variable:
     * Hit *Win* + *Break* to bring up Computer Properties
     * Click *Advanced System Settings*
