@@ -368,7 +368,8 @@ def main():
         to_convert = MKVFile(args.source_file, log, args)
         to_convert.get_mkvinfo()
     except Exception as e:
-        cleanup_temp_files()
+        if not args.preserve_temp_files:
+            cleanup_temp_files()
         log_exception("get_mkvinfo", e)
 
     # If the user knows which A/V tracks they want, set them.
@@ -404,14 +405,16 @@ def main():
                 using these""" % args.source_file)
             to_convert.set_default_av_tracks()
     except Exception as e:
-        cleanup_temp_files()
+        if not args.preserve_temp_files:
+            cleanup_temp_files()
         log_exception("set_default_av_tracks", e)
 
     # Next phase: Extract MKV files to scratch directory
     try:
         (video_file, audio_file) = to_convert.extract_mkv()
     except Exception as e:
-        cleanup_temp_files()
+        if not args.preserve_temp_files:
+            cleanup_temp_files()
         log_exception("extract_mkv", e)
 
     # If needed, hex edit the video file to make it compliant
@@ -443,7 +446,8 @@ def main():
     try:
         mp4box.package()
     except Exception as e:
-        cleanup_temp_files()
+        if not args.preserve_temp_files:
+            cleanup_temp_files()
         log_exception("package", e)
 
     # Move the file to the destination directory with the original name
@@ -454,7 +458,8 @@ def main():
         (args.source_file, dest_path))
 
     # Delete temporary files if possible
-    cleanup_temp_files()
+    if not args.preserve_temp_files:
+        cleanup_temp_files()
 
     log.debug("XenonMKV completed processing")
     if args.print_file:
