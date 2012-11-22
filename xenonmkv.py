@@ -27,6 +27,7 @@ for egg_file in os.listdir(lib_path):
         sys.path.append(os.path.join(lib_path, egg_file))
 """
 
+import shutil
 import argparse
 import logging
 import traceback
@@ -269,16 +270,6 @@ def main():
         else:
             args.scratch_dir = os.curdir
 
-    # Check for 5.1/7.1 audio with the channels setting
-    if args.channels == "5.1":
-        args.channels = 6
-    elif args.channels == "7.1":
-        args.channels = 8
-    if args.channels not in ('2', '4', '6', '8', 2, 4, 6, 8):
-        log.warning("An invalid number of channels was specified. "
-            "Falling back to 2-channel stereo audio.")
-        args.channels = 2
-
     # Apply selected profile
     if args.profile:
         if args.profile == "xbox360":
@@ -290,6 +281,16 @@ def main():
         else:
             log.warning("Unrecognized device profile %s" % args.profile)
             args.profile = ""
+
+    # Check for 5.1/7.1 audio with the channels setting
+    if args.channels == "5.1":
+        args.channels = 6
+    elif args.channels == "7.1":
+        args.channels = 8
+    if args.channels not in ('2', '4', '6', '8', 2, 4, 6, 8):
+        log.warning("An invalid number of channels was specified. "
+            "Falling back to 2-channel stereo audio.")
+        args.channels = 2
 
     # Enforce channels as integer for comparison purposes later on
     args.channels = int(args.channels)
@@ -452,7 +453,7 @@ def main():
 
     # Move the file to the destination directory with the original name
     dest_path = os.path.join(args.destination, source_noext + ".mp4")
-    os.rename(os.path.join(args.scratch_dir, "output.mp4"), dest_path)
+    shutil.move(os.path.join(args.scratch_dir, "output.mp4"), dest_path)
 
     log.info("Processing of %s complete; file saved as %s" %
         (args.source_file, dest_path))
