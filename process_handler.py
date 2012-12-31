@@ -71,4 +71,5 @@ class ProcessHandler:
             if p.poll() is not None:
                 break
 
+        stderr_thread = stdout_thread = None
         return p
