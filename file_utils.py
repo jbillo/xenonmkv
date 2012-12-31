@@ -51,7 +51,7 @@ class FileUtils:
                 "This could cause issues locating certain tools.")
 
         # Add own internal tool path
-        ospath.add(os.path.join(self.tools_path))
+        ospath.add(self.tools_path)
 
         # If on OS X, append various paths under /Applications/
         # to search for system wide tools.

@@ -18,9 +18,7 @@ class AudioDecoder():
 
     def detect_decoder(self):
         # New decoders can be added here when necessary
-        if self.extension == ".ac3":
-            self.decoder = "mplayer"
-        elif self.extension == ".dts":
+        if self.extension in (".ac3", ".dts"):
             self.decoder = "mplayer"
         else:
             self.decoder = "mplayer"
@@ -33,8 +31,8 @@ class AudioDecoder():
         os.chdir(self.args.scratch_dir)
 
         # Based on the decoder, perform the appropriate operation
-        if self.decoder == "mplayer":
-            self.decode_mplayer()
+        # so self.decoder = mplayer will call self.decode_mplayer()
+        getattr(self, "decode_%s" % self.decoder)()
 
         os.chdir(prev_dir)
 

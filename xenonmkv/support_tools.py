@@ -49,13 +49,17 @@ class SupportTools():
                 "http://www.mplayerosx.ch/#downloads",
             "windows_direct_download":
                 "https://github.com/downloads/jbillo/"
-                "xenonmkv/MPlayer-p4-svn-34401.zip"
+                "xenonmkv/MPlayer-p4-svn-34401.zip",
+            "mac_direct_download":
+                "http://mplayerosxext.googlecode.com/files/MPlayer-OSX-Extended_rev14.zip",
         },
         "faac": {
             "friendly_name": "FAAC",
             "website": "http://www.rarewares.org/aac-encoders.php",
             "windows_direct_download":
                 "http://www.rarewares.org/files/aac/faac-1.28-mod.zip",
+            "mac_direct_download":
+                "http://downloads.sourceforge.net/project/faac/faac-src/faac-1.28/faac-1.28.tar.bz2",
         },
         "MP4Box": {
             "friendly_name": "MP4Box (GPAC)",
@@ -165,6 +169,13 @@ class SupportTools():
             self.log.debug("Extracting all contents from %s to %s"
                 % (path, output_dir))
             zip_file.extractall(output_dir)
+
+            # Special case: create symlink on OS X for mplayer under tools path
+            if app == "mplayer" and self.ostype == "mac":
+                os.symlink(os.path.join(output_dir,
+                    "MPlayer OSX Extended.app/Contents/MacOS/MPlayer OSX Extended"),
+                os.path.join(output_dir, "mplayer"))
+
             return True
         elif file_extension == ".exe":
             # Assume it is a Windows install; just run the application
@@ -180,6 +191,7 @@ class SupportTools():
 
             return True
         elif file_extension == ".dmg":
+            # This will always be on OS X
             # Warn user that they may be prompted for their password
             print("You may be prompted for your account password to continue installing.")
             # Mount DMG with hdiutil
@@ -190,10 +202,8 @@ class SupportTools():
                 subprocess.call(["sudo cp -R /Volumes/%s/Mkvtoolnix.app "
                     "/Applications/" % app], shell=True)
             elif app == "mediainfo":
-                # TODO: Run package installer for MediaInfo CLI
                 subprocess.call(["sudo installer -pkg \"/Volumes/%s/MediaInfo CLI.pkg\" -target /" % app],
                     shell=True)
-                pass
 
             # All done - unmount the volume
             subprocess.call(["diskutil", "unmount", "force",
