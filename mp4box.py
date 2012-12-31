@@ -42,7 +42,7 @@ class MP4Box():
             ph = ProcessHandler(self.args, self.log)
             process = ph.start_output(cmd)
 
-            if process.returncode != 0:
+            if process != 0:
                 # Destroy temporary file
                 # so it does not have multiple tracks imported
                 os.unlink(output_file)

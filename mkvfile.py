@@ -533,7 +533,7 @@ class MKVFile():
         ph = ProcessHandler(self.args, self.log)
         process = ph.start_output(cmd)
 
-        if process.returncode != 0:
+        if process != 0:
             raise Exception("An error occurred while extracting tracks from %s"
                 " - please make sure this file exists and is readable" %
                 self.get_path())
