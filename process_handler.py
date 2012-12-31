@@ -39,39 +39,14 @@ class ProcessHandler:
         self.log.debug("Starting process and capturing output with arguments: %s " %
             ' '.join(cmd))
 
-        #p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
-        #@    close_fds=ON_POSIX, env=env)
+        process_out = sys.stdout
+        process_err = sys.stderr
 
-        p = subprocess.call(cmd, env=env)
+        # Suppress tool output in quiet mode
+        if self.args.quiet:
+            process_out = None
+            process_err = None
 
-        # stderr_queue = Queue()
-        # stdout_queue = Queue()
-        # stderr_thread = Thread(target=self.read_pipe, args=(p.stderr, stderr_queue))
-        # stdout_thread = Thread(target=self.read_pipe, args=(p.stdout, stdout_queue))
+        p = subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
 
-        # stderr_thread.start()
-        # stdout_thread.start()
-
-        # while True:
-        #     try:
-        #         if not self.args.quiet:
-        #             sys.stderr.write(stderr_queue.get_nowait())
-        #             sys.stderr.flush()
-        #     except Empty:
-        #         # stderr queue doesn't have any content
-        #         pass
-
-        #     try:
-        #         if not self.args.quiet:
-        #             sys.stdout.write(stdout_queue.get_nowait())
-        #             sys.stdout.flush()
-        #     except Empty:
-        #         # stdout queue doesn't have any content
-        #         pass
-
-        #     # not None = process has terminated
-        #     if p.poll() is not None:
-        #         break
-
-        # stderr_thread = stdout_thread = None
         return p
