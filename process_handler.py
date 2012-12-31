@@ -42,9 +42,7 @@ class ProcessHandler:
         #p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
         #@    close_fds=ON_POSIX, env=env)
 
-        p = subprocess.Popen(cmd, env=env)
-        while p.poll() is not None:
-            pass
+        p = subprocess.call(cmd, env=env)
 
         # stderr_queue = Queue()
         # stdout_queue = Queue()
