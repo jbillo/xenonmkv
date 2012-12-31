@@ -26,6 +26,7 @@ class ProcessHandler:
             stderr=subprocess.PIPE, env=env)
 
     def read_pipe(self, pipe, q):
+        print "Reading pipe"
         q.put(pipe.read(1))
         print "Completed call to queue"
 
@@ -38,37 +39,39 @@ class ProcessHandler:
         self.log.debug("Starting process and capturing output with arguments: %s " %
             ' '.join(cmd))
 
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            close_fds=ON_POSIX, env=env)
+        #p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
+        #@    close_fds=ON_POSIX, env=env)
 
-        stderr_queue = Queue()
-        stdout_queue = Queue()
-        stderr_thread = Thread(target=self.read_pipe, args=(p.stderr, stderr_queue))
-        stdout_thread = Thread(target=self.read_pipe, args=(p.stdout, stdout_queue))
+        p = subprocess.Popen(cmd)
 
-        stderr_thread.start()
-        stdout_thread.start()
+        # stderr_queue = Queue()
+        # stdout_queue = Queue()
+        # stderr_thread = Thread(target=self.read_pipe, args=(p.stderr, stderr_queue))
+        # stdout_thread = Thread(target=self.read_pipe, args=(p.stdout, stdout_queue))
 
-        while True:
-            try:
-                if not self.args.quiet:
-                    sys.stderr.write(stderr_queue.get_nowait())
-                    sys.stderr.flush()
-            except Empty:
-                # stderr queue doesn't have any content
-                pass
+        # stderr_thread.start()
+        # stdout_thread.start()
 
-            try:
-                if not self.args.quiet:
-                    sys.stdout.write(stdout_queue.get_nowait())
-                    sys.stdout.flush()
-            except Empty:
-                # stdout queue doesn't have any content
-                pass
+        # while True:
+        #     try:
+        #         if not self.args.quiet:
+        #             sys.stderr.write(stderr_queue.get_nowait())
+        #             sys.stderr.flush()
+        #     except Empty:
+        #         # stderr queue doesn't have any content
+        #         pass
 
-            # not None = process has terminated
-            if p.poll() is not None:
-                break
+        #     try:
+        #         if not self.args.quiet:
+        #             sys.stdout.write(stdout_queue.get_nowait())
+        #             sys.stdout.flush()
+        #     except Empty:
+        #         # stdout queue doesn't have any content
+        #         pass
 
-        stderr_thread = stdout_thread = None
+        #     # not None = process has terminated
+        #     if p.poll() is not None:
+        #         break
+
+        # stderr_thread = stdout_thread = None
         return p
