@@ -531,15 +531,7 @@ class MKVFile():
         cmd = [self.args.tool_paths["mkvextract"], "tracks",
             self.get_path(), video_output, audio_output]
         ph = ProcessHandler(self.args, self.log)
-        process = ph.start_process(cmd)
-
-        while True:
-            out = process.stdout.read(1)
-            if out == '' and process.poll() is not None:
-                break
-            if out != '' and not self.args.quiet:
-                sys.stdout.write(out)
-                sys.stdout.flush()
+        process = ph.start_output(cmd)
 
         if process.returncode != 0:
             raise Exception("An error occurred while extracting tracks from %s"
