@@ -27,6 +27,7 @@ class ProcessHandler:
 
     def read_pipe(self, pipe, q):
         q.put(pipe.read(1))
+        print "Completed call to queue"
 
     def start_output(self, cmd):
         env = dict(os.environ)
@@ -37,15 +38,13 @@ class ProcessHandler:
         self.log.debug("Starting process and capturing output with arguments: %s " %
             ' '.join(cmd))
 
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             close_fds=ON_POSIX, env=env)
 
         stderr_queue = Queue()
         stdout_queue = Queue()
         stderr_thread = Thread(target=self.read_pipe, args=(p.stderr, stderr_queue))
         stdout_thread = Thread(target=self.read_pipe, args=(p.stdout, stdout_queue))
-        stderr_thread.daemon = True
-        stdout_thread.daemon = True
 
         stderr_thread.start()
         stdout_thread.start()
