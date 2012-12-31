@@ -98,7 +98,7 @@ class SupportTools():
             _winreg.CloseKey(regkey)
         except:
             self.log.warning("Could not write UAC/elevation registry key "
-                "for %s" % path)
+                "for {0}".format(path))
             return False
 
         return True
@@ -121,15 +121,15 @@ class SupportTools():
         # return true and don't download again
         # This should be removed for non-debug copies
         if os.path.isfile(destination_path):
-            self.log.debug("File %s already exists; skipping download step" %
-                destination_path)
+            self.log.debug("File {0} already exists; skipping download step".format(
+                destination_path))
             return destination_path
 
-        self.log.debug("Opening URL %s" % url)
+        self.log.debug("Opening URL {0}".format(url))
         try:
             u = urllib2.urlopen(url)
         except urllib2.URLError as ue:
-            self.log.error("Could not open URL %s (%s)" % (url, ue))
+            self.log.error("Could not open URL {0} ({1})".format(url, ue))
             return False
 
         f = open(destination_path, 'wb')
@@ -160,14 +160,13 @@ class SupportTools():
         output_dir = os.path.join(os.path.dirname(path), app)
 
         if file_extension == ".zip":
-            self.log.debug("Attempting to extract ZIP %s" % path)
+            self.log.debug("Attempting to extract ZIP {0}".format(path))
             # Extract .zip to appropriate directory
             zip_file = zipfile.ZipFile(path, 'r')
             if not os.path.isdir(output_dir):
                 os.mkdir(output_dir)
 
-            self.log.debug("Extracting all contents from %s to %s"
-                % (path, output_dir))
+            self.log.debug("Extracting all contents from {0} to {1}".format(path, output_dir))
             zip_file.extractall(output_dir)
 
             # Special case: create symlink on OS X for mplayer under tools path
@@ -180,7 +179,7 @@ class SupportTools():
         elif file_extension == ".exe":
             # Assume it is a Windows install; just run the application
             self.write_uac_regkey(path)
-            self.log.debug("Running executable %s" % path)
+            self.log.debug("Running executable {0}".format(path))
             try:
                 subprocess.check_call(path, shell=True)
             except subprocess.CalledProcessError:
