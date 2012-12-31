@@ -43,7 +43,7 @@ class ProcessHandler:
         #@    close_fds=ON_POSIX, env=env)
 
         p = subprocess.Popen(cmd, env=env)
-        while p.returncode is None:
+        while p.poll() is not None:
             pass
 
         # stderr_queue = Queue()
