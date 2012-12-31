@@ -19,7 +19,7 @@ class SupportTools():
             "friendly_name": "MKVToolnix",
             "website":
                 "http://www.bunkus.org/videotools/mkvtoolnix/"
-                "downloads.html#windows",
+                "downloads.html",
             "windows_direct_download":
                 "http://www.bunkus.org/videotools/mkvtoolnix/win32/"
                 "mkvtoolnix-unicode-5.8.0-setup.exe",
@@ -45,6 +45,8 @@ class SupportTools():
             "friendly_name": "mplayer",
             "website":
                 "http://oss.netfarm.it/mplayer-win32.php",
+            "mac_website":
+                "http://www.mplayerosx.ch/#downloads",
             "windows_direct_download":
                 "https://github.com/downloads/jbillo/"
                 "xenonmkv/MPlayer-p4-svn-34401.zip"
@@ -178,6 +180,8 @@ class SupportTools():
 
             return True
         elif file_extension == ".dmg":
+            # Warn user that they may be prompted for their password
+            print("You may be prompted for your account password to continue installing.")
             # Mount DMG with hdiutil
             subprocess.call(["hdiutil", "attach", path,
                 "-mountpoint", "/Volumes/" + app])
@@ -187,7 +191,8 @@ class SupportTools():
                     "/Applications/" % app], shell=True)
             elif app == "mediainfo":
                 # TODO: Run package installer for MediaInfo CLI
-                #subprocess.call
+                subprocess.call(["sudo installer -pkg \"/Volumes/%s/MediaInfo CLI.pkg\" -target /" % app],
+                    shell=True)
                 pass
 
             # All done - unmount the volume
@@ -220,11 +225,15 @@ class SupportTools():
 
     def offer_install(self, app):
         properties = self.tools[app]
+        website = properties["website"]
+        if ("{0}_website".format(self.ostype)) in properties:
+            website = properties["{0}_website".format(self.ostype)]
+
         print ("It appears that your system is missing %s, which is required "
             "for XenonMKV to work. You can either download it from its website "
             "at %s, or a copy can be installed automatically." % (
             properties["friendly_name"],
-            properties["website"],
+            website,
         ))
 
         print """Options:
