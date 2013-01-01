@@ -2,10 +2,6 @@ import os
 import sys
 import subprocess
 
-from Queue import Queue, Empty
-from threading import Thread
-
-ON_POSIX = 'posix' in sys.builtin_module_names
 
 class ProcessHandler:
     args = log = None
@@ -25,11 +21,6 @@ class ProcessHandler:
         return subprocess.Popen(cmd, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, env=env)
 
-    def read_pipe(self, pipe, q):
-        print "Reading pipe"
-        q.put(pipe.read(1))
-        print "Completed call to queue"
-
     def start_output(self, cmd):
         env = dict(os.environ)
         if not "LD_LIBRARY_PATH" in env:
@@ -47,6 +38,4 @@ class ProcessHandler:
             process_out = None
             process_err = None
 
-        p = subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
-
-        return p
+        return subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)

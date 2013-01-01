@@ -48,8 +48,7 @@ class SupportTools():
             "mac_website":
                 "http://www.mplayerosx.ch/#downloads",
             "windows_direct_download":
-                "https://github.com/downloads/jbillo/"
-                "xenonmkv/MPlayer-p4-svn-34401.zip",
+                "http://jakebillo.com/xenonmkv/MPlayer-p4-svn-34401.zip",
             "mac_direct_download":
                 "http://mplayerosxext.googlecode.com/files/MPlayer-OSX-Extended_rev14.zip",
         },
@@ -59,7 +58,7 @@ class SupportTools():
             "windows_direct_download":
                 "http://www.rarewares.org/files/aac/faac-1.28-mod.zip",
             "mac_direct_download":
-                "http://downloads.sourceforge.net/project/faac/faac-src/faac-1.28/faac-1.28.tar.bz2",
+                "http://jakebillo.com/xenonmkv/faac_osx_1.28.zip",
         },
         "MP4Box": {
             "friendly_name": "MP4Box (GPAC)",
@@ -155,6 +154,12 @@ class SupportTools():
         print
         return destination_path
 
+    def sudo_call(self, cmd):
+        print("This tool installer requires 'sudo' access. "
+            "You may be prompted for your account password to continue.")
+        cmd = "sudo {0}".format(cmd)
+        return subprocess.call([cmd], shell=True)
+
     def install_file(self, app, path):
         file_extension = os.path.splitext(path)[1].lower()
         output_dir = os.path.join(os.path.dirname(path), app)
@@ -175,6 +180,12 @@ class SupportTools():
                     "MPlayer OSX Extended.app/Contents/MacOS/MPlayer OSX Extended"),
                 os.path.join(output_dir, "mplayer"))
 
+            # Special case: check for .xenonmkv file in output directory
+            if (app == "faac" and self.ostype == "mac" and
+                os.path.isfile(os.path.join(output_dir, "faac", ".xenonmkv"))):
+                # Copy contents to /usr/local for proper execution
+                self.sudo_call("cp -R {0}/faac/* /usr/local/".format(output_dir))
+
             return True
         elif file_extension == ".exe":
             # Assume it is a Windows install; just run the application
@@ -190,19 +201,16 @@ class SupportTools():
 
             return True
         elif file_extension == ".dmg":
-            # This will always be on OS X
-            # Warn user that they may be prompted for their password
-            print("You may be prompted for your account password to continue installing.")
+            # This will always be on OS X so we don't need to check for OS type
             # Mount DMG with hdiutil
             subprocess.call(["hdiutil", "attach", path,
                 "-mountpoint", "/Volumes/" + app])
             if app == "mkvinfo":
                 # Copy Mkvtoolnix.app to /Applications
-                subprocess.call(["sudo cp -R /Volumes/%s/Mkvtoolnix.app "
-                    "/Applications/" % app], shell=True)
+                self.sudo_call("cp -R /Volumes/%s/Mkvtoolnix.app "
+                    "/Applications/" % app)
             elif app == "mediainfo":
-                subprocess.call(["sudo installer -pkg \"/Volumes/%s/MediaInfo CLI.pkg\" -target /" % app],
-                    shell=True)
+                self.sudo_call("installer -pkg \"/Volumes/%s/MediaInfo CLI.pkg\" -target /" % app)
 
             # All done - unmount the volume
             subprocess.call(["diskutil", "unmount", "force",
@@ -259,12 +267,18 @@ class SupportTools():
                 "[Y/w/n]? " % properties["friendly_name"])
             response = response.strip().lower()
             if response in ('', 'y', 'yes'):
-                # TODO: Download app and run installer/decompress
                 download_property = self.ostype + "_direct_download"
+
+                if not download_property in properties:
+                    self.log.error("XenonMKV does not have a direct download"
+                        " for the {0} installer".format(properties["friendly_name"]))
+                    return None
+
                 if self.win_64 and download_property + "_64" in properties:
                     url = properties[download_property + "_64"]
                 else:
                     url = properties[download_property]
+
                 self.log.info("Attempting to download installation package "
                     "from %s" % url)
                 file_path = self.download_file(url)
