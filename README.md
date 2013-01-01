@@ -104,9 +104,7 @@ Windows installations. I have only personally tried this on Windows 7, 64-bit.
 
 As long as you have all the dependent tools installed, you should only need to
 have Python installed and add the Python directory to your PATH environment
-variable. If you are taking advantage of the automatic installer, you will
-need the pylzma package. Nothing right now requires pylzma as I have repacked
-MPlayer for Windows into a ZIP file.
+variable. 
 
 ### Basic Use
 * Install Python 2.7
@@ -177,7 +175,7 @@ which will let you pull the necessary dependencies:
         pip install -r requirements.txt
 
 ## OS X
-Instructions coming soon.
+XenonMKV has been tested on OS X 10.8. For best results, use the packages offered by the installer. You will need at least OS X 10.6 and a 64-bit capable machine for some of the dependent applications.
 
 # Suggested Applications
 *    vlc
@@ -200,7 +198,7 @@ Basic usage with default settings:
 
     xenonmkv.py /path/to/file.mkv
 
-To ensure your Xbox 360 will play the resulting file, at a possible expense
+To ensure your Xbox 360 console will play the resulting file, at a possible expense
 of audio quality:
 
     xenonmkv.py /path/to/file.mkv --profile xbox360
@@ -327,13 +325,9 @@ A fresh compile of the 0.5.0 version available at
     Features: GPAC_DISABLE_3D
 
 The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear
-to have issues.
+to have issues with the same files that fail on 0.4.6 and newer.
 
 # TODO
 *    Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
-*    ~~Add support for custom tool locations (eg: use newer MP4Box build in a custom directory, rather than the version defined in PATH)~~
-*    ~~Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults~~
-*    ~~Add way for user to pick tracks at runtime (get `--select-tracks` functional; this will not be a default option)~~
-*     ~~Add default language preference or list for audio tracks that overrides track default in MKV file (eg: always choose English 'en' track if available)~~
 *    Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)
-
+*    Better OS X and Windows support

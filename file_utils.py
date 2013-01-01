@@ -57,6 +57,7 @@ class FileUtils:
         # to search for system wide tools.
         if sys.platform.startswith("darwin"):
             ospath.add("/Applications/Mkvtoolnix.app/Contents/MacOS")
+            ospath.add("/Applications/Osmo4.app/Contents/MacOS")
 
         # If on Windows, try adding various paths under ProgramFiles.
         if sys.platform.startswith("win32"):

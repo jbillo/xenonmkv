@@ -32,10 +32,17 @@ class ProcessHandler:
 
         process_out = sys.stdout
         process_err = sys.stderr
+        fnull = None
 
         # Suppress tool output in quiet mode
         if self.args.quiet:
-            process_out = None
-            process_err = None
+            fnull = open(os.devnull, "w")
+            process_out = fnull
+            process_err = fnull
 
-        return subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
+        p = subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
+
+        if fnull:
+            fnull.close()
+
+        return p

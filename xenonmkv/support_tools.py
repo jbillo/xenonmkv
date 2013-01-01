@@ -65,7 +65,9 @@ class SupportTools():
             "website": "http://gpac.wp.mines-telecom.fr/downloads/",
             "windows_direct_download":
                 "http://download.tsi.telecom-paristech.fr/gpac/release/"
-                "0.5.0/GPAC.Framework.Setup-0.5.0.exe"
+                "0.5.0/GPAC.Framework.Setup-0.5.0.exe",
+            "mac_direct_download":
+                "http://download.tsi.telecom-paristech.fr/gpac/release/0.5.0/GPAC-0.5.0-OSX-64bits.dmg",
         }
     }
 
@@ -211,30 +213,13 @@ class SupportTools():
                     "/Applications/" % app)
             elif app == "mediainfo":
                 self.sudo_call("installer -pkg \"/Volumes/%s/MediaInfo CLI.pkg\" -target /" % app)
+            elif app == "MP4Box":
+                self.sudo_call("cp -R /Volumes/{0}/Osmo4.app /Applications/".format(app))
+                self.sudo_call("chmod -R g+rx,o+rx /Applications/Osmo4.app")
 
             # All done - unmount the volume
             subprocess.call(["diskutil", "unmount", "force",
                 "/Volumes/" + app])
-            return True
-        elif file_extension == ".7z":
-            self.log.debug("Attempting to extract LZMA/.7z file %s" % path)
-            try:
-                from xenonmkv.util import sevenzfile
-            except ImportError:
-                # TODO: Check if we have a 7zip executable around to use
-                # Could not find py7zlib; error out and let user know
-                # it needs to be installed
-                self.log.error("Could not import py7zlib/pylzma to extract "
-                    ".7z file. %s will need to be installed manually." % app)
-                return False
-
-            # We have py7zlib imported
-            self.log.debug("sevenzfile library imported; proceeding to"
-                "extract %s" % path)
-
-            sz_file = sevenzfile.SevenZFile(path)
-            sz_file.extractall(output_dir)
-
             return True
         else:
             # File extension unknown
@@ -255,22 +240,21 @@ class SupportTools():
 
         print """Options:
 
-[Y] Yes: Download and install %s automatically (default)
-[W] Website: Open the website for %s in the default browser.
-    Once you have downloaded and installed %s, run XenonMKV again to continue.
-[N] No: Do not install %s. XenonMKV will exit.
-        """ % (properties["friendly_name"], properties["friendly_name"],
-        properties["friendly_name"], properties["friendly_name"])
+[Y] Yes: Download and install {0} automatically (default)
+[W] Website: Open the website for {0} in the default browser.
+    Once you have downloaded and installed {0}, run XenonMKV again to continue.
+[N] No: Do not install {0}. XenonMKV will exit.
+        """.format(properties["friendly_name"])
 
         try:
-            response = raw_input("Install %s automatically (default=Yes) "
-                "[Y/w/n]? " % properties["friendly_name"])
+            response = raw_input("Install {0} automatically (default=Yes) "
+                "[Y/w/n]? ".format(properties["friendly_name"]))
             response = response.strip().lower()
             if response in ('', 'y', 'yes'):
                 download_property = self.ostype + "_direct_download"
 
                 if not download_property in properties:
-                    self.log.error("XenonMKV does not have a direct download"
+                    self.log.error("XenonMKV does not have a direct download available"
                         " for the {0} installer".format(properties["friendly_name"]))
                     return None
 
@@ -280,25 +264,23 @@ class SupportTools():
                     url = properties[download_property]
 
                 self.log.info("Attempting to download installation package "
-                    "from %s" % url)
+                    "from {0}".format(url))
                 file_path = self.download_file(url)
 
                 if not file_path:
-                    self.log.error("Could not download %s package "
-                        "automatically" % properties["friendly_name"])
+                    self.log.error("Could not download {0} package "
+                        "automatically".format(properties["friendly_name"]))
                     return None
                 else:
-                    self.log.debug("Package %s downloaded successfully" %
-                        properties["friendly_name"])
+                    self.log.debug("Package {0} downloaded successfully".format(properties["friendly_name"]))
 
                 # Install application according to OS mechanism
                 install_result = self.install_file(app, file_path)
                 if not install_result:
-                    self.log.error("Could not install %s package "
-                        "automatically" % properties["friendly_name"])
+                    self.log.error("Could not install {0} package "
+                        "automatically".format(properties["friendly_name"]))
                 else:
-                    self.log.info("Package %s installed successfully" %
-                        properties["friendly_name"])
+                    self.log.info("Package {0} installed successfully".format(properties["friendly_name"]))
 
                 return install_result
             elif response in ('w', 'website'):
