@@ -1,7 +1,6 @@
 import subprocess
 import fractions
 import os
-import sys
 
 from reference_frame import ReferenceFrameValidator
 from mkv_info_parser import MKVInfoParser
@@ -34,10 +33,10 @@ class MKVFile():
                 [self.args.tool_paths["mkvinfo"], self.get_path()]
             )
         except subprocess.CalledProcessError as e:
-            self.log.debug("mkvinfo process error: " + e.output)
+            self.log.debug("mkvinfo process error: {0}".format(e.output))
             raise Exception("Error occurred while obtaining MKV information "
-                "for %s - please make sure the file exists, is readable and "
-                "a valid MKV file" % self.get_path())
+                "for {0} - please make sure the file exists, is readable and "
+                "a valid MKV file".format(self.get_path()))
 
         self.log.debug("mkvinfo finished; attempting to parse output")
         try:
@@ -57,10 +56,10 @@ class MKVFile():
 
         subprocess_args = [self.args.tool_paths["mediainfo"],
                 "--Inform=" + parameters, self.get_path()]
-        self.log.debug("Executing '%s'" % ' '.join(subprocess_args))
+        self.log.debug("Executing '{0}'".format(' '.join(subprocess_args)))
         result = subprocess.check_output(subprocess_args)
         self.log.debug("mediainfo finished; attempting to parse output "
-            "for %s settings" % track_type)
+            "for {0} settings".format(track_type))
         return self.parse_mediainfo(result)
 
     def parse_mediainfo(self, result):
@@ -81,8 +80,7 @@ class MKVFile():
 
     # Return a float value specifying the display aspect ratio.
     def parse_display_aspect_ratio(self, dar_string):
-        self.log.debug("Attempting to parse display aspect ratio '%s'" %
-            dar_string)
+        self.log.debug("Attempting to parse display aspect ratio '{0}'".format(dar_string))
         if "16/9" in dar_string:
             return 1.778
         elif "4/3" in dar_string:
@@ -95,8 +93,7 @@ class MKVFile():
                 return numerator / denominator
             except:
                 # Couldn't divide
-                raise Exception("Could not parse display aspect ratio of %s" %
-                    dar_string)
+                raise Exception("Could not parse display aspect ratio of {0}".format(dar_string))
         else:
             return float(dar_string.strip())
 
@@ -106,8 +103,7 @@ class MKVFile():
         t_height = track.height * track.display_ar
         t_width = track.width
         gcd = fractions.gcd(t_height, t_width)
-        self.log.debug("GCD of %i height, %i width is %i" %
-            (t_height, t_width, gcd))
+        self.log.debug("GCD of {0} height, {1} width is {2}".format(t_height, t_width, gcd))
 
         if gcd == 0:
             # Pixel aspect ratio should be 1:1
@@ -126,8 +122,10 @@ class MKVFile():
             t_height = t_height / 10
             t_width = t_width / 10
 
-        self.log.debug("Calculated pixel aspect ratio is %i:%i (%f)" %
-            (t_height, t_width, t_height / t_width))
+        self.log.debug("Calculated pixel aspect ratio is {0}:{1} ({2:f})".format(
+            t_height, t_width, t_height / t_width
+            )
+        )
 
         if not self.args.no_round_par:
             if t_height / t_width > 0.98 and t_height / t_width < 1:
@@ -157,7 +155,7 @@ class MKVFile():
 
         audio_duration = audio_duration[0:audio_duration.index("s")]
 
-        self.log.debug("Audio duration detected as %s seconds" % audio_duration)
+        self.log.debug("Audio duration detected as {0} seconds".format(audio_duration))
 
         # Check if there is a decimal value; if so, add one second
         if "." in audio_duration:
@@ -166,7 +164,7 @@ class MKVFile():
 
         audio_int += int(audio_duration)
         self.log.debug("Audio duration for MKV file may have been rounded: "
-            "using %i seconds" % audio_int)
+            "using {0} seconds".format(audio_int))
 
         return audio_int
 
@@ -214,9 +212,8 @@ class MKVFile():
             track_number, track_mkvtoolnix_id = (
                 info_parser.parse_track_number(track_info)
             )
-            self.log.debug("Track %i will use ID %i when taking actions "
-                "with the mkvtoolnix suite" %
-                (track_number, track_mkvtoolnix_id))
+            self.log.debug("Track {0} will use ID {1} when taking actions "
+                "with the mkvtoolnix suite".format(track_number, track_mkvtoolnix_id))
 
             # Set individual track properties for the object by track ID
             if track_type in ("video", "audio"):
@@ -237,9 +234,10 @@ class MKVFile():
                     track.reference_frames = int(mediainfo_track[2])
                 except ValueError:
                     track.reference_frames = 0
-                    self.log.debug("Reference frame value '%s' in track %i "
-                        "could not be parsed; assuming 0 reference frames" %
-                        (mediainfo_track[2], track.number))
+                    self.log.debug("Reference frame value '{0}' in track {1} "
+                        "could not be parsed; assuming 0 reference frames".format(
+                            mediainfo_track[2], track.number)
+                    )
 
                 track.language = mediainfo_track[3].lower()
                 if mediainfo_track[4]:
@@ -257,26 +255,26 @@ class MKVFile():
                     mediainfo_track[6])
                 track.pixel_ar = self.calc_pixel_aspect_ratio(track)
 
-                self.log.debug("Video track %i has dimensions %ix%i with "
-                    "%i reference frames" %
-                    (track.number, track.width,
-                    track.height, track.reference_frames))
-                self.log.debug("Video track %i has %f FPS and codec %s" %
-                    (track.number, track.frame_rate, track.codec_id))
-                self.log.debug("Video track %i has display aspect ratio %f" %
-                    (track.number, track.display_ar))
+                self.log.debug("Video track {0} has dimensions {1}x{2} with "
+                    "{3} reference frames".format(
+                        track.number, track.width,
+                        track.height, track.reference_frames))
+                self.log.debug("Video track {0} has {1:f} FPS and codec {2}".format(
+                    track.number, track.frame_rate, track.codec_id))
+                self.log.debug("Video track {0} has display aspect ratio {1:f}".format(
+                    track.number, track.display_ar))
 
                 if self.reference_frames_exceeded(track):
-                    self.log.warning("Video track %i contains too many "
+                    self.log.warning("Video track {0} contains too many "
                         "reference frames to play properly on low-powered "
-                        "devices" % track.number)
+                        "devices".format(track.number))
                     if not self.args.ignore_reference_frames:
-                        raise Exception("Video track %i has too many "
-                            "reference frames")
+                        raise Exception("Video track {0} has too many "
+                            "reference frames".format(track.number))
                 else:
-                    self.log.debug("Video track %i has a reasonable number "
+                    self.log.debug("Video track {0} has a reasonable number "
                         "of reference frames, and should be compatible with "
-                        "low-powered devices" % track.number)
+                        "low-powered devices".format(track.number))
 
             elif track_type == "audio":
                 has_audio = True
@@ -299,43 +297,42 @@ class MKVFile():
                     # versus the argument passed.
                     if track.channels <= self.args.channels:
                         # Reasonable message to log at info level
-                        self.log.info("Audio track %i will not need to be "
-                            "re-encoded (%i channels specified, %i channels "
-                            "in file)" %
-                            (track.number, self.args.channels, track.channels))
+                        self.log.info("Audio track {0} will not need to be "
+                            "re-encoded ({1} channels specified, {2} channels "
+                            "in file)".format(track.number, self.args.channels, track.channels))
                         track.needs_recode = False
 
-                self.log.debug("Audio track %i has codec %s and language %s" %
-                    (track.number, track.codec_id, track.language))
-                self.log.debug("Audio track %i has %i channel(s)" %
-                    (track.number, track.channels))
+                self.log.debug("Audio track {0} has codec {1} and language {2}".format(
+                    track.number, track.codec_id, track.language))
+                self.log.debug("Audio track {0} has {1} channel(s)".format(
+                    track.number, track.channels))
 
             else:
                 # Unrecognized track type. Don't completely abort processing,
                 # but do log it.
                 # Do not proceed to add this to the global tracks list.
-                self.log.debug("Unrecognized track type '%s' in %i; skipping" %
-                    (track_type, track_number))
+                self.log.debug("Unrecognized track type '{0}' in {1}; skipping".format(
+                    track_type, track_number))
                 continue
 
             # Add general properties to track
             track.mkvtoolnix_id = track_mkvtoolnix_id
 
-            self.log.debug("All properties set for %s track %i" %
-                (track_type, track.number))
+            self.log.debug("All properties set for {0} track {1}".format(
+                track_type, track.number))
             track.track_type = track_type
             self.tracks[track.number] = track
 
         # All tracks detected here
         self.log.debug("All tracks detected from mkvinfo output; "
-            "total number is %i" % len(self.tracks))
+            "total number is {0}".format(len(self.tracks)))
 
         # Make sure that there is at least one audio and one video track
         # and throw an exception if not
         if not has_video:
-            raise Exception("No video track found in MKV file %s" % self.path)
+            raise Exception("No video track found in MKV file {0}".format(self.path))
         elif not has_audio:
-            raise Exception("No audio track found in MKV file %s" % self.path)
+            raise Exception("No audio track found in MKV file {0}".format(self.path))
 
     def reference_frames_exceeded(self, video_track):
         return ReferenceFrameValidator.validate(
@@ -359,16 +356,16 @@ class MKVFile():
             self.tracks[track_id].track_type == "video"):
             self.video_track_id = track_id
         else:
-            raise Exception("Video track with ID %i was not found "
-                "in file" % track_id)
+            raise Exception("Video track with ID {0} was not found "
+                "in file".format(track_id))
 
     def set_audio_track(self, track_id):
         if (self.tracks[track_id] and
             self.tracks[track_id].track_type == "audio"):
             self.audio_track_id = track_id
         else:
-            raise Exception("Audio track with ID %i was not found "
-                "in file" % track_id)
+            raise Exception("Audio track with ID {0} was not found "
+                "in file".format(track_id))
 
     def set_default_av_tracks(self, preferred_language=None):
         """
@@ -422,32 +419,30 @@ class MKVFile():
         # in the MKV file and we should really pick the
         # first audio and first video track.
         if not self.video_track_id:
-            self.log.debug("No default video track was specified in '%s'; "
-                "using first available" % self.path)
+            self.log.debug("No default video track was specified in '{0}'; "
+                "using first available".format(self.path))
             for track_id in self.tracks:
                 track = self.tracks[track_id]
                 if track.track_type == "video":
                     self.video_track_id = track.number
-                    self.log.debug("First available video track in file is %i"
-                    % self.video_track_id)
+                    self.log.debug("First available video track in file is {0}".format(self.video_track_id))
                     break
 
         if not self.audio_track_id:
-            self.log.debug("No default audio track was specified in '%s'; "
-                "using first available" % self.path)
+            self.log.debug("No default audio track was specified in '{0}'; "
+                "using first available".format(self.path))
             for track_id in self.tracks:
                 track = self.tracks[track_id]
                 if track.track_type == "audio":
                     self.audio_track_id = track.number
-                    self.log.debug("First available audio track in file is %i"
-                    % self.audio_track_id)
+                    self.log.debug("First available audio track in file is {0}".format(self.audio_track_id))
                     break
 
         # If we still don't have a video and audio track specified,
         # it's time to throw an error.
         if not self.video_track_id or not self.audio_track_id:
             raise Exception("Could not select an audio and video track "
-                "for MKV file '%s'" % self.path)
+                "for MKV file '{0}'".format(self.path))
 
     def get_audio_track(self):
         return self.tracks[self.audio_track_id]
@@ -462,8 +457,8 @@ class MKVFile():
             if track.track_type != "audio":
                 continue
 
-            track_list[track.number] = ("%i - %s [%i channels]" %
-                (track.number, track.language, track.channels))
+            track_list[track.number] = ("{0} - {1} [{2} channels]".format(
+                track.number, track.language, track.channels))
 
         return track_list
 
@@ -474,18 +469,18 @@ class MKVFile():
             if track.track_type != "video":
                 continue
 
-            track_list[track.number] = ("%i - %s [%ix%i]" %
-                (track.number, track.language, track.width, track.height))
+            track_list[track.number] = ("{0} - {1} [{2}x{3}]".format(
+                track.number, track.language, track.width, track.height))
 
         return track_list
 
     def extract_mkv(self):
-        self.log.debug("Executing mkvextract on '%s'" % self.get_path())
+        self.log.debug("Executing mkvextract on '{0}'".format(self.get_path()))
         prev_dir = os.getcwd()
 
         if self.args.scratch_dir != ".":
-            self.log.debug("Using %s as scratch directory for "
-                "MKV extraction" % self.args.scratch_dir)
+            self.log.debug("Using {0} as scratch directory for "
+                "MKV extraction".format(self.args.scratch_dir))
             os.chdir(self.args.scratch_dir)
 
         mkvtoolnix_video_id = self.tracks[self.video_track_id].mkvtoolnix_id

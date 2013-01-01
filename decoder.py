@@ -54,6 +54,6 @@ class AudioDecoder():
             "-ao", "pcm:fast"]
         self.log.debug("Executing '%s'" % ' '.join(cmd))
         ph = ProcessHandler(self.args, self.log)
-        process = ph.start_output(cmd)
+        ph.start_output(cmd)
 
         self.log.debug("mplayer decoding to PCM WAV file complete")

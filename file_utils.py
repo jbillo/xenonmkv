@@ -75,7 +75,7 @@ class FileUtils:
                 custom_path = getattr(self.args, app.lower() + "_path")
                 if custom_path and os.path.isfile(custom_path):
                     self.log.debug("Using custom path for dependent "
-                        "application %s: %s" % (app, custom_path))
+                        "application {0}: {1}".format(app, custom_path))
                     dependency_paths[app.lower()] = custom_path
                     # Because some applications have libraries in their own
                     # directory, add the base path of custom_path
@@ -91,15 +91,13 @@ class FileUtils:
                     # since the dependent application is not set
                     pass
                 else:
-                    self.log.error("Dependent application %s does not exist "
-                        "as %s; looking for default version" %
-                        (app, custom_path))
+                    self.log.error("Dependent application {0} does not exist "
+                        "as {1}; looking for default version".format(app, custom_path))
 
             app_present = self.scan_app_paths(ospath, app)
 
             if app_present:
-                self.log.debug("Found tool %s at %s by scanning common paths" %
-                    (app, app_present))
+                self.log.debug("Found tool {0} at {1} by scanning common paths".format(app, app_present))
                 dependency_paths[app.lower()] = app_present
                 continue
 
@@ -119,12 +117,10 @@ class FileUtils:
             # If we're at this point and the --quiet option is set,
             # raise an exception
             if self.args.quiet:
-                self.log.warning("Cannot prompt to install dependent tool %s" %
-                    app)
-                raise IOError("Dependent application '%s' was not found in "
-                    "PATH or the %s directory, and quiet mode does not allow "
-                    "user input. Please make sure %s is installed." %
-                    (app, self.tools_path, app)
+                self.log.warning("Cannot prompt to install dependent tool {0}".format(app))
+                raise IOError("Dependent application '{0}' was not found in "
+                    "PATH or the {1} directory, and quiet mode does not allow "
+                    "user input. Please make sure {0} is installed.".format(app, self.tools_path)
                 )
 
             support_tools = SupportTools(self.log)
@@ -133,15 +129,13 @@ class FileUtils:
             # tool_install_result can be distinctly "None" or "False"
             if tool_install_result is False:
                 # User opted not to install this support tool explicitly
-                self.log.error("Dependent application '%s' was not found in "
-                    "PATH or the %s directory. Please install it." %
-                    (app, self.tools_path)
+                self.log.error("Dependent application '{0}' was not found in "
+                    "PATH or the {1} directory. Please install it.".format(app, self.tools_path)
                 )
                 sys.exit(1)
             elif not tool_install_result:
-                # Some issue occurred with obtaining the support tool
-                # TODO: We can throw an exception here if needed
-                pass
+                # Some issue occurred with installing the support tool
+                raise IOError("Cannot install application '{0}' as one or more errors occurred.".format(app))
 
             # Rebuild ospath with any new entries that may have been added
             # as a result of the app install
@@ -155,32 +149,30 @@ class FileUtils:
             app_present = self.scan_app_paths(ospath, app)
 
             if app_present:
-                self.log.debug("Found tool %s at %s by rescanning "
-                    "common paths" % (app, app_present))
+                self.log.debug("Found tool {0} at {1} by rescanning "
+                    "common paths".format(app, app_present))
                 dependency_paths[app.lower()] = app_present
                 continue
             else:
-                raise IOError("Dependent application '%s' was not found in "
-                    "PATH or the %s directory. Please make sure it is "
-                    "installed." % (app, self.tools_path))
+                raise IOError("Dependent application '{0}' was not found in "
+                    "PATH or the {1} directory. Please make sure it is "
+                    "installed.".format(app, self.tools_path))
 
         return (dependency_paths, library_paths)
 
     def check_dest_dir(self, destination):
         if not os.path.isdir(destination):
-            raise IOError("Destination directory %s does not exist" %
-                destination)
+            raise IOError("Destination directory {0} does not exist".format(destination))
 
     def check_source_file(self, source_file):
         if not os.path.isfile(source_file):
-            raise IOError("Source file %s does not exist" % source_file)
+            raise IOError("Source file {0} does not exist".format(source_file))
 
         filesize = os.path.getsize(source_file)
         if (filesize >= self.FOUR_GIGS):
-            self.log.warning("File size of %s is %i, which is over 4GiB. "
+            self.log.warning("File size of {0} is {1}, which is over 4GiB. "
                 "This file may not play on certain devices and cannot be "
-                "copied to a FAT32-formatted storage medium." %
-                (source_file, filesize))
+                "copied to a FAT32-formatted storage medium.".format(source_file, filesize))
             if self.args.error_filesize:
                 raise IOError("Cancelling processing as file size limit "
                     "of 4GiB is exceeded")
@@ -193,19 +185,19 @@ class FileUtils:
 
     def delete_temp_files(self, scratch_dir, extensions):
         for extension in extensions:
-            temp_video = os.path.join(scratch_dir, "temp_video" + extension)
-            temp_audio = os.path.join(scratch_dir, "temp_audio" + extension)
+            temp_video = os.path.join(scratch_dir, "temp_video{0}".format(extension))
+            temp_audio = os.path.join(scratch_dir, "temp_audio{0}".format(extension))
             if os.path.isfile(temp_video):
-                self.log.debug("Cleaning up: deleting %s" % temp_video)
+                self.log.debug("Cleaning up: deleting {0}".format(temp_video))
                 os.unlink(temp_video)
             if os.path.isfile(temp_audio):
-                self.log.debug("Cleaning up: deleting %s" % temp_audio)
+                self.log.debug("Cleaning up: deleting {0}".format(temp_audio))
                 os.unlink(temp_audio)
 
         # Check for audiodump.aac and audiodump.wav
         other_files = ('audiodump.aac', 'audiodump.wav', 'output.mp4')
         for name in other_files:
-            if os.path.isfile(os.path.join(scratch_dir, name)):
-                self.log.debug("Cleaning up: deleting %s" %
-                    os.path.join(scratch_dir, name))
-                os.unlink(os.path.join(scratch_dir, name))
+            cleanup_file = os.path.join(scratch_dir, name)
+            if os.path.isfile(cleanup_file):
+                self.log.debug("Cleaning up: deleting {0}".format(cleanup_file))
+                os.unlink(cleanup_file)

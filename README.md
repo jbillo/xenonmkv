@@ -64,8 +64,8 @@ by running:
         make
 
     By default MP4Box will be installed in `/usr/local/{bin,lib,man,share}` as necessary.
-    On Ubuntu this will cause your custom compiled version to be executed
-    instead of the package manager version.
+    If your PATH variable includes `/usr/local/bin` first, your custom compiled version will be executed
+    instead of the system version.
 
     To put MP4Box into a specific path on compile, use the `--prefix`
     option with `./configure` -
@@ -100,7 +100,7 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 
 ## Windows
 Eventually I will package the application as an .exe file for convenience with
-Windows installations. I have only personally tried this on Windows 7, 64-bit.
+Windows installations. XenonMKV has only been tested on Windows 7, 64-bit.
 
 As long as you have all the dependent tools installed, you should only need to
 have Python installed and add the Python directory to your PATH environment
@@ -123,7 +123,7 @@ depending on your architecture.
 * Run XenonMKV from the command line:
         python xenonmkv.py [arguments]
 
-### Development Use
+### Development on Windows
 To get things up and running for a development environment on Windows,
 you can perform the following steps:
 

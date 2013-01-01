@@ -16,11 +16,10 @@ class MKVInfoParser:
             # Remove trailing characters from output
             # (seems to be an issue on Windows, likely with CR characters)
             output = output.strip()
-            self.log.debug("Detected %s '%s' from mkvinfo output" %
-                (what, output))
+            self.log.debug("Detected {0} '{1}' from mkvinfo output".format(what, output))
             return output
         else:
-            raise Exception("Could not parse %s from mkvinfo" % what)
+            raise Exception("Could not parse {0} from mkvinfo".format(what))
 
     def parse_track_number(self, output):
         result = self._parse_to_newline(output,
