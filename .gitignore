@@ -1,7 +1,19 @@
 # General/Python ignore
-/*.*~
-/*.pyc
+*.*~
+*.pyc
 
 # Specific file conversions - we are not shipping media with this application
-/*.mp4
-/*.mkv
+*.mp4
+*.mkv
+
+# Contents under tools directory
+tools/*.dmg
+tools/*.7z
+tools/*.exe
+tools/*.zip
+tools/*.tar.gz
+tools/*.tgz
+tools/*.gz
+tools/mediainfo
+tools/mplayer
+tools/faac
