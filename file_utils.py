@@ -48,7 +48,7 @@ class FileUtils:
                 ospath.add(path)
         else:
             self.log.warning("No PATH environment variable defined. "
-                "This could cause issues locating certain tools.")
+                             "This could cause issues locating certain tools.")
 
         # Add own internal tool path
         ospath.add(self.tools_path)
@@ -75,7 +75,7 @@ class FileUtils:
                 custom_path = getattr(self.args, app.lower() + "_path")
                 if custom_path and os.path.isfile(custom_path):
                     self.log.debug("Using custom path for dependent "
-                        "application {0}: {1}".format(app, custom_path))
+                                   "application {0}: {1}".format(app, custom_path))
                     dependency_paths[app.lower()] = custom_path
                     # Because some applications have libraries in their own
                     # directory, add the base path of custom_path
@@ -92,12 +92,14 @@ class FileUtils:
                     pass
                 else:
                     self.log.error("Dependent application {0} does not exist "
-                        "as {1}; looking for default version".format(app, custom_path))
+                                   "as {1}; looking for default version".format(
+                                   app, custom_path))
 
             app_present = self.scan_app_paths(ospath, app)
 
             if app_present:
-                self.log.debug("Found tool {0} at {1} by scanning common paths".format(app, app_present))
+                self.log.debug("Found tool {0} at {1} by scanning common paths".format(
+                    app, app_present))
                 dependency_paths[app.lower()] = app_present
                 continue
 
@@ -117,11 +119,12 @@ class FileUtils:
             # If we're at this point and the --quiet option is set,
             # raise an exception
             if self.args.quiet:
-                self.log.warning("Cannot prompt to install dependent tool {0}".format(app))
+                self.log.warning("Cannot prompt to install dependent tool {0}".format(
+                                 app))
                 raise IOError("Dependent application '{0}' was not found in "
-                    "PATH or the {1} directory, and quiet mode does not allow "
-                    "user input. Please make sure {0} is installed.".format(app, self.tools_path)
-                )
+                              "PATH or the {1} directory, and quiet mode does not allow "
+                              "user input. Please make sure {0} is installed.".format(
+                              app, self.tools_path))
 
             support_tools = SupportTools(self.log)
             tool_install_result = support_tools.find_tool(app)
@@ -130,12 +133,13 @@ class FileUtils:
             if tool_install_result is False:
                 # User opted not to install this support tool explicitly
                 self.log.error("Dependent application '{0}' was not found in "
-                    "PATH or the {1} directory. Please install it.".format(app, self.tools_path)
-                )
+                               "PATH or the {1} directory. Please install it.".format(
+                               app, self.tools_path))
                 sys.exit(1)
             elif not tool_install_result:
                 # Some issue occurred with installing the support tool
-                raise IOError("Cannot install application '{0}' as one or more errors occurred.".format(app))
+                raise IOError("Cannot install application '{0}' as one or more errors "
+                              " occurred.".format(app))
 
             # Rebuild ospath with any new entries that may have been added
             # as a result of the app install
@@ -150,13 +154,13 @@ class FileUtils:
 
             if app_present:
                 self.log.debug("Found tool {0} at {1} by rescanning "
-                    "common paths".format(app, app_present))
+                               "common paths".format(app, app_present))
                 dependency_paths[app.lower()] = app_present
                 continue
             else:
                 raise IOError("Dependent application '{0}' was not found in "
-                    "PATH or the {1} directory. Please make sure it is "
-                    "installed.".format(app, self.tools_path))
+                              "PATH or the {1} directory. Please make sure it is "
+                              "installed.".format(app, self.tools_path))
 
         return (dependency_paths, library_paths)
 
@@ -171,11 +175,12 @@ class FileUtils:
         filesize = os.path.getsize(source_file)
         if (filesize >= self.FOUR_GIGS):
             self.log.warning("File size of {0} is {1}, which is over 4GiB. "
-                "This file may not play on certain devices and cannot be "
-                "copied to a FAT32-formatted storage medium.".format(source_file, filesize))
+                             "This file may not play on certain devices and cannot be "
+                             "copied to a FAT32-formatted storage medium.".format(
+                             source_file, filesize))
             if self.args.error_filesize:
                 raise IOError("Cancelling processing as file size limit "
-                    "of 4GiB is exceeded")
+                              "of 4GiB is exceeded")
 
     def hex_edit_video_file(self, path):
         with open(path, 'r+b') as f:

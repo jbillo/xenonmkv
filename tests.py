@@ -96,20 +96,20 @@ def test_invalid_codec_wvc1():
     # specifically mentions that WVC1 is not supported
     output = call(["tests/invalid_codec_wvc1.mkv"])
     return in_output(["[CRITICAL]",
-        "WVC1 codec in selected video track is not supported"], output)
+                     "WVC1 codec in selected video track is not supported"], output)
 
 
 def in_output(strings, output):
     if "Exception" in output:
         print ("An exception was thrown in the output, failing test "
-            "automatically. Details: ")
+               "automatically. Details: ")
         print output
         return False
 
     for item in strings:
         if item not in output:
             print ("One or more required items were not found in the output. "
-            "Details:")
+                   "Details:")
             print output
             return False
 

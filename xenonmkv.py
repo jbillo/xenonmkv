@@ -1,31 +1,31 @@
 #!/usr/bin/env python
 
-# XenonMKV: convertor wrapper for MKV to MP4 conversions
+# XenonMKV: wrapper utility for MKV to MP4 container conversions
 # Jake Billo, jake@jakebillo.com
 # https://github.com/jbillo/xenonmkv
 
 import sys
 import os
 
-# Check for Python version before running argparse import
-if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    print "You need to be running at least Python 2.7 to use this application."
-    if os.path.isfile("/usr/bin/python2.7"):
-        print "Try running /usr/bin/python2.7 %s" % sys.argv[0]
-    else:
-        print """Install Python 2.7 using your package manager or download for
-            your OS at http://www.python.org/getit/"""
 
+def prompt_install_python27():
+    print """You need to be running at least Python 2.7 to use this application.
+ Install Python 2.7 using your package manager or download for
+ your OS at http://www.python.org/getit/"""
     sys.exit(1)
 
-# Load eggs for dependencies
-"""
-app_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-lib_path = os.path.join(app_path, "xenonmkv", "lib")
-for egg_file in os.listdir(lib_path):
-    if os.path.splitext(os.path.join(lib_path, egg_file))[1] == ".egg":
-        sys.path.append(os.path.join(lib_path, egg_file))
-"""
+
+# Check for Python version before running argparse import
+if sys.version_info[0] == 2 and sys.version_info[1] < 7:
+    # Are we running Python <2.4?
+    if sys.version_info[1] < 4:
+        prompt_install_python27()
+
+    if os.path.isfile("/usr/bin/python2.7"):
+        import subprocess
+        subprocess.call(["/usr/bin/python2.7"] + sys.argv)
+    else:
+        prompt_install_python27()
 
 import shutil
 import argparse
@@ -97,13 +97,13 @@ def select_track(track_type, tracks):
         for track in tracks:
             print tracks[track]
         while not try_track:
-            try_track = raw_input("Select a %s track or Ctrl+C to exit: " %
-                                 (track_type))
+            try_track = raw_input("Select a {0} track or Ctrl+C to exit: ".format(
+                                  track_type))
             if try_track in track_values:
                 return int(try_track)
 
-            log.error("Track '%s' not in %s track list,"
-                "please pick a valid track." % (try_track, track_type))
+            log.error("Track '{0}' not in {1} track list, "
+                      "please pick a valid track.".format(try_track, track_type))
             try_track = None
 
     except KeyboardInterrupt:
@@ -127,124 +127,129 @@ def main():
     dependencies = ('mkvinfo', 'mediainfo', 'mkvextract',
                     'mplayer', 'faac', 'MP4Box')
 
-    parser = argparse.ArgumentParser(
-        description='Parse command line arguments for XenonMKV.')
+    parser = argparse.ArgumentParser(description='Parse command line arguments '
+                                     'for XenonMKV.')
     parser.add_argument('source_file', help='Path to the source MKV file')
     parser.add_argument('-d', '--destination',
-        help="""Directory to output the destination .mp4 file
-            (default: current directory)""",
-        default='.')
+                        help="""Directory to output the destination .mp4 file
+                        (default: current directory)""",
+                        default='.')
     parser.add_argument('-sd', '--scratch-dir',
-        help="""Specify a scratch directory where temporary files should
-            be stored""",
-        default=None)
+                        help="""Specify a scratch directory where temporary files should
+                         be stored""",
+                        default=None)
     parser.add_argument('-cfg', '--config-file',
-        help="""(Not yet implemented) Provide a configuration file that
-            contains default arguments or settings for the application""",
-        default='')
+                        help="""(Not yet implemented) Provide a configuration file that
+                         contains default arguments or settings for the application""",
+                        default='')
     parser.add_argument("-p", '--profile',
-        help="""Select a standardized device profile for encoding.
-        Current profile options are: xbox360, playbook""",
-        default="")
+                        help="""Select a standardized device profile for encoding.
+                         Current profile options are: xbox360, playbook""",
+                        default="")
 
     output_group = parser.add_argument_group("Output options")
     output_group.add_argument('-q', '--quiet',
-        help="""Do not display output or progress from tools,
-            or prompt for input""",
-        action='store_true')
+                              help="""Do not display output or progress from tools,
+                               or prompt for input""",
+                              action='store_true')
     output_group.add_argument('-v', '--verbose', help='Verbose output',
-        action='store_true')
+                              action='store_true')
     output_group.add_argument('-vv', '--debug',
-        help='Highly verbose debug output',
-        action='store_true')
+                              help='Highly verbose debug output',
+                              action='store_true')
     output_group.add_argument('-pf', '--print-file',
-        help='Output filenames before and after converting',
-        action='store_true')
+                              help='Output filenames before and after converting',
+                              action='store_true')
 
     video_group = parser.add_argument_group("Video options",
-        "Options for processing video.")
+                                            "Options for processing video.")
     video_group.add_argument('-nrp', '--no-round-par',
-        help="""When processing video, do not round pixel aspect ratio from
-        0.98 to 1.01 to 1:1.""",
-        action='store_true')
+                             help="""When processing video, do not round pixel aspect
+                             ratio from 0.98 to 1.01 to 1:1.""",
+                             action='store_true')
     video_group.add_argument('-irf', '--ignore-reference-frames',
-    help="""If the source video has too many reference frames to play on
-        low-powered devices (Xbox, PlayBook), continue converting anyway""",
-        action='store_true')
+                             help="""If the source video has too many reference frames
+                              to play on low-powered devices (Xbox, PlayBook), continue
+                              converting anyway""",
+                             action='store_true')
 
     audio_group = parser.add_argument_group("Audio options",
-        "Select custom audio decoding and encoding options.")
+                                            "Select custom audio decoding and "
+                                            "encoding options.")
     audio_group.add_argument('-c', '--channels',
-        help="""Specify the maximum number of channels that are acceptable in
-            the output file. Certain devices (Xbox) will not play audio with
-            more than two channels. If the audio needs to be re-encoded at
-            all, it will be downmixed to two channels only. Possible values
-            for this option are 2 (stereo); 4 (surround);
-            5.1 or 6 (full 5.1); 7.1 or 8 (full 7.1 audio).
-            For more details, view the README file.""", default=6)
+                             help="""Specify the maximum number of channels that are
+                              acceptable in the output file. Certain devices (Xbox) will
+                              not play audio with more than two channels. If the audio
+                              needs to be re-encoded at all, it will be downmixed to two
+                              channels only. Possible values for this option are 2
+                              (stereo); 4 (surround); 5.1 or 6 (full 5.1); 7.1 or 8
+                              (full 7.1 audio).
+                              For more details, view the README file.""",
+                             default=6)
     audio_group.add_argument('-fq', '--faac-quality',
-        help="""Quality setting for FAAC when encoding WAV files to AAC.
-            Defaults to 150
-            (see http://wiki.hydrogenaudio.org/index.php?title=FAAC)""",
-        default=150)
+                             help="""Quality setting for FAAC when encoding WAV files
+                              to AAC. Defaults to 150 (see
+                              http://wiki.hydrogenaudio.org/index.php?title=FAAC)""",
+                             default=150)
 
     track_group = parser.add_argument_group("Track options",
-        """These options determine how multiple tracks in MKV files
-            are selected.""")
+                                            "These options determine how multiple tracks "
+                                            "in MKV files are selected.")
     track_group.add_argument('-st', '--select-tracks',
-        help="""If there are multiple tracks in the MKV file, prompt to select
-            which ones will be used. By default, the last video and tracks
-            flagged as 'default' in the MKV file will be used. This option
-            requires interactive user input, so do not use it in batch
-            processing or scripts.""",
-        action='store_true')
+                             help="""If there are multiple tracks in the MKV file, prompt
+                             to select which ones will be used. By default, the last video
+                              and audio tracks flagged as 'default' in the MKV file will
+                             be used. This option requires interactive user input, so do
+                             not use it in batch processing or scripts.""",
+                             action='store_true')
     track_group.add_argument('-vt', '--video-track',
-        help="""Use the specified video track. If not present in the file,
-            the default track will be used.""",
-        type=int)
+                             help="""Use the specified video track. If not present in
+                             the file, the default track will be used.""",
+                             type=int)
     track_group.add_argument('-at', '--audio-track',
-        help="""Use the specified audio track. If not present in the file,
-            the default track will be used.""",
-        type=int)
+                             help="""Use the specified audio track. If not present in
+                             the file, the default track will be used.""",
+                             type=int)
     track_group.add_argument('-lang', '--preferred-language',
-        help="""Provide a preferred language code in ISO 639-1 format
-            ('en' for English, 'fr' for French, etc.)
-            When picking tracks, this language will be preferred.""")
+                             help="""Provide a preferred language code in ISO 639-1 format
+                              ('en' for English, 'fr' for French, etc.)
+                             When picking tracks, this language will be preferred.""")
 
     proc_group = parser.add_argument_group("File and processing options",
-        """These options determine how XenonMKV processes files
-            and their contents.""")
+                                           """These options determine how XenonMKV
+                                           processes files and their contents.""")
     proc_group.add_argument('-rp', '--resume-previous',
-        help="""Resume a previous run (do not recreate files
-            if they already exist). Useful for debugging quickly if a
-            conversion has already partially succeeded.""",
-        action='store_true')
+                            help="""Resume a previous run (do not recreate files
+                            if they already exist). Useful for debugging quickly if a
+                            conversion has already partially succeeded.""",
+                            action='store_true')
     proc_group.add_argument('-n', '--name',
-        help="""Specify a name for the final MP4 container.
-            Defaults to the original file name.""",
-        default="")
+                            help="""Specify a name for the final MP4 container.
+                            Defaults to the original file name.""",
+                            default="")
     proc_group.add_argument('-preserve', '--preserve-temp-files',
-        help="""Preserve temporary files on the filesystem rather than
-            deleting them at the end of each run.""",
-        action='store_true', default=False)
+                            help="""Preserve temporary files on the filesystem rather
+                             than deleting them at the end of each run.""",
+                            action='store_true', default=False)
     proc_group.add_argument("-eS", "--error-filesize",
-        help="""Stop processing this file if it is over 4GiB.
-            Files of this size will not be processed correctly by some
-            devices such as the Xbox 360, and they will not save correctly
-            to FAT32-formatted storage. By default, you will only see
-            a warning message, and processing will continue.""",
-        action="store_true")
+                            help="""Stop processing this file if it is over 4GiB.
+                             Files of this size will not be processed correctly by some
+                             devices such as the Xbox 360, and they will not save
+                             correctly to FAT32-formatted storage. By default, you will
+                             only see a warning message, and processing will continue.""",
+                            action="store_true")
     proc_group.add_argument('--mp4box-retries',
-        help="""Set the number of retry attempts for MP4Box to attempt
-            to create a file (default: 3)""", default=3, type=int)
+                            help="""Set the number of retry attempts for MP4Box to attempt
+                             to create a file (default: 3)""", default=3, type=int)
 
     dep_group = parser.add_argument_group("Custom paths",
-        "Set custom paths for the utilities used by XenonMKV.")
+                                          "Set custom paths for the utilities used by "
+                                          "XenonMKV.")
     for dependency in dependencies:
         dep_group.add_argument("--" + dependency.lower() + "-path",
-            help="""Set a custom complete path for the %s tool.
-                Any library under that path will also be loaded.""" %
-                dependency)
+                               help="""Set a custom complete path for the {0} tool.
+                                Any library under that path will also be
+                                loaded.""".format(dependency))
 
     if len(sys.argv) < 2:
         parser.print_help()
@@ -279,7 +284,7 @@ def main():
             args.channels = 6
             args.error_filesize = False
         else:
-            log.warning("Unrecognized device profile %s" % args.profile)
+            log.warning("Unrecognized device profile {0}".format(args.profile))
             args.profile = ""
 
     # Check for 5.1/7.1 audio with the channels setting
@@ -289,7 +294,7 @@ def main():
         args.channels = 8
     if args.channels not in ('2', '4', '6', '8', 2, 4, 6, 8):
         log.warning("An invalid number of channels was specified. "
-            "Falling back to 2-channel stereo audio.")
+                    "Falling back to 2-channel stereo audio.")
         args.channels = 2
 
     # Enforce channels as integer for comparison purposes later on
@@ -299,29 +304,29 @@ def main():
     if args.preferred_language:
         args.preferred_language = args.preferred_language.lower()
         if len(args.preferred_language) < 2:
-            log.warning("Could not set preferred language code '%s'" %
-                args.preferred_language)
+            log.warning("Could not set preferred language code '{0}'".format(
+                        args.preferred_language))
             args.preferred_language = None
         elif len(args.preferred_language) > 2:
             args.preferred_language = args.preferred_language[0:2]
-            log.warning("Preferred language code truncated to '%s'" %
-                args.preferred_language)
+            log.warning("Preferred language code truncated to '{0}'".format(
+                        args.preferred_language))
 
     # Make sure user is not prompted for input if quiet option is used
     if args.quiet and args.select_tracks:
         log.warning("Cannot use interactive track selection in quiet mode. "
-            "Tracks will be automatically selected.")
+                    "Tracks will be automatically selected.")
         args.select_tracks = False
 
     log.debug("Starting XenonMKV")
 
     # Check if we have a full file path or are just specifying a file
     if os.sep not in args.source_file:
-        log.debug("Ensuring that we have a complete path to %s" %
-            args.source_file)
+        log.debug("Ensuring that we have a complete path to {0}".format(
+                  args.source_file))
         args.source_file = os.path.join(os.getcwd(), args.source_file)
-        log.debug("%s will be used to reference the original MKV file" %
-            args.source_file)
+        log.debug("{0} will be used to reference the original MKV file".format(
+                  args.source_file))
 
     # Always ensure destination path ends with a slash
     if not args.destination.endswith(os.sep):
@@ -352,7 +357,7 @@ def main():
 
     if not args.name:
         args.name = source_noext
-        log.debug("Using '%s' as final container name" % args.name)
+        log.debug("Using '{0}' as final container name".format(args.name))
 
     # Check if destination directory exists
     try:
@@ -360,10 +365,10 @@ def main():
     except IOError as e:
         log_exception("check_dest_dir", e)
 
-    log.info("Loading source file %s " % args.source_file)
+    log.info("Loading source file {0}".format(args.source_file))
 
     if args.print_file:
-        print "Processing: %s" % args.source_file
+        print "Processing: {0}".format(args.source_file)
 
     try:
         to_convert = MKVFile(args.source_file, log, args)
@@ -381,8 +386,8 @@ def main():
     try:
         # Check for multiple tracks
         if to_convert.has_multiple_av_tracks():
-            log.debug("Source file %s has multiple audio and/or "
-                "video tracks" % args.source_file)
+            log.debug("Source file {0} has multiple audio or "
+                      "video tracks".format(args.source_file))
 
             # First, pick default tracks,
             # which can be overridden in select_tracks
@@ -402,8 +407,8 @@ def main():
 
         else:
             # Pick default (or only) audio/video tracks
-            log.debug("Source file %s has 1 audio and 1 video track; "
-                "using these" % args.source_file)
+            log.debug("Source file {0} has 1 audio and 1 video track; "
+                      "using these".format(args.source_file))
             to_convert.set_default_av_tracks()
     except Exception as e:
         if not args.preserve_temp_files:
@@ -425,7 +430,7 @@ def main():
 
     # Detect which audio codec is in place and dump audio to WAV accordingly
     if to_convert.get_audio_track().needs_recode:
-        log.debug("Audio track %s needs to be re-encoded" % audio_file)
+        log.debug("Audio track {0} needs to be re-encoded".format(audio_file))
         audio_dec = AudioDecoder(audio_file, log, args)
         audio_dec.decode()
 
@@ -436,14 +441,14 @@ def main():
         faac_enc.encode()
         encoded_audio = os.path.join(args.scratch_dir, "audiodump.aac")
     else:
-        # Bypass this whole encoding shenanigans
-        # and just reference the already-valid audio file
+        # The audio track does not need to be re-encoded.
+        # Reference the already-valid audio file and put it into the MP4 container.
         encoded_audio = audio_file
 
     # Now, throw things back together into a .mp4 container with MP4Box.
     video_track = to_convert.get_video_track()
     mp4box = MP4Box(video_file, encoded_audio, video_track.frame_rate,
-        video_track.pixel_ar, args, log)
+                    video_track.pixel_ar, args, log)
     try:
         mp4box.package()
     except Exception as e:
@@ -455,8 +460,8 @@ def main():
     dest_path = os.path.join(args.destination, source_noext + ".mp4")
     shutil.move(os.path.join(args.scratch_dir, "output.mp4"), dest_path)
 
-    log.info("Processing of %s complete; file saved as %s" %
-        (args.source_file, dest_path))
+    log.info("Processing of {0} complete; file saved as {1}".format(
+             args.source_file, dest_path))
 
     # Delete temporary files if possible
     if not args.preserve_temp_files:
@@ -464,7 +469,7 @@ def main():
 
     log.debug("XenonMKV completed processing")
     if args.print_file:
-        print "Completed: %s" % dest_path
+        print "Completed: {0}".format(dest_path)
 
 
 if __name__ == "__main__":

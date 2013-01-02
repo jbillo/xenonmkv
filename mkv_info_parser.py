@@ -23,7 +23,7 @@ class MKVInfoParser:
 
     def parse_track_number(self, output):
         result = self._parse_to_newline(output,
-            "|  + Track number: ", "track number")
+                                        "|  + Track number: ", "track number")
         # mkvinfo 5.8.0 on Windows apparently adds more content to the string
         # use ID number for mkvmerge/mkvextract
 
@@ -37,7 +37,7 @@ class MKVInfoParser:
         detect_mkvextract = "mkvextract: "
         if detect_mkvextract in result:
             result = result[result.index(detect_mkvextract) +
-                len(detect_mkvextract):]
+                            len(detect_mkvextract):]
         if ")" in result:
             result = result[0:result.index(")")]
 
@@ -49,7 +49,7 @@ class MKVInfoParser:
     def parse_track_is_default(self, output):
         try:
             result = self._parse_to_newline(output,
-                "|  + Default flag: ", "default flag")
+                                            "|  + Default flag: ", "default flag")
             return "1" in result
         except:
             # Could not determine whether track was default,

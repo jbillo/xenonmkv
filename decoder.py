@@ -1,6 +1,4 @@
 import os
-import sys
-
 from process_handler import ProcessHandler
 
 
@@ -39,20 +37,20 @@ class AudioDecoder():
     def decode_mplayer(self):
         self.log.debug("Starting decoding file to WAV with mplayer")
         # Check for existing audiodump.wav (already changed to temp directory)
-        if os.path.isfile(os.path.join(os.getcwd(), "audiodump.wav")):
+        audiodump_file = os.path.join(os.getcwd(), "audiodump.wav")
+        if os.path.isfile(audiodump_file):
             if self.args.resume_previous:
                 self.log.debug("audiodump.wav already exists in scratch "
-                    "directory; cancelling decode")
+                               "directory; cancelling decode")
                 return True
 
-            self.log.debug("Deleting temporary mplayer output file %s" %
-                (os.path.join(os.getcwd(), "audiodump.wav")))
-            os.unlink(os.path.join(os.getcwd(), "audiodump.wav"))
+            self.log.debug("Deleting temporary mplayer output file {0}".format(
+                           audiodump_file))
+            os.unlink(audiodump_file)
 
         cmd = [self.args.tool_paths["mplayer"], self.file_path, "-benchmark",
-            "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub",
-            "-ao", "pcm:fast"]
-        self.log.debug("Executing '%s'" % ' '.join(cmd))
+               "-vc", "null", "-vo", "null", "-channels", "2", "-noautosub",
+               "-ao", "pcm:fast"]
         ph = ProcessHandler(self.args, self.log)
         ph.start_output(cmd)
 

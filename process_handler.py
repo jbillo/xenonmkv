@@ -16,10 +16,9 @@ class ProcessHandler:
             env["LD_LIBRARY_PATH"] = ""
         env["LD_LIBRARY_PATH"] += os.pathsep + os.pathsep.join(
             self.args.library_paths)
-        self.log.debug("Starting process with arguments: %s " %
-            ' '.join(cmd))
+        self.log.debug("Starting process with arguments: {0} ".format(' '.join(cmd)))
         return subprocess.Popen(cmd, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, env=env)
+                                stderr=subprocess.PIPE, env=env)
 
     def start_output(self, cmd):
         env = dict(os.environ)
@@ -27,8 +26,8 @@ class ProcessHandler:
             env["LD_LIBRARY_PATH"] = ""
         env["LD_LIBRARY_PATH"] += os.pathsep + os.pathsep.join(
             self.args.library_paths)
-        self.log.debug("Starting process and capturing output with arguments: %s " %
-            ' '.join(cmd))
+        self.log.debug("Starting process and waiting with arguments: {0}".format(
+                       ' '.join(cmd)))
 
         process_out = sys.stdout
         process_err = sys.stderr

@@ -1,5 +1,4 @@
 import os
-import sys
 from process_handler import ProcessHandler
 
 
@@ -31,13 +30,13 @@ class MP4Box():
 
         while run_attempts <= self.args.mp4box_retries:
             cmd = [self.args.tool_paths["mp4box"], "output.mp4",
-                    # Always create new file with mp4box/GPAC
-                    # https://github.com/jbillo/xenonmkv/issues/2
-                    "-new",
-                    "-add", self.video_path, "-fps", self.video_fps,
-                    "-par", "1=" + self.video_pixel_ar,
-                    "-add", self.audio_path, "-tmp", self.args.scratch_dir,
-                    "-itags", "name=" + self.args.name]
+                   # Always create new file with mp4box/GPAC
+                   # https://github.com/jbillo/xenonmkv/issues/2
+                   "-new",
+                   "-add", self.video_path, "-fps", self.video_fps,
+                   "-par", "1=" + self.video_pixel_ar,
+                   "-add", self.audio_path, "-tmp", self.args.scratch_dir,
+                   "-itags", "name=" + self.args.name]
 
             ph = ProcessHandler(self.args, self.log)
             process = ph.start_output(cmd)
@@ -47,8 +46,8 @@ class MP4Box():
                 # so it does not have multiple tracks imported
                 os.unlink(output_file)
                 self.log.warning("An error occurred while creating "
-                    "an MP4 file with MP4Box; %i retries left" %
-                    (self.args.mp4box_retries - run_attempts))
+                                 "an MP4 file with MP4Box; {0} retries left".format(
+                                 self.args.mp4box_retries - run_attempts))
                 run_attempts += 1
                 # Continue retrying to create the file
             else:
@@ -64,8 +63,8 @@ class MP4Box():
                     # Don't really care, just as long as the file is gone.
                     pass
 
-            raise Exception("MP4Box could not create file after %i retries; "
-                "giving up." % self.args.mp4box_retries)
+            raise Exception("MP4Box could not create file after {0} retries; "
+                            "giving up.".format(self.args.mp4box_retries))
 
         self.log.debug("MP4Box process complete")
 

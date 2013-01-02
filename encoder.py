@@ -21,11 +21,11 @@ class FAACEncoder():
         if self.args.resume_previous and os.path.isfile("audiodump.aac"):
             os.chdir(prev_dir)
             self.log.debug("audiodump.aac already exists in scratch "
-                "directory; cancelling encode")
+                           "directory; cancelling encode")
             return True
 
         cmd = [self.args.tool_paths["faac"], "-q",
-            str(self.args.faac_quality), self.file_path]
+               str(self.args.faac_quality), self.file_path]
         ph = ProcessHandler(self.args, self.log)
 
         ph.start_output(cmd)
