@@ -6,6 +6,7 @@
 
 import sys
 import os
+import ConfigParser
 
 
 def prompt_install_python27():
@@ -58,7 +59,7 @@ def log_exception(source, e, log_type="critical"):
     """
 
     global log
-    getattr(log, log_type)(str(source) + ": " + str(e.message))
+    getattr(log, log_type)("{0}: {1}".format(str(source), str(e.message)))
     log.debug(traceback.format_exc())
     if log_type == "critical":
         sys.exit(1)
@@ -94,7 +95,7 @@ def select_track(track_type, tracks):
     try:
         try_track = None
         # Output type of track list and prompt to pick one
-        print "== %s Tracks ==" % title
+        print "== {0} Tracks ==".format(title)
         for track in tracks:
             print tracks[track]
         while not try_track:
@@ -112,6 +113,32 @@ def select_track(track_type, tracks):
         print
         log.critical("Track selection cancelled; exiting")
         sys.exit(1)
+
+
+def parse_config_file(args):
+    available_args = vars(args).keys()
+    output = [("debug", "Parsing configuration settings from file {0}".format(
+              args.config_file))]
+
+    # Specifically remove config settings that shouldn't be touched
+    # For example, do not allow config_file to be overwritten again
+    try:
+        available_args.remove("config_file")
+    except:
+        pass
+
+    config = ConfigParser.SafeConfigParser()
+    config.read(args.config_file)
+    for item in config.items("xenonmkv"):
+        if item[0] in available_args:
+            output.append(("debug", "Applying setting {0} with value '{1}' "
+                          "from configuration file".format(item[0], item[1])))
+            setattr(args, item[0], item[1])
+        else:
+            output.append(("warning", "Found unrecognized or invalid setting {0} in "
+                          "configuration file".format(item[0])))
+
+    return output
 
 
 def main():
@@ -140,7 +167,7 @@ def main():
                          be stored""",
                         default=None)
     parser.add_argument('-cfg', '--config-file',
-                        help="""(Not yet implemented) Provide a configuration file that
+                        help="""Provide a configuration file that
                          contains default arguments or settings for the application""",
                         default='')
     parser.add_argument("-p", '--profile',
@@ -247,7 +274,7 @@ def main():
                                           "Set custom paths for the utilities used by "
                                           "XenonMKV.")
     for dependency in dependencies:
-        dep_group.add_argument("--" + dependency.lower() + "-path",
+        dep_group.add_argument("--{0}-path".format(dependency.lower()),
                                help="""Set a custom complete path for the {0} tool.
                                 Any library under that path will also be
                                 loaded.""".format(dependency))
@@ -257,6 +284,11 @@ def main():
         sys.exit(1)
 
     args = parser.parse_args()
+    config_file_output = False
+
+    # If a configuration file was specified, attempt to read it.
+    if args.config_file and os.path.isfile(args.config_file):
+        config_file_output = parse_config_file(args)
 
     # Depending on the arguments, set the logging level appropriately.
     if args.quiet:
@@ -266,6 +298,11 @@ def main():
         log.debug("Using debug/highly verbose mode output")
     elif args.verbose:
         log.setLevel(logging.INFO)
+
+    # If we parsed a configuration file, run through all logging output
+    if config_file_output:
+        for level, message in config_file_output:
+            getattr(log, level)(message)
 
     # Pick temporary/scratch directory
     if not args.scratch_dir:
