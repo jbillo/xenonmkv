@@ -35,8 +35,8 @@ import logging
 import traceback
 
 from file_utils import FileUtils
-from decoder import AudioDecoder
-from encoder import FAACEncoder
+from xenonmkv.decoder import AudioDecoder
+from xenonmkv.encoder import FAACEncoder
 from mp4box import MP4Box
 from mkvfile import MKVFile
 from track import MKVTrack
