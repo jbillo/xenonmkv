@@ -31,15 +31,30 @@
         <hr>
 
         <section id="main_content">
-<h1>About XenonMKV</h1>
+          <h1>About XenonMKV</h1>
 
-<p>XenonMKV is a video format conversion tool that takes MKV files and outputs them as MP4 files. It does not re-encode video, and only decodes and encodes audio as necessary.</p>
+<p>XenonMKV is a video format conversion tool that takes MKV files and outputs
+them as MP4 files. It does not re-encode video, and only decodes and encodes
+audio as necessary.</p>
 
-<p>You'll find this tool useful for converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my <a href="http://blackberry.com/playbook">BlackBerry PlayBook</a>.</p>
+<p>You'll find this tool useful for converting videos for devices that support
+H.264 video and AAC audio, but do not understand the MKV container.
+Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now
+that this tool is much more useful for my
+<a href="http://blackberry.com/playbook">BlackBerry PlayBook</a>.</p>
+
+<h2>Disclosure</h2>
+
+<p>Note: I work for RIM. The opinions expressed here are my own
+and don’t necessarily represent those of my employer. All code is developed
+on my own time without use of company resources.</p>
 
 <h1>System Requirements</h1>
 
-<p>XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are available for most popular *nix distributions. You will need at least Python 2.7 for the argparse library, and ideally Python 2.7.3 or later in the 2.x series.</p>
+<p>XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation
+(x86_64), but most of the utilities and requirements here are available for
+most popular *nix distributions. You will need at least Python 2.7 for the
+argparse library, and ideally Python 2.7.3 or later in the 2.x series.</p>
 
 <h2>Ubuntu 12.04</h2>
 
@@ -47,10 +62,13 @@
 
 <h3>Install All Dependencies (at once)</h3>
 
-<pre><code>sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac  
+<pre><code>sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
 </code></pre>
 
-<p>At the current state of development, on Ubuntu you do not need to install anything from requirements.txt as the package manager takes care of all the dependent tools. If this changes in the future, requirements can be installed by running:</p>
+<p>At the current state of development, on Ubuntu you do not need to install
+anything from requirements.txt as the package manager takes care of all the
+dependent tools. If this changes in the future, requirements can be installed
+by running:</p>
 
 <pre><code>sudo apt-get install python-setuptools &amp;&amp; sudo easy_install -U pip
 pip install -r requirements.txt
@@ -59,169 +77,227 @@ pip install -r requirements.txt
 <h3>Individual Package Details</h3>
 
 <ul>
-<li><p>mediainfo (<a href="http://mediainfo.sourceforge.net/en/Download/Ubuntu">http://mediainfo.sourceforge.net/en/Download/Ubuntu</a>)</p>
+<li>
+<p><a href="http://mediainfo.sourceforge.net/en/Download/Ubuntu">mediainfo</a></p>
 
 <pre><code>sudo apt-get install mediainfo
 </code></pre>
 
-<p>Alternatively, add the official mediainfo PPA and install the package, which the developer suggests might be a good idea:</p>
+<p>Alternatively, add the official mediainfo PPA and install the package,
+which the developer suggests might be a good idea:</p>
 
 <pre><code>sudo add-apt-repository ppa:shiki/mediainfo
 sudo apt-get update
 sudo apt-get install mediainfo
-</code></pre></li>
-<li><p>mkvtoolnix (<a href="http://www.bunkus.org/videotools/mkvtoolnix/downloads.html">http://www.bunkus.org/videotools/mkvtoolnix/downloads.html</a>)</p>
+</code></pre>
+</li>
+<li>
+<p><a href="http://www.bunkus.org/videotools/mkvtoolnix/downloads.html">mkvtoolnix</a></p>
 
 <pre><code>sudo apt-get install mkvtoolnix
-</code></pre></li>
-<li><p>mplayer (<a href="http://www.mplayerhq.hu/design7/news.html">http://www.mplayerhq.hu/design7/news.html</a>)</p>
+</code></pre>
+</li>
+<li>
+<p><a href="http://www.mplayerhq.hu/design7/news.html">mplayer</a></p>
 
 <pre><code>sudo apt-get install mplayer
-</code></pre></li>
-<li><p>faac (<a href="http://www.audiocoding.com/downloads.html">http://www.audiocoding.com/downloads.html</a>)</p>
+</code></pre>
+</li>
+<li>
+<p><a href="http://www.audiocoding.com/downloads.html">faac</a></p>
 
 <pre><code>sudo apt-get install faac
-</code></pre></li>
-<li><p>MP4Box (<a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a>)</p>
+</code></pre>
+</li>
+<li>
+<p><a href="https://sourceforge.net/projects/gpac/">MP4Box</a></p>
 
 <pre><code>sudo apt-get install gpac
 </code></pre>
 
-<p>To compile your own gpac version, follow these instructions: <a href="http://gpac.wp.mines-telecom.fr/2011/04/20/compiling-gpac-on-ubuntu/">http://gpac.wp.mines-telecom.fr/2011/04/20/compiling-gpac-on-ubuntu/</a>
-Then, run the following commands for great success (the SpiderMonkey JS library appears to be broken currently):</p>
+<p>To compile your own gpac version, follow <a href="http://gpac.wp.mines-telecom.fr/2011/04/20/compiling-gpac-on-ubuntu/">these instructions</a>.
+Then, run the following commands for success (the SpiderMonkey JS library isn't needed):</p>
 
 <pre><code>./configure --enable-debug --use-js=no
 make
 </code></pre>
 
-<p>You probably still won't be able to run it, though, unless you run <code>sudo make install</code>. I prefer not to overwrite system libraries, so I copy the application directly into /opt/gpac/0.5.0:</p>
+<p>By default MP4Box will be installed in <code>/usr/local/{bin,lib,man,share}</code> as necessary.
+If your PATH variable includes <code>/usr/local/bin</code> first, your custom compiled version will be executed
+instead of the system version.</p>
 
-<pre><code>sudo mkdir -p /opt/gpac/0.5.0
-sudo cp -R bin/gcc/* /opt/gpac/0.5.0
+<p>To put MP4Box into a specific path on compile, use the <code>--prefix</code>
+option with <code>./configure</code> -
+<a href="https://github.com/jbillo/xenonmkv/issues/2#issuecomment-10257505">thanks Romain</a>:</p>
+
+<pre><code>./configure --enable-debug --use-js=no --prefix=/opt/gpac
 </code></pre>
 
-<p>Then to run:</p>
+<p>Run <code>sudo make install</code> to finalize.
+Then to run, specify LD_LIBRARY_PATH if it is not already in your LD
+configuration. On Ubuntu /usr/local/lib is already there, so just run:</p>
 
-<pre><code>LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/0.5.0" /opt/gpac/0.5.0/MP4Box       
-</code></pre></li>
-</ul>
+<pre><code>/usr/local/bin/MP4Box
+</code></pre>
 
-<h2>Ubuntu 10.04</h2>
+<p>For a custom prefix:</p>
+
+<pre><code>LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/lib" /opt/gpac/bin/MP4Box
+</code></pre>
+</li>
+</ul><h2>Ubuntu 10.04</h2>
 
 <p>As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:</p>
 
 <ul>
-<li><p>Install Python 2.7, either from source or add the appropriate PPA:</p>
+<li>
+<p>Install Python 2.7, either from source or add the appropriate PPA:</p>
 
 <pre><code>sudo add-apt-repository ppa:fkrull/deadsnakes
 sudo apt-get update
 sudo apt-get install python2.7
-</code></pre></li>
+</code></pre>
+</li>
 <li><p>Install mediainfo by adding the <code>ppa:shiki/mediainfo</code> PPA as the <em>mediainfo</em> package is not in the 10.04 repository.</p></li>
-<li>Perform <em>install dependencies</em> step from the 12.04 instructions</li>
-<li><p>Run the application directly referencing Python 2.7:</p>
+<li><p>Perform <em>install dependencies</em> step from the 12.04 instructions</p></li>
+<li>
+<p>Run the application directly referencing Python 2.7:</p>
 
 <pre><code>/usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
-</code></pre></li>
-</ul>
+</code></pre>
+</li>
+</ul><h2>Windows</h2>
 
-<h2>Windows</h2>
+<p>Eventually I will package the application as an .exe file for convenience with
+Windows installations. XenonMKV has only been tested on Windows 7, 64-bit.</p>
 
-<p>Eventually I will package the application as an .exe file for convenience with Windows installations. I have only personally tried this on Windows 7, 64-bit. </p>
-
-<p>As long as you have all the dependent tools installed, you should only need to have Python installed and add the Python directory to your PATH environment variable. If you are taking advantage of the automatic installer, you will need the pylzma package. </p>
+<p>As long as you have all the dependent tools installed, you should only need to
+have Python installed and add the Python directory to your PATH environment
+variable. </p>
 
 <h3>Basic Use</h3>
 
 <ul>
-<li>Install Python 2.7 from <a href="http://python.org/ftp/python/2.7.3/python-2.7.3.msi">http://python.org/ftp/python/2.7.3/python-2.7.3.msi</a> for 32-bit or <a href="http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi">http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi</a> for 64-bit operating systems. </li>
+<li>Install Python 2.7
+(<a href="http://python.org/ftp/python/2.7.3/python-2.7.3.msi">32-bit</a>,
+<a href="http://python.org/ftp/python/2.7.3/python-2.7.3.amd64.msi">64-bit</a>)
+depending on your architecture.</li>
 <li>Add the Python27 directory to your PATH environment variable:
+
 <ul>
 <li>Hit <em>Win</em> + <em>Break</em> to bring up Computer Properties</li>
-<li>Click <em>Advanced System Settings</em></li>
-<li>Click <em>Environment Variables</em></li>
-<li>With PATH selected, click <em>Edit</em> and add <code>;C:\Python27</code> (replace C:\Python27 with your installation directory)</li>
+<li>Click <em>Advanced System Settings</em>
+</li>
+<li>Click <em>Environment Variables</em>
+</li>
+<li>With PATH selected, click <em>Edit</em> and add <code>;C:\Python27</code>
+(replace C:\Python27 with your installation directory)</li>
 <li>Click <em>OK</em> all the way out and restart any <code>cmd</code> instances</li>
-<li>Confirm the setting was applied by entering <code>echo %PATH% | find "Python"</code> (you should see your PATH variable)</li>
-</ul></li>
+<li>Confirm the setting was applied by entering <code>echo %PATH% | find "Python"</code>
+(you should see your PATH variable)</li>
+</ul>
+</li>
 <li>Run XenonMKV from the command line:
     python xenonmkv.py [arguments]</li>
-</ul>
+</ul><h3>Development on Windows</h3>
 
-<h3>Development Use</h3>
-
-<p>To get things up and running for a development environment on Windows, you can perform the following steps:</p>
+<p>To get things up and running for a development environment on Windows,
+you can perform the following steps:</p>
 
 <ul>
-<li>Install <code>setuptools</code> from <a href="http://pypi.python.org/pypi/setuptools#downloads">http://pypi.python.org/pypi/setuptools#downloads</a> for your appropriate OS. Downloading and running <a href="http://peak.telecommunity.com/dist/ez_setup.py">http://peak.telecommunity.com/dist/ez_setup.py</a> may be the best option.</li>
-<li>Install MinGW from <a href="http://sourceforge.net/projects/mingw/files/">http://sourceforge.net/projects/mingw/files/</a> for compiling Python packages, with the C and C++ compiler options</li>
-<li>Add the Python27\Scripts and MinGW directories to your PATH environment variable:
+<li>Install <a href="http://pypi.python.org/pypi/setuptools#downloads"><code>setuptools</code></a>
+for your appropriate OS. Downloading and running
+<a href="http://peak.telecommunity.com/dist/ez_setup.py">http://peak.telecommunity.com/dist/ez_setup.py</a> may be the best option.</li>
+<li>Install <a href="http://sourceforge.net/projects/mingw/files/">MinGW</a> for
+compiling Python packages, with the C and C++ compiler options</li>
+<li>Add the Python27\Scripts and MinGW directories to your PATH environment
+variable:
+
 <ul>
 <li>Hit <em>Win</em> + <em>Break</em> to bring up Computer Properties</li>
-<li>Click <em>Advanced System Settings</em></li>
-<li>Click <em>Environment Variables</em></li>
-<li>With PATH selected, click <em>Edit</em> and add <code>;C:\Python27;C:\Python27\Scripts;C:\MinGW</code> (replace C:\Python27 with your installation directory)</li>
+<li>Click <em>Advanced System Settings</em>
+</li>
+<li>Click <em>Environment Variables</em>
+</li>
+<li>With PATH selected, click <em>Edit</em> and add
+<code>;C:\Python27;C:\Python27\Scripts;C:\MinGW</code>
+(replace C:\Python27 with your installation directory)</li>
 <li>Click <em>OK</em> all the way out and restart any <code>cmd</code> instances</li>
-<li>Confirm the setting was applied by entering <code>echo %PATH% | find "Python" | find "MinGW"</code> (you should see your PATH variable)</li>
-</ul></li>
-<li><p>Create or edit the <em>distutils.cfg</em> file under <code>C:\Python27\Lib\distutils</code> and enter the following contents:</p>
+<li>Confirm the setting was applied by entering
+<code>echo %PATH% | find "Python" | find "MinGW"</code>
+(you should see your PATH variable)</li>
+</ul>
+</li>
+<li>
+<p>Create or edit the <em>distutils.cfg</em> file under <code>C:\Python27\Lib\distutils</code> and enter the following contents:</p>
 
 <pre><code>[build]
 compiler=mingw32
-</code></pre></li>
-<li><p>As per <a href="http://bugs.python.org/issue12641">http://bugs.python.org/issue12641</a> and <a href="http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o">http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o</a>, edit <code>C:\Python27\Lib\distutils\cygwinccompiler.py</code> and remove all <code>-mno-cygwin</code> references beginning on line 322. The definition should look like:</p></li>
-</ul>
-
-<p><code>python
-        self.set_executables(compiler='gcc -O -Wall',
-                             compiler_so='gcc -mdll -O -Wall',
-                             compiler_cxx='g++ -O -Wall',
-                             linker_exe='gcc',
-                             linker_so='%s %s %s'
-                                        % (self.linker_dll, shared_option,
-                                           entry_point))
-</code>                                           </p>
+</code></pre>
+</li>
+<li><p>As per <a href="http://bugs.python.org/issue12641">http://bugs.python.org/issue12641</a> and
+<a href="http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o">http://stackoverflow.com/questions/6034390/compiling-with-cython-and-mingw-produces-gcc-error-unrecognized-command-line-o</a>,
+edit <code>C:\Python27\Lib\distutils\cygwinccompiler.py</code> and remove all
+<code>-mno-cygwin</code> references beginning on line 322.
+The definition should look like:</p></li>
+</ul><div class="highlight"><pre>        <span class="bp">self</span><span class="o">.</span><span class="n">set_executables</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s">'gcc -O -Wall'</span><span class="p">,</span>
+                             <span class="n">compiler_so</span><span class="o">=</span><span class="s">'gcc -mdll -O -Wall'</span><span class="p">,</span>
+                             <span class="n">compiler_cxx</span><span class="o">=</span><span class="s">'g++ -O -Wall'</span><span class="p">,</span>
+                             <span class="n">linker_exe</span><span class="o">=</span><span class="s">'gcc'</span><span class="p">,</span>
+                             <span class="n">linker_so</span><span class="o">=</span><span class="s">'</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">'</span>
+                                        <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linker_dll</span><span class="p">,</span> <span class="n">shared_option</span><span class="p">,</span>
+                                           <span class="n">entry_point</span><span class="p">))</span>
+</pre></div>
 
 <ul>
-<li><p>Use <code>easy_install</code> to get <code>pip</code> added to your system, which will let you pull the necessary dependencies:</p>
+<li>
+<p>Use <code>easy_install</code> to get <code>pip</code> added to your system,
+which will let you pull the necessary dependencies:</p>
 
 <pre><code>easy_install pip
-</code></pre></li>
-<li><p>Install all necessary dependencies:</p>
+</code></pre>
+</li>
+<li>
+<p>Install all necessary dependencies:</p>
 
 <pre><code>pip install -r requirements.txt
-</code></pre></li>
-</ul>
+</code></pre>
+</li>
+</ul><h2>OS X</h2>
 
-<h2>OS X</h2>
-
-<p>Instructions coming soon.</p>
+<p>XenonMKV has been tested on OS X 10.8. For best results, use the packages offered by the installer. You will need at least OS X 10.6 and a 64-bit capable machine for some of the dependent applications.</p>
 
 <h1>Suggested Applications</h1>
 
 <ul>
-<li><p>vlc</p>
+<li>
+<p>vlc</p>
 
-<p>VLC is highly useful for investigating video files in a GUI. You can see the number of audio and video tracks in an MKV, and confirm that your MP4 output works as expected.</p>
+<p>VLC is highly useful for investigating video files in a GUI. You can see
+the number of audio and video tracks in an MKV, and confirm that your MP4
+output works as expected.</p>
 
 <pre><code>sudo apt-get install vlc
-</code></pre></li>
-<li><p>mkvtoolnix-gui</p>
+</code></pre>
+</li>
+<li>
+<p>mkvtoolnix-gui</p>
 
-<p>The GUI version of mkvtoolnix is useful for constructing smaller MKV files for test cases, extracting specific content or modifying tracks.</p>
+<p>The GUI version of mkvtoolnix is useful for constructing smaller MKV files
+for test cases, extracting specific content or modifying tracks.</p>
 
 <pre><code>sudo apt-get install mkvtoolnix-gui
-</code></pre></li>
-</ul>
-
-<h1>Usage</h1>
+</code></pre>
+</li>
+</ul><h1>Usage</h1>
 
 <p>Basic usage with default settings:</p>
 
 <pre><code>xenonmkv.py /path/to/file.mkv
 </code></pre>
 
-<p>To ensure your Xbox 360 will play the resulting file, at a possible expense of audio quality:</p>
+<p>To ensure your Xbox 360 console will play the resulting file, at a possible expense
+of audio quality:</p>
 
 <pre><code>xenonmkv.py /path/to/file.mkv --profile xbox360
 </code></pre>
@@ -231,41 +307,67 @@ compiler=mingw32
 <pre><code>xenonmkv.py --help
 </code></pre>
 
-<p>For a quiet run (batch processing or in a cronjob): </p>
+<p>For a quiet run (batch processing or in a cronjob):</p>
 
 <pre><code>xenonmkv.py /path/to/file.mkv -q
 </code></pre>
 
-<p>The -q option ensures you will never be prompted for input and would be useful for integration with software like SABnzbd+.</p>
+<p>The -q option ensures you will never be prompted for input and would be useful
+for integration with software like SABnzbd+.</p>
 
 <h1>Suggestions/Caveats</h1>
 
 <ul>
-<li>If your MKV files aren't too large, distributions that mount <code>/tmp</code> as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a significant speedup if you use <code>--scratch-dir /tmp</code>. Right now for future proofing, the scratch directory is set to <code>/var/tmp</code>.</li>
-<li>Use <code>-vv</code> to find display debug information and output exactly what's going on during the processing stages.</li>
-<li><p>Native multiple file support will be coming (eg: convert an entire directory of MKVs) but you can do something like this in the meantime to queue up a list:</p>
+<li>If your MKV files aren't too large, distributions that mount <code>/tmp</code>
+as tmpfs (planned for Fedora 18, Ubuntu 12.10, Debian Wheezy) can show a
+significant speedup if you use <code>--scratch-dir /tmp</code>. Right now for future
+proofing, the scratch directory is set to <code>/var/tmp</code>.</li>
+<li>Use <code>-vv</code> to find display debug information and output exactly what's going
+on during the processing stages.</li>
+<li>
+<p>Native multiple file support (eg: convert an entire
+directory of MKVs) is not inherently in this version, but you can do
+something like this in the meantime to queue up a list:</p>
 
 <pre><code>cd ~/mymkvdir
 for i in `ls *.mkv`; do /path/to/xenonmkv.py $i --destination ~/mymp4dir; done
-</code></pre></li>
-<li><p>Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western Digital Black SATA hard drive:
-A 442MB source MKV file with h.264 video and 6-channel AC3 audio is converted into a PlayBook-compatible MP4 (same video, 2-channel AAC audio, quality q=150) in 40.6 seconds. This does not have any enhancements such as a tmpfs mount.
-You could probably get much better performance with a solid state drive, and obviously processor speed will have an impact here.</p></li>
-</ul>
+</code></pre>
+</li>
+<li><p>Performance on an Intel Core i5-2500K CPU at 3.3GHz, with a 1TB Western
+Digital Black SATA hard drive: A 442MB source MKV file with h.264 video and
+6-channel AC3 audio is converted into a PlayBook-compatible MP4
+(same video, 2-channel AAC audio, quality q=150) in 40.6 seconds.
+This does not have any enhancements such as a tmpfs mount.
+You could probably get much better performance with a solid state drive,
+and obviously processor speed will have an impact here.</p></li>
+</ul><h1>Audio Downmixing/Re-Encoding</h1>
 
-<h1>Audio Downmixing/Re-Encoding</h1>
+<p>By default, XenonMKV tries not to resample, downmix or re-encode any part of
+the content provided. However, chances are your source files will contain AC3,
+DTS or MP3 audio that needs to be re-encoded. In this case, the original
+source audio will always be downmixed to a two channel AAC file before
+it is repackaged.</p>
 
-<p>By default, XenonMKV tries not to resample, downmix or re-encode any part of the content provided. However, chances are your source files will contain AC3, DTS or MP3 audio that needs to be re-encoded. In this case, the original source audio will always be downmixed to a two channel AAC file before it is repackaged.</p>
+<p>If the audio track in your MKV file is already AAC, the next thing to
+consider is your playback device. The Xbox 360 will not play audio in an MP4
+container unless it is 2-channel stereo, which is a highly stupid limitation.
+Other devices, like the PlayBook, will happily parse up to 5.1 channel audio.
+By using either the <code>--channels</code> or <code>--profile</code> settings, you can tell
+XenonMKV how many channels of audio are acceptable from an AAC source before
+it will aggressively re-encode and downmix to 2-channel stereo.</p>
 
-<p>If the audio track in your MKV file is already AAC, the next thing to consider is your playback device. The Xbox 360 will not play audio in an MP4 container unless it is 2-channel stereo, which is a highly stupid limitation. Other devices, like the PlayBook, will happily parse up to 5.1 channel audio. By using either the <code>--channels</code> or <code>--profile</code> settings, you can tell XenonMKV how many channels of audio are acceptable from an AAC source before it will aggressively re-encode and downmix to 2-channel stereo.</p>
-
-<p>In short, if you plan to play MP4s on your Xbox 360, definitely use the <code>--profile xbox360</code> setting to make sure that no more than two channels make it into the output file. If your device is more reasonable, the default settings should be fine. More profiles will be added as users confirm their own device capabilities.</p>
+<p>In short, if you plan to play MP4s on your Xbox 360, definitely use the
+<code>--profile xbox360</code> setting to make sure that no more than two channels make
+it into the output file. If your device is more reasonable, the default
+settings should be fine. More profiles will be added as users confirm their
+own device capabilities.</p>
 
 <h1>Known Issues</h1>
 
 <h2>MP4Box crash with backtrace</h2>
 
-<p>Certain video files, when MP4Box loads them to rejoin into an MP4 container, will throw a glibc error beginning with:</p>
+<p>Certain video files, when MP4Box loads them to rejoin into an MP4 container,
+will throw a glibc error beginning with:</p>
 
 <pre><code>*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x0000000000cc8400 ***
 ======= Backtrace: =========
@@ -273,7 +375,11 @@ You could probably get much better performance with a solid state drive, and obv
 /usr/lib/nvidia-current/tls/libnvidia-tls.so.295.40(+0x1c01)[0x7f0b084c7c01]
 </code></pre>
 
-<p>This occurs with both nVidia proprietary and Nouveau open source drivers. The message above is displayed when using the "current" or "current-updates" versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or Nouveau open-source driver, the free() error is the same, but the backtrace is different:</p>
+<p>This occurs with both nVidia proprietary and Nouveau open source drivers.
+The message above is displayed when using the "current" or "current-updates"
+versions (295.40, 295.49). When using the 173, 173-updates (173.14.35) or
+Nouveau open-source driver, the free() error is the same, but the backtrace
+is different:</p>
 
 <pre><code>*** glibc detected *** MP4Box: free(): invalid next size (fast): 0x00000000022d2420 ***
 ======= Backtrace: =========
@@ -291,17 +397,26 @@ MP4Box[0x40d30c]
 MP4Box[0x4085c1]
 </code></pre>
 
-<p>Sometimes this is an intermittent error, so MP4Box has a 3-retry mechanism that starts with the temporary files. At this time I'm not sure whether it's system memory or an issue with MP4Box/gpac. There were similar crashing issues in the Windows version, which is why multiple versions of MP4Box were bundled and used for fallback.</p>
+<p>Sometimes this is an intermittent error, so MP4Box has a 3-retry mechanism
+that starts with the temporary files. At this time I'm not sure whether it's
+system memory or an issue with MP4Box/gpac. There were similar crashing issues
+in the original Windows version, which is why multiple versions of MP4Box were
+bundled and used for fallback.</p>
 
-<p>If you do see this issue in your own testing, please report it and include a link to the file that causes the problem if possible. You may also be able to get the file to convert by using different command line options, such as <code>--resume-previous --preserve-temp-files</code> or including or excluding <code>-vv</code>.</p>
+<p>If you do see this issue in your own testing, please report it and include a
+link to the file that causes the problem if possible. You may also be able to
+get the file to convert by using different command line options, such as
+<code>--resume-previous --preserve-temp-files</code> or including or excluding <code>-vv</code>.</p>
 
 <p>Relevant system information:</p>
 
 <pre><code>$ uname -a
-Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+Linux ubuntu 3.2.0-29-generic #46-Ubuntu SMP Fri Jul 27 17:03:23
+UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
 </code></pre>
 
-<p>My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package, which is <code>0.4.5+svn3462~dfsg0-1</code>:</p>
+<p>My MP4Box version is the default from the 'gpac' Ubuntu 12.04 package,
+which is <code>0.4.5+svn3462~dfsg0-1</code>:</p>
 
 <pre><code>$ MP4Box -version
 MP4Box - GPAC version 0.4.6-DEV-rev
@@ -311,7 +426,8 @@ GPAC Configuration: --build=x86_64-linux-gnu --prefix=/usr --includedir=${prefix
 Features: GPAC_HAS_JPEG GPAC_HAS_PNG
 </code></pre>
 
-<p>A fresh compile of the 0.5.0 version available at <a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a> also appears to trigger this bug:</p>
+<p>A fresh compile of the 0.5.0 version available at
+<a href="https://sourceforge.net/projects/gpac/">https://sourceforge.net/projects/gpac/</a> also appears to trigger this bug:</p>
 
 <pre><code>MP4Box - GPAC version 0.5.0-rev4065
 GPAC Copyright: (c) Jean Le Feuvre 2000-2005
@@ -320,20 +436,17 @@ GPAC Configuration:  --enable-debug
 Features: GPAC_DISABLE_3D
 </code></pre>
 
-<p>The version included with Ubuntu 10.04 (<code>0.4.5-0.3ubuntu6</code>) does not appear to have issues.</p>
+<p>The version included with Ubuntu 10.04 (<code>0.4.5-0.3ubuntu6</code>) does not appear
+to have issues with the same files that fail on 0.4.6 and newer.</p>
 
 <h1>TODO</h1>
 
 <ul>
-<li>Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <a href="http://docs.python.org/library/configparser.html">http://docs.python.org/library/configparser.html</a></li>
-<li>~~Add support for custom tool locations (eg: use newer MP4Box build in a custom directory, rather than the version defined in PATH)~~</li>
-<li>~~Add support for picking a specific track from a multiple-track MKV file, rather than forcing defaults~~</li>
-<li>~~Add way for user to pick tracks at runtime (get <code>--select-tracks</code> functional; this will not be a default option)~~</li>
-<li>~~Add default language preference or list for audio tracks that overrides track default in MKV file (eg: always choose English 'en' track if available)~~</li>
-<li>Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)</li>
+<li>   Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <a href="http://docs.python.org/library/configparser.html">http://docs.python.org/library/configparser.html</a>
+</li>
+<li>   Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)</li>
+<li>   Better OS X and Windows support</li>
 </ul>
-
-
         </section>
 
         <footer>
