@@ -10,7 +10,7 @@ that this tool is much more useful for my
 [BlackBerry PlayBook](http://blackberry.com/playbook).
 
 ## Disclosure ##
-Note: I work for RIM. The opinions expressed here are my own
+Note: I work for [RIM](http://rim.com). The opinions expressed here are my own
 and don’t necessarily represent those of my employer. All code is developed
 on my own time without use of company resources.
 
@@ -104,7 +104,7 @@ Windows installations. XenonMKV has only been tested on Windows 7, 64-bit.
 
 As long as you have all the dependent tools installed, you should only need to
 have Python installed and add the Python directory to your PATH environment
-variable. 
+variable.
 
 ### Basic Use
 * Install Python 2.7
@@ -326,8 +326,3 @@ A fresh compile of the 0.5.0 version available at
 
 The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear
 to have issues with the same files that fail on 0.4.6 and newer.
-
-# TODO
-*    Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
-*    Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)
-*    Better OS X and Windows support

@@ -24,6 +24,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
     if os.path.isfile("/usr/bin/python2.7"):
         import subprocess
         subprocess.call(["/usr/bin/python2.7"] + sys.argv)
+        sys.exit(0)
     else:
         prompt_install_python27()
 
