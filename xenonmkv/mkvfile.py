@@ -2,10 +2,10 @@ import subprocess
 import fractions
 import os
 
-from reference_frame import ReferenceFrameValidator
-from mkv_info_parser import MKVInfoParser
-from process_handler import ProcessHandler
-from track import MKVTrack, AudioTrack, VideoTrack, UnsupportedCodecError
+from xenonmkv.reference_frame import ReferenceFrameValidator
+from xenonmkv.mkv_info_parser import MKVInfoParser
+from xenonmkv.process_handler import ProcessHandler
+from xenonmkv.track import MKVTrack, AudioTrack, VideoTrack, UnsupportedCodecError
 
 
 class MKVFile():
@@ -105,7 +105,7 @@ class MKVFile():
         t_height = track.height * track.display_ar
         t_width = track.width
         gcd = fractions.gcd(t_height, t_width)
-        self.log.debug("GCD of {0} height, {1} width is {2}".format(
+        self.log.debug("GCD of {0} height, {1} width is {2:f}".format(
                        t_height, t_width, gcd))
 
         if gcd == 0:
@@ -125,7 +125,7 @@ class MKVFile():
             t_height = t_height / 10
             t_width = t_width / 10
 
-        self.log.debug("Calculated pixel aspect ratio is {0}:{1} ({2:f})".format(
+        self.log.debug("Calculated pixel aspect ratio is {0:f}:{1:f} ({2:f})".format(
                        t_height, t_width, t_height / t_width))
 
         if not self.args.no_round_par:

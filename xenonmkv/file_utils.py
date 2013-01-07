@@ -139,7 +139,7 @@ class FileUtils:
             elif not tool_install_result:
                 # Some issue occurred with installing the support tool
                 raise IOError("Cannot install application '{0}' as one or more errors "
-                              " occurred.".format(app))
+                              "occurred.".format(app))
 
             # Rebuild ospath with any new entries that may have been added
             # as a result of the app install

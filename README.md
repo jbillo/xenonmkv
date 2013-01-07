@@ -10,18 +10,22 @@ that this tool is much more useful for my
 [BlackBerry PlayBook](http://blackberry.com/playbook).
 
 ## Disclosure ##
-Note: I work for RIM. The opinions expressed here are my own
+Note: I work for [RIM](http://rim.com). The opinions expressed here are my own
 and don’t necessarily represent those of my employer. All code is developed
 on my own time without use of company resources.
 
 # System Requirements
 XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation
 (x86_64), but most of the utilities and requirements here are available for
-most popular \*nix distributions. You will need at least Python 2.7 for the
-argparse library, and ideally Python 2.7.3 or later in the 2.x series.
+most popular \*nix distributions. Windows 7 (64-bit) and Mac OS X 10.8 are
+also supported, but may work on different versions.
+
+You will need at least Python 2.7 for the argparse library, and ideally 
+Python 2.7.3 or later in the 2.x series.
 
 ## Ubuntu 12.04
-You will need some supporting packages:
+You will need some supporting packages. These will be installed automatically
+if they are not found on your system, or they can be installed beforehand.
 
 ### Install All Dependencies (at once)
     sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
@@ -98,13 +102,16 @@ As I still have a few systems around running Ubuntu 10.04, here are the changes 
 
         /usr/bin/python2.7 /path/to/xenonmkv.py [arguments]
 
+## Other Linux Distributions
+Install the packages mentioned above, either from source or your distribution's package manager.
+
 ## Windows
 Eventually I will package the application as an .exe file for convenience with
 Windows installations. XenonMKV has only been tested on Windows 7, 64-bit.
 
 As long as you have all the dependent tools installed, you should only need to
 have Python installed and add the Python directory to your PATH environment
-variable. 
+variable.
 
 ### Basic Use
 * Install Python 2.7
@@ -213,6 +220,10 @@ For a quiet run (batch processing or in a cronjob):
 
 The -q option ensures you will never be prompted for input and would be useful
 for integration with software like SABnzbd+.
+
+If you're reporting an issue, please run XenonMKV in debug/very verbose mode:
+
+    xenonmkv.py /path/to/file.mkv -vv
 
 # Suggestions/Caveats
 * If your MKV files aren't too large, distributions that mount `/tmp`
@@ -326,8 +337,3 @@ A fresh compile of the 0.5.0 version available at
 
 The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear
 to have issues with the same files that fail on 0.4.6 and newer.
-
-# TODO
-*    Add a ConfigParser instance, allowing default options to be read and stored in persistent files: <http://docs.python.org/library/configparser.html>
-*    Intelligently select audio track based on format and channels (take AAC matching channel preference, if available, then fall back to formats best known to convert properly)
-*    Better OS X and Windows support

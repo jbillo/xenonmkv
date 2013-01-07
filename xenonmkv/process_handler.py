@@ -39,7 +39,14 @@ class ProcessHandler:
             process_out = fnull
             process_err = fnull
 
-        p = subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
+        try:
+            p = subprocess.call(cmd, env=env, stdout=process_out, stderr=process_err)
+        except KeyboardInterrupt:
+            print
+            self.log.critical("Tool execution cancelled; exiting")
+            if fnull:
+                fnull.close()
+            sys.exit(1)
 
         if fnull:
             fnull.close()

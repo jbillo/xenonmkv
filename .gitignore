@@ -1,6 +1,8 @@
 # General/Python ignore
 *.*~
 *.pyc
+.pydevproject
+.project
 
 # Specific file conversions - we are not shipping media with this application
 *.mp4
