@@ -37,7 +37,7 @@ import traceback
 from xenonmkv.file_utils import FileUtils
 from xenonmkv.decoder import AudioDecoder
 from xenonmkv.encoder import FAACEncoder
-from mp4box import MP4Box
+from xenonmkv.mp4box import MP4Box
 from xenonmkv.mkvfile import MKVFile
 from xenonmkv.track import MKVTrack
 
