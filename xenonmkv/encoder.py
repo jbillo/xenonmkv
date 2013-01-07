@@ -1,6 +1,6 @@
 import os
 
-from process_handler import ProcessHandler
+from xenonmkv.process_handler import ProcessHandler
 
 
 class FAACEncoder():
