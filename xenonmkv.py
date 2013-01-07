@@ -36,7 +36,7 @@ import traceback
 
 from xenonmkv.file_utils import FileUtils
 from xenonmkv.decoder import AudioDecoder
-from xenonmkv.encoder import FAACEncoder
+from xenonmkv.encoder import AACEncoder
 from xenonmkv.mp4box import MP4Box
 from xenonmkv.mkvfile import MKVFile
 from xenonmkv.track import MKVTrack
@@ -473,10 +473,10 @@ def main():
         audio_dec.decode()
 
         # Once audio has been decoded to a WAV,
-        # use the FAAC application to encode it to .aac
-        faac_enc = FAACEncoder(
+        # use the appropriate AAC encoder to transform it to .aac
+        enc = AACEncoder(
             os.path.join(args.scratch_dir, "audiodump.wav"), log, args)
-        faac_enc.encode()
+        enc.encode()
         encoded_audio = os.path.join(args.scratch_dir, "audiodump.aac")
     else:
         # The audio track does not need to be re-encoded.
