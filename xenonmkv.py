@@ -39,7 +39,7 @@ from xenonmkv.decoder import AudioDecoder
 from xenonmkv.encoder import FAACEncoder
 from mp4box import MP4Box
 from mkvfile import MKVFile
-from track import MKVTrack
+from xenonmkv.track import MKVTrack
 
 log = args = None
 
