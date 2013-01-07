@@ -34,7 +34,7 @@ import argparse
 import logging
 import traceback
 
-from file_utils import FileUtils
+from xenonmkv.file_utils import FileUtils
 from xenonmkv.decoder import AudioDecoder
 from xenonmkv.encoder import FAACEncoder
 from mp4box import MP4Box
