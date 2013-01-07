@@ -3,7 +3,7 @@ import fractions
 import os
 
 from xenonmkv.reference_frame import ReferenceFrameValidator
-from mkv_info_parser import MKVInfoParser
+from xenonmkv.mkv_info_parser import MKVInfoParser
 from process_handler import ProcessHandler
 from xenonmkv.track import MKVTrack, AudioTrack, VideoTrack, UnsupportedCodecError
 
