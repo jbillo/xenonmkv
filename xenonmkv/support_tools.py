@@ -26,6 +26,8 @@ class SupportTools():
             "mac_direct_download":
                 "http://www.bunkus.org/videotools/mkvtoolnix/macos/"
                 "Mkvtoolnix-5.7.0_2012-07-11-cd22.dmg",
+            "apt_package":
+                "mkvtoolnix",
         },
         "mediainfo": {
             "friendly_name": "MediaInfo",
@@ -39,7 +41,9 @@ class SupportTools():
                 "MediaInfo_CLI_0.7.60_Windows_i386.zip",
             "windows_direct_download_64":
                 "http://mediaarea.net/download/binary/mediainfo/0.7.60/"
-                "MediaInfo_CLI_0.7.60_Windows_x64.zip"
+                "MediaInfo_CLI_0.7.60_Windows_x64.zip",
+            "apt_package":
+                "mediainfo",
         },
         "mplayer": {
             "friendly_name": "mplayer",
@@ -51,6 +55,8 @@ class SupportTools():
                 "http://jakebillo.com/xenonmkv/MPlayer-p4-svn-34401.zip",
             "mac_direct_download":
                 "http://mplayerosxext.googlecode.com/files/MPlayer-OSX-Extended_rev14.zip",
+            "apt_package":
+                "mplayer",
         },
         "faac": {
             "friendly_name": "FAAC",
@@ -59,6 +65,8 @@ class SupportTools():
                 "http://www.rarewares.org/files/aac/faac-1.28-mod.zip",
             "mac_direct_download":
                 "http://jakebillo.com/xenonmkv/faac_osx_1.28.zip",
+            "apt_package":
+                "faac",
         },
         "MP4Box": {
             "friendly_name": "MP4Box (GPAC)",
@@ -68,6 +76,8 @@ class SupportTools():
                 "0.5.0/GPAC.Framework.Setup-0.5.0.exe",
             "mac_direct_download":
                 "http://download.tsi.telecom-paristech.fr/gpac/release/0.5.0/GPAC-0.5.0-OSX-64bits.dmg",
+            "apt_package":
+                "gpac",
         }
     }
 
@@ -163,6 +173,18 @@ class SupportTools():
         return subprocess.call([cmd], shell=True)
 
     def install_file(self, app, path):
+        # Check if we need to run aptitude - Linux/Ubuntu for now
+        if not path:
+            if not "apt_package" in self.tools[app]:
+                self.log.warning("No apt package was found for app {0}; "
+                                 "cannot install automatically".format(app))
+                return False
+
+            apt_package = self.tools[app]["apt_package"]
+            self.log.debug("Attempting to install app {0} with apt (package: {1})".format(app, apt_package))
+            result = self.sudo_call("apt-get -y install {0}".format(apt_package))
+            return (result == 0)
+
         file_extension = os.path.splitext(path)[1].lower()
         output_dir = os.path.join(os.path.dirname(path), app)
 
@@ -225,6 +247,30 @@ class SupportTools():
             # File extension unknown
             return False
 
+    def try_download(self, download_property, properties):
+        if not download_property in properties:
+            self.log.error("XenonMKV does not have a direct download available"
+                " for the {0} installer".format(properties["friendly_name"]))
+            return None
+
+        if self.win_64 and download_property + "_64" in properties:
+            url = properties[download_property + "_64"]
+        else:
+            url = properties[download_property]
+
+        self.log.info("Attempting to download installation package "
+            "from {0}".format(url))
+        file_path = self.download_file(url)
+
+        if not file_path:
+            self.log.error("Could not download {0} package "
+                "automatically".format(properties["friendly_name"]))
+            return None
+        else:
+            self.log.debug("Package {0} downloaded successfully".format(properties["friendly_name"]))
+
+        return file_path
+
     def offer_install(self, app):
         properties = self.tools[app]
         website = properties["website"]
@@ -253,26 +299,15 @@ class SupportTools():
             if response in ('', 'y', 'yes'):
                 download_property = self.ostype + "_direct_download"
 
-                if not download_property in properties:
-                    self.log.error("XenonMKV does not have a direct download available"
-                        " for the {0} installer".format(properties["friendly_name"]))
-                    return None
-
-                if self.win_64 and download_property + "_64" in properties:
-                    url = properties[download_property + "_64"]
+                # Check if we need to download a file
+                if self.ostype == "linux" and self.distro[0] == "Ubuntu":
+                    # skip download and just try apt-get install
+                    file_path = ""
                 else:
-                    url = properties[download_property]
-
-                self.log.info("Attempting to download installation package "
-                    "from {0}".format(url))
-                file_path = self.download_file(url)
-
-                if not file_path:
-                    self.log.error("Could not download {0} package "
-                        "automatically".format(properties["friendly_name"]))
-                    return None
-                else:
-                    self.log.debug("Package {0} downloaded successfully".format(properties["friendly_name"]))
+                    download_result = self.try_download(download_property, properties)
+                    if not download_result:
+                        return download_result
+                    file_path = download_result
 
                 # Install application according to OS mechanism
                 install_result = self.install_file(app, file_path)
