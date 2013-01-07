@@ -153,7 +153,7 @@ def main():
     log.addHandler(console_handler)
 
     dependencies = ('mkvinfo', 'mediainfo', 'mkvextract',
-                    'mplayer', 'faac', 'MP4Box')
+                    'mplayer', 'faac', 'MP4Box', 'neroAacEnc')
 
     parser = argparse.ArgumentParser(description='Parse command line arguments '
                                      'for XenonMKV.')

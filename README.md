@@ -184,7 +184,7 @@ which will let you pull the necessary dependencies:
 ## OS X
 XenonMKV has been tested on OS X 10.8. For best results, use the packages offered by the installer. You will need at least OS X 10.6 and a 64-bit capable machine for some of the dependent applications.
 
-# Suggested Applications
+# Suggested Applications and Optional Tools
 *    vlc
 
     VLC is highly useful for investigating video files in a GUI. You can see
@@ -199,6 +199,16 @@ XenonMKV has been tested on OS X 10.8. For best results, use the packages offere
     for test cases, extracting specific content or modifying tracks.
 
         sudo apt-get install mkvtoolnix-gui
+
+* [Nero AAC Codec / Encoder](http://www.nero.com/enu/company/about-nero/nero-aac-codec.php)
+    
+    (Windows and Linux platforms only) Instead of using `faac`, you can have XenonMKV use your
+    installation of the Nero AAC Encoder. This tool can provide better sound quality when the
+    source audio file must be transcoded to two channels. It is distributed under a proprietary
+    license and is restricted to personal, non-commercial use.
+
+    To use, provide the --neroaacenc-path parameter, or ensure that `neroAacEnc`/`neroAacEnc.exe`
+    is in your PATH. It will be preferred over `faac` if available.
 
 # Usage
 Basic usage with default settings:
