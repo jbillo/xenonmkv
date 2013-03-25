@@ -10,7 +10,7 @@ that this tool is much more useful for my
 [BlackBerry PlayBook](http://blackberry.com/playbook).
 
 ## Disclosure ##
-Note: I work for [RIM](http://rim.com). The opinions expressed here are my own
+Note: I work for [BlackBerry](http://blackberry.com). The opinions expressed here are my own
 and don’t necessarily represent those of my employer. All code is developed
 on my own time without use of company resources.
 
@@ -90,7 +90,7 @@ by running:
 ## Ubuntu 10.04
 As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
 
-* Install Python 2.7, either from source or add the appropriate PPA:
+* Install Python 2.7, either from source or add the appropriate PPA. If you need to upgrade your system from 10.04 to 12.04 later, make sure to purge this PPA first.
 
         sudo add-apt-repository ppa:fkrull/deadsnakes
         sudo apt-get update
