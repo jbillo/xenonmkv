@@ -30,7 +30,7 @@ class MKVFile():
         self.log.debug("Executing 'mkvinfo {0}'".format(self.get_path()))
         try:
             result = subprocess.check_output(
-                [self.args.tool_paths["mkvinfo"],"--ui-language", "en", self.get_path()]
+                [self.args.tool_paths["mkvinfo"], self.get_path()]
             )
         except subprocess.CalledProcessError as e:
             self.log.debug("mkvinfo process error: {0}".format(e.output))
