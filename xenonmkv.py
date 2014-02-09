@@ -18,7 +18,7 @@ def prompt_install_python27():
 
 # Check for Python version before running argparse import
 if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    # Are we running Python <2.4?
+    # Are we running Python <2.4? Do we have Python 2.7 installed in /usr/bin?
     if sys.version_info[1] < 4:
         prompt_install_python27()
 
@@ -153,7 +153,7 @@ def main():
     log.addHandler(console_handler)
 
     dependencies = ('mkvinfo', 'mediainfo', 'mkvextract',
-                    'mplayer', 'faac', 'MP4Box', 'neroAacEnc')
+                    'mplayer', 'faac', 'MP4Box')
 
     parser = argparse.ArgumentParser(description='Parse command line arguments '
                                      'for XenonMKV.')

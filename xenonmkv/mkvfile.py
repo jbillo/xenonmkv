@@ -27,11 +27,12 @@ class MKVFile():
 
     # Open the mkvinfo process and parse its output.
     def get_mkvinfo(self):
-        self.log.debug("Executing 'mkvinfo {0}'".format(self.get_path()))
+        mkvinfo_args = [self.args.tool_paths["mkvinfo"], "--ui-language", "en_US", self.get_path()]
+        self.log.debug("Executing 'mkvinfo {0}'".format(' '.join(mkvinfo_args)))
         try:
-            result = subprocess.check_output(
-                [self.args.tool_paths["mkvinfo"], self.get_path()]
-            )
+            # Force mkvinfo to output details in English; corrected version of pull request 
+            # <https://github.com/jbillo/xenonmkv/pull/14>
+            result = subprocess.check_output(mkvinfo_args)
         except subprocess.CalledProcessError as e:
             self.log.debug("mkvinfo process error: {0}".format(e.output))
             raise Exception("Error occurred while obtaining MKV information "

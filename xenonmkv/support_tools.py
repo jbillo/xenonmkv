@@ -277,6 +277,7 @@ class SupportTools():
         if ("{0}_website".format(self.ostype)) in properties:
             website = properties["{0}_website".format(self.ostype)]
 
+        # TODO: change this to use string .format style
         print ("It appears that your system is missing %s, which is required "
             "for XenonMKV to work. You can either download it from its website "
             "at %s, or a copy can be installed automatically." % (
