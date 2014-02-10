@@ -1,26 +1,15 @@
 # About XenonMKV
-XenonMKV is a video container conversion tool that takes MKV files and outputs
-them as MP4 files. It does not re-encode video, and only decodes and encodes
-audio as necessary.
+XenonMKV is a video container conversion tool that takes MKV files and outputs them as MP4 files. It does not re-encode video, and only decodes and encodes audio as necessary.
 
-You'll find this tool useful for converting videos for devices that support
-H.264 video and AAC audio, but do not understand the MKV container. Other uses
-include converting videos with AC3 or DTS audio to AAC audio (2 channel or 5.1 channels).
+You'll find this tool useful for converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Other uses include converting videos with AC3 or DTS audio to AAC audio (2 channel or 5.1 channels).
 
-Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now
-that this tool is much more useful for my
-[BlackBerry PlayBook](http://blackberry.com/playbook). You may also find it useful for
-Roku devices or to pre-convert videos to reduce the likelihood that Plex will need to re-encode them.
+Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my [BlackBerry PlayBook](http://blackberry.com/playbook). You may also find it useful for Roku devices or to pre-convert videos to reduce the likelihood that Plex will need to re-encode them.
 
 ## Disclosure ##
-Note: During early development of this application, I worked for [BlackBerry](http://blackberry.com). 
-The opinions expressed here are my own and don’t necessarily represent those of my previous 
-or current employer(s). All code is developed on my own time without use of company resources.
+Note: During early development of this application, I worked for [BlackBerry](http://blackberry.com). The opinions expressed here are my own and don’t necessarily represent those of my previous or current employer(s). All code is developed on my own time without use of company resources.
 
 # System Requirements
-XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation
-(x86_64), but most of the utilities and requirements here are available for
-most popular \*nix distributions. Once 14.04 is released in final form I plan to retest.
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are possible to run on most popular \*nix distributions. I've also given the suite of tools a cursory run on Ubuntu 13.10 and they seem to work. Once 14.04 is released in final form I plan to retest.
 
 Windows 7 (64-bit) and Mac OS X 10.8 are also supported, but may work on different versions of OS X and Windows.
 
