@@ -18,7 +18,7 @@ def prompt_install_python27():
 
 # Check for Python version before running argparse import
 if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    # Are we running Python <2.4?
+    # Are we running Python <2.4? Do we have Python 2.7 installed in /usr/bin?
     if sys.version_info[1] < 4:
         prompt_install_python27()
 

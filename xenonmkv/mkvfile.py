@@ -2,6 +2,8 @@ import subprocess
 import fractions
 import os
 
+import xenonmkv.text
+
 from xenonmkv.reference_frame import ReferenceFrameValidator
 from xenonmkv.mkv_info_parser import MKVInfoParser
 from xenonmkv.process_handler import ProcessHandler
@@ -27,11 +29,12 @@ class MKVFile():
 
     # Open the mkvinfo process and parse its output.
     def get_mkvinfo(self):
-        self.log.debug("Executing 'mkvinfo {0}'".format(self.get_path()))
+        mkvinfo_args = [self.args.tool_paths["mkvinfo"], "--ui-language", "en_US", self.get_path()]
+        self.log.debug("Executing 'mkvinfo {0}'".format(' '.join(mkvinfo_args)))
         try:
-            result = subprocess.check_output(
-                [self.args.tool_paths["mkvinfo"], self.get_path()]
-            )
+            # Force mkvinfo to output details in English; corrected version of pull request 
+            # <https://github.com/jbillo/xenonmkv/pull/14>
+            result = subprocess.check_output(mkvinfo_args)
         except subprocess.CalledProcessError as e:
             self.log.debug("mkvinfo process error: {0}".format(e.output))
             raise Exception("Error occurred while obtaining MKV information "
@@ -184,7 +187,6 @@ class MKVFile():
         # Extract mediainfo profile for all tracks in file,
         # then cross-reference them with the output from mkvinfo.
         # This prevents running mediainfo multiple times.
-
         mediainfo_video_output = self.get_mediainfo("video")
         mediainfo_audio_output = self.get_mediainfo("audio")
 
@@ -269,7 +271,9 @@ class MKVFile():
                 if self.reference_frames_exceeded(track):
                     self.log.warning("Video track {0} contains too many "
                                      "reference frames to play properly on low-powered "
-                                     "devices".format(track.number))
+                                     "devices. See {1} for details".format(
+                                        track.number, xenonmkv.text.REFERENCE_FRAMES_INFO)
+                                    )
                     if not self.args.ignore_reference_frames:
                         raise Exception("Video track {0} has too many "
                                         "reference frames".format(track.number))

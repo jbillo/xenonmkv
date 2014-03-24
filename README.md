@@ -1,24 +1,17 @@
 # About XenonMKV
-XenonMKV is a video format conversion tool that takes MKV files and outputs
-them as MP4 files. It does not re-encode video, and only decodes and encodes
-audio as necessary.
+XenonMKV is a video container conversion tool that takes MKV files and outputs them as MP4 files. It does not re-encode video, and only decodes and encodes audio as necessary.
 
-You'll find this tool useful for converting videos for devices that support
-H.264 video and AAC audio, but do not understand the MKV container.
-Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now
-that this tool is much more useful for my
-[BlackBerry PlayBook](http://blackberry.com/playbook).
+You'll find this tool useful for converting videos for devices that support H.264 video and AAC audio, but do not understand the MKV container. Other uses include converting videos with AC3 or DTS audio to AAC audio (2 channel or 5.1 channels).
+
+Originally, XenonMKV was meant for Xbox 360 consoles, but I'm finding now that this tool is much more useful for my [BlackBerry PlayBook](http://blackberry.com/playbook). You may also find it useful for Roku devices or to pre-convert videos to reduce the likelihood that Plex will need to re-encode them.
 
 ## Disclosure ##
-Note: I work for [RIM](http://rim.com). The opinions expressed here are my own
-and don’t necessarily represent those of my employer. All code is developed
-on my own time without use of company resources.
+Note: During early development of this application, I worked for [BlackBerry](http://blackberry.com). The opinions expressed here are my own and don’t necessarily represent those of my previous or current employer(s). All code is developed on my own time without use of company resources.
 
 # System Requirements
-XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation
-(x86_64), but most of the utilities and requirements here are available for
-most popular \*nix distributions. Windows 7 (64-bit) and Mac OS X 10.8 are
-also supported, but may work on different versions.
+XenonMKV was built and tested on a standard Ubuntu 12.04 LTS installation (x86_64), but most of the utilities and requirements here are possible to run on most popular \*nix distributions. I've also given the suite of tools a cursory run on Ubuntu 13.10 and they seem to work. Once 14.04 is released in final form I plan to retest.
+
+Windows 7 (64-bit) and Mac OS X 10.8 are also supported, but may work on different versions of OS X and Windows.
 
 You will need at least Python 2.7 for the argparse library, and ideally 
 Python 2.7.3 or later in the 2.x series.
@@ -27,13 +20,20 @@ Python 2.7.3 or later in the 2.x series.
 You will need some supporting packages. These will be installed automatically
 if they are not found on your system, or they can be installed beforehand.
 
+On desktop installations, please ensure that 'Update Manager' is closed before installing dependendencies, or
+you will receive a nasty message in the form of:
+
+```
+E: Could not get lock /var/lib/dpkg/lock - open (11: Resource temporarily unavailable)
+E: Unable to lock the administration directory (/var/lib/dpkg/), is another process using it?
+```
+
 ### Install All Dependencies (at once)
     sudo apt-get install mediainfo mkvtoolnix mplayer faac gpac
 
 At the current state of development, on Ubuntu you do not need to install
-anything from requirements.txt as the package manager takes care of all the
-dependent tools. If this changes in the future, requirements can be installed
-by running:
+any Python packages from requirements.txt as the dependent tools are installed with 'apt'. 
+If this changes in the future, requirements can be installed by running:
 
     sudo apt-get install python-setuptools && sudo easy_install -U pip
     pip install -r requirements.txt
@@ -88,9 +88,9 @@ by running:
         LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/opt/gpac/lib" /opt/gpac/bin/MP4Box
 
 ## Ubuntu 10.04
-As I still have a few systems around running Ubuntu 10.04, here are the changes required to make XenonMKV functional:
+Not currently still tested against, but here are the historical changes required to make XenonMKV functional:
 
-* Install Python 2.7, either from source or add the appropriate PPA:
+* Install Python 2.7, either from source or add the appropriate PPA. If you need to upgrade your system from 10.04 to 12.04 later, make sure to purge this PPA first.
 
         sudo add-apt-repository ppa:fkrull/deadsnakes
         sudo apt-get update
@@ -184,7 +184,7 @@ which will let you pull the necessary dependencies:
 ## OS X
 XenonMKV has been tested on OS X 10.8. For best results, use the packages offered by the installer. You will need at least OS X 10.6 and a 64-bit capable machine for some of the dependent applications.
 
-# Suggested Applications
+# Suggested Applications and Optional Tools
 *    vlc
 
     VLC is highly useful for investigating video files in a GUI. You can see
@@ -199,6 +199,16 @@ XenonMKV has been tested on OS X 10.8. For best results, use the packages offere
     for test cases, extracting specific content or modifying tracks.
 
         sudo apt-get install mkvtoolnix-gui
+
+* [Nero AAC Codec / Encoder](http://www.nero.com/enu/company/about-nero/nero-aac-codec.php)
+    
+    (Windows and Linux platforms only) Instead of using `faac`, future versions of XenonMKV can use an 
+    installation of the Nero AAC Encoder. This tool can provide better sound quality when the
+    source audio file must be transcoded to two channels. It is distributed under a proprietary
+    license and is restricted to personal, non-commercial use.
+
+    When implemented, provide the --neroaacenc-path parameter, or ensure that `neroAacEnc`/`neroAacEnc.exe`
+    is in your PATH variable. It will be preferred over `faac` if available.
 
 # Usage
 Basic usage with default settings:
@@ -224,6 +234,11 @@ for integration with software like SABnzbd+.
 If you're reporting an issue, please run XenonMKV in debug/very verbose mode:
 
     xenonmkv.py /path/to/file.mkv -vv
+
+For the latest release of XenonMKV, I've included a really crummy script that handles batch
+encoding of MKV files on Linux, since I always screw up the parameters passed to `find`. Use:
+
+    batch.py source_directory <xenonmkv_parameters>
 
 # Suggestions/Caveats
 * If your MKV files aren't too large, distributions that mount `/tmp`

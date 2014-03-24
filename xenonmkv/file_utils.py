@@ -175,9 +175,10 @@ class FileUtils:
         filesize = os.path.getsize(source_file)
         if (filesize >= self.FOUR_GIGS):
             self.log.warning("File size of {0} is {1}, which is over 4GiB. "
-                             "This file may not play on certain devices and cannot be "
-                             "copied to a FAT32-formatted storage medium.".format(
-                             source_file, filesize))
+                             "This file may not play on certain devices, such as the Xbox 360,"
+                             " and cannot be copied to a FAT32-formatted storage medium.".format(
+                                source_file, filesize)
+                             )
             if self.args.error_filesize:
                 raise IOError("Cancelling processing as file size limit "
                               "of 4GiB is exceeded")
