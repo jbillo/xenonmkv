@@ -62,7 +62,7 @@ def test_invalid_mkv_file():
     # and is not a valid MKV container.
     # Expected result: output contains 'CRITICAL' and
     # prompts for a valid MKV file
-    output = call(["tests/invalid.mkv"])
+    output = call([os.path.join("tests", "invalid.mkv")])
     return in_output(["[CRITICAL]", "valid MKV file"], output)
 
 
@@ -70,7 +70,7 @@ def test_mkv_file_no_usable_tracks():
     # Pass an MKV container that contains only 'subtitle' tracks.
     # Expected result: output contains 'CRITICAL' and
     # specifically mentions no usable tracks.
-    output = call(["tests/subtitles_only.mkv"])
+    output = call([os.path.join("tests", "subtitles_only.mkv")])
     return in_output(["[CRITICAL]", "No", "track found"], output)
 
 
@@ -78,7 +78,7 @@ def test_mkv_file_no_video_track():
     # Pass a file that contains one audio track, but no video tracks.
     # Expected result: output contains 'CRITICAL' and
     # specifically mentions lack of a video track.
-    output = call(["tests/no_video_track.mkv"])
+    output = call([os.path.join("tests", "no_video_track.mkv")])
     return in_output(["[CRITICAL]", "No video track found"], output)
 
 
@@ -86,7 +86,7 @@ def test_mkv_file_no_audio_track():
     # Pass a file that contains one video track, but no audio tracks.
     # Expected result: output contains 'CRITICAL'
     # and specifically mentions lack of an audio track.
-    output = call(["tests/no_audio_track.mkv"])
+    output = call([os.path.join("tests", "no_audio_track.mkv")])
     return in_output(["[CRITICAL]", "No audio track found"], output)
 
 
@@ -94,7 +94,7 @@ def test_invalid_codec_wvc1():
     # Pass a file that contains a WVC1 video track.
     # Expected result: output contains 'CRITICAL' and
     # specifically mentions that WVC1 is not supported
-    output = call(["tests/invalid_codec_wvc1.mkv"])
+    output = call([os.path.join("tests", "invalid_codec_wvc1.mkv")])
     return in_output(["[CRITICAL]",
                      "WVC1 codec in selected video track is not supported"], output)
 

@@ -53,6 +53,9 @@ class FileUtils:
         # Add own internal tool path
         ospath.add(self.tools_path)
 
+        # This section is kind of a hack, but we need it to deal
+        # with Win32 and OS X interesting behaviours.
+        
         # If on OS X, append various paths under /Applications/
         # to search for system wide tools.
         if sys.platform.startswith("darwin"):
@@ -66,6 +69,13 @@ class FileUtils:
             if "PROGRAMFILES(X86)" in os.environ:
                 ospath.add(
                     os.path.join(os.environ['PROGRAMFILES(X86)'], "GPAC")
+                )
+                
+            #MKVToolNix
+            ospath.add(os.path.join(os.environ['PROGRAMFILES'], "MKVToolNix"))
+            if "PROGRAMFILES(X86)" in os.environ:
+                ospath.add(
+                    os.path.join(os.environ['PROGRAMFILES(X86)'], "MKVToolNix")
                 )
 
         for app in dependency_list:
@@ -142,7 +152,11 @@ class FileUtils:
                               "occurred.".format(app))
 
             # Rebuild ospath with any new entries that may have been added
-            # as a result of the app install
+            # as a result of the app install.
+            # This apparently does not work correctly on Windows (for MKVToolNix);
+            # see https://stackoverflow.com/questions/15099344/is-it-possible-to-reload-windows-environment-variables
+            # As a result the hack above adding 'MKVToolNix' to the list of paths under %ProgramFiles%
+            # is going to have to do.
             if "PATH" in os.environ:
                 for path in os.environ["PATH"].split(os.pathsep):
                     ospath.add(path)

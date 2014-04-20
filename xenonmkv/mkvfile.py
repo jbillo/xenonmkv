@@ -26,14 +26,37 @@ class MKVFile():
 
     def get_path(self):
         return self.path
+        
+    def get_en_ui_language(self):
+        self.log.debug('Getting possible UI language codes for mkvinfo')
+        mkvinfo_args = [self.args.tool_paths['mkvinfo'], '--ui-language', 'list']
+        self.log.debug("Executing '{0}'".format(' '.join(mkvinfo_args)))
+        result = subprocess.check_output(mkvinfo_args)
+        if 'en_US (English)' in result:
+            return 'en_US'
+        elif 'en (English)' in result: 
+            return 'en'
+        else:
+            # Who knows what's been going on. Assume the user has set their environment 
+            # LC_LANG properly and don't add the parameters.
+            return None
 
     # Open the mkvinfo process and parse its output.
     def get_mkvinfo(self):
-        mkvinfo_args = [self.args.tool_paths["mkvinfo"], "--ui-language", "en_US", self.get_path()]
-        self.log.debug("Executing 'mkvinfo {0}'".format(' '.join(mkvinfo_args)))
+        mkvinfo_args = [self.args.tool_paths["mkvinfo"]]
+        
+        # Language code can either be 'en' or 'en_US' depending on platform. 
+        # This ensures that the output of this tool can be parsed.
+        # See: https://github.com/jbillo/xenonmkv/pull/14, https://github.com/jbillo/xenonmkv/pull/15
+        # for historical wavering.
+        language_code = self.get_en_ui_language()
+        if language_code:
+            mkvinfo_args.append("--ui-language")
+            mkvinfo_args.append(language_code)
+        
+        mkvinfo_args.append(self.get_path())
+        self.log.debug("Executing '{0}'".format(' '.join(mkvinfo_args)))
         try:
-            # Force mkvinfo to output details in English; corrected version of pull request 
-            # <https://github.com/jbillo/xenonmkv/pull/14>
             result = subprocess.check_output(mkvinfo_args)
         except subprocess.CalledProcessError as e:
             self.log.debug("mkvinfo process error: {0}".format(e.output))

@@ -130,7 +130,6 @@ class SupportTools():
 
         # Debugging: if the file exists already,
         # return true and don't download again
-        # This should be removed for non-debug copies
         if os.path.isfile(destination_path):
             self.log.debug("File {0} already exists; skipping download step".format(
                 destination_path))
@@ -297,7 +296,7 @@ class SupportTools():
             response = raw_input("Install {0} automatically (default=Yes) "
                 "[Y/w/n]? ".format(properties["friendly_name"]))
             response = response.strip().lower()
-            if response in ('', 'y', 'yes'):
+            if response == '' or response.startswith('y'):
                 download_property = self.ostype + "_direct_download"
 
                 # Check if we need to download a file
@@ -319,7 +318,7 @@ class SupportTools():
                     self.log.info("Package {0} installed successfully".format(properties["friendly_name"]))
 
                 return install_result
-            elif response in ('w', 'website'):
+            elif response.startswith('w'):
                 webbrowser.open(properties["website"])
                 return False
             else:
