@@ -107,7 +107,7 @@ Install the packages mentioned above, either from source or your distribution's 
 
 ## Windows
 Eventually I will package the application as an .exe file for convenience with
-Windows installations. XenonMKV has only been tested on Windows 7, 64-bit.
+Windows installations. XenonMKV has been tested on Windows 7 and 8.1, 64-bit versions.
 
 As long as you have all the dependent tools installed, you should only need to
 have Python installed and add the Python directory to your PATH environment
@@ -352,3 +352,7 @@ A fresh compile of the 0.5.0 version available at
 
 The version included with Ubuntu 10.04 (`0.4.5-0.3ubuntu6`) does not appear
 to have issues with the same files that fail on 0.4.6 and newer.
+
+# Contributing
+Please submit all pull requests to the 'development' branch. I'd like to avoid merging contributions directly to master. 
+It is also much easier for me to deal with PRs when your forked repository remains publicly viewable and accessible, until I've had a chance to assess it. In other words, please leave your forks and branches open until a merge/no-merge decision is made.
